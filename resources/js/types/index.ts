@@ -46,13 +46,14 @@ export interface Position {
 
 export interface Proker {
     id: number;
-    division_id: number;
+    division_id?: number;
     title: string;
     description?: string;
     date: string;
     location?: string;
     status: 'planned' | 'ongoing' | 'done';
     division?: Division;
+    divisions?: Division[];
     media?: ProkerMedia[];
     anggota?: ProkerAnggota[];
 }

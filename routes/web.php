@@ -80,6 +80,19 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ]);
     })->name('dashboard.prokers');
     
+    Route::get('/dashboard/prokers/{id}', function ($id) {
+        return Inertia::render('dashboard/ProkerDetailPage', [
+            'auth' => ['user' => auth()->user()],
+        ]);
+    })->name('dashboard.prokers.detail');
+    
+    Route::get('/dashboard/prokers/{id}/edit', function ($id) {
+        return Inertia::render('dashboard/ProkerEditPage', [
+            'auth' => ['user' => auth()->user()],
+            'divisions' => \App\Models\Division::all()
+        ]);
+    })->name('dashboard.prokers.edit');
+    
     Route::get('/dashboard/messages', function () {
         return Inertia::render('dashboard/MessagesPage', [
             'auth' => ['user' => auth()->user()],

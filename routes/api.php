@@ -42,6 +42,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Users
     Route::apiResource('users', UserController::class);
 
+        Route::get('/users/search', [UserController::class, 'search']);
+
     // Prokers
     Route::apiResource('prokers', ProkerController::class);
     Route::post('/prokers/{proker}/anggota', [ProkerController::class, 'addAnggota']);

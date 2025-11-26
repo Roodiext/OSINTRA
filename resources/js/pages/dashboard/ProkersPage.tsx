@@ -23,28 +23,32 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
     const [formData, setFormData] = useState({
         title: '',
         description: '',
-        division_id: '',
+        division_ids: [] as number[],
         date: '',
         location: '',
         status: 'planned' as 'planned' | 'ongoing' | 'done',
     });
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const [loading, setLoading] = useState(false);
 
     const filteredProkers = prokers.filter(proker => {
         const matchesSearch = proker.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             proker.description?.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesDivision = !filterDivision || proker.division_id.toString() === filterDivision;
+        const matchesDivision = !filterDivision || 
+            (proker.divisions && proker.divisions.some(d => d.id.toString() === filterDivision)) ||
+            (proker.division_id && proker.division_id.toString() === filterDivision);
         const matchesStatus = !filterStatus || proker.status === filterStatus;
         return matchesSearch && matchesDivision && matchesStatus;
     });
 
     const handleOpenModal = (proker?: Proker) => {
+        setErrors({});
         if (proker) {
             setEditingProker(proker);
             setFormData({
                 title: proker.title,
                 description: proker.description || '',
-                division_id: proker.division_id.toString(),
+                division_ids: (proker.divisions || []).map((d: Division) => d.id),
                 date: proker.date,
                 location: proker.location || '',
                 status: proker.status,
@@ -54,7 +58,7 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
             setFormData({
                 title: '',
                 description: '',
-                division_id: '',
+                division_ids: [],
                 date: '',
                 location: '',
                 status: 'planned',
@@ -85,11 +89,17 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setErrors({});
         setLoading(true);
 
         try {
+            const submitData = {
+                ...formData,
+                division_ids: formData.division_ids.length > 0 ? formData.division_ids : [],
+            };
+
             if (editingProker) {
-                await api.put(`/prokers/${editingProker.id}`, formData);
+                await api.put(`/prokers/${editingProker.id}`, submitData);
                 Swal.fire({
                     icon: 'success',
                     title: 'Berhasil!',
@@ -97,7 +107,7 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
                     confirmButtonColor: '#3B4D3A',
                 });
             } else {
-                await api.post('/prokers', formData);
+                await api.post('/prokers', submitData);
                 Swal.fire({
                     icon: 'success',
                     title: 'Berhasil!',
@@ -108,12 +118,31 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
             router.reload();
             handleCloseModal();
         } catch (error: any) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Gagal!',
-                text: error.response?.data?.message || 'Terjadi kesalahan',
-                confirmButtonColor: '#3B4D3A',
-            });
+            // Handle validation errors
+            if (error.response?.data?.errors) {
+                setErrors(error.response.data.errors);
+                const errorMessages = Object.entries(error.response.data.errors)
+                    .map(([field, msgs]: [string, any]) => {
+                        const fieldLabel = field
+                            .replace(/_/g, ' ')
+                            .replace(/^\w/, c => c.toUpperCase());
+                        return `${fieldLabel}: ${Array.isArray(msgs) ? msgs[0] : msgs}`;
+                    })
+                    .join('\n');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validasi Gagal!',
+                    text: errorMessages,
+                    confirmButtonColor: '#3B4D3A',
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: error.response?.data?.message || 'Terjadi kesalahan',
+                    confirmButtonColor: '#3B4D3A',
+                });
+            }
         } finally {
             setLoading(false);
         }
@@ -266,7 +295,7 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
 
                                     <div className="flex gap-2">
                                         <button
-                                            onClick={() => handleViewDetail(proker)}
+                                            onClick={() => router.visit(`/dashboard/prokers/${proker.id}`)}
                                             className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[#E8DCC3] text-[#3B4D3A] rounded-lg hover:bg-[#d5c9b0] transition-all font-medium"
                                         >
                                             <Eye className="w-4 h-4" />
@@ -320,28 +349,28 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div>
                                     <label className="block text-sm font-semibold text-[#3B4D3A] mb-2">
-                                        Judul Proker *
+                                        Judul Proker * {errors.title && <span className="text-red-600">({errors.title[0]})</span>}
                                     </label>
                                     <input
                                         type="text"
                                         required
                                         value={formData.title}
                                         onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                        className="w-full px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
+                                        className={`w-full px-4 py-3 bg-[#F5F5F5] border-2 ${errors.title ? 'border-red-500' : 'border-transparent'} rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all`}
                                         placeholder="Contoh: Pelatihan Kepemimpinan"
                                     />
                                 </div>
 
                                 <div>
                                     <label className="block text-sm font-semibold text-[#3B4D3A] mb-2">
-                                        Deskripsi *
+                                        Deskripsi * {errors.description && <span className="text-red-600">({errors.description[0]})</span>}
                                     </label>
                                     <textarea
                                         required
                                         value={formData.description}
                                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                         rows={4}
-                                        className="w-full px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all resize-none"
+                                        className={`w-full px-4 py-3 bg-[#F5F5F5] border-2 ${errors.description ? 'border-red-500' : 'border-transparent'} rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all resize-none`}
                                         placeholder="Deskripsi proker..."
                                     />
                                 </div>
@@ -349,15 +378,18 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-semibold text-[#3B4D3A] mb-2">
-                                            Divisi *
+                                            Divisi * {errors.division_ids && <span className="text-red-600">({errors.division_ids[0]})</span>}
                                         </label>
                                         <select
+                                            multiple
                                             required
-                                            value={formData.division_id}
-                                            onChange={(e) => setFormData({ ...formData, division_id: e.target.value })}
+                                            value={formData.division_ids.map(String)}
+                                            onChange={(e) => {
+                                                const selected = Array.from(e.target.selectedOptions, option => parseInt(option.value));
+                                                setFormData({ ...formData, division_ids: selected });
+                                            }}
                                             className="w-full px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
                                         >
-                                            <option value="">Pilih Divisi</option>
                                             {divisions.map(division => (
                                                 <option key={division.id} value={division.id}>{division.name}</option>
                                             ))}
@@ -382,14 +414,14 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
 
                                     <div>
                                         <label className="block text-sm font-semibold text-[#3B4D3A] mb-2">
-                                            Tanggal *
+                                            Tanggal * {errors.date && <span className="text-red-600">({errors.date[0]})</span>}
                                         </label>
                                         <input
                                             type="date"
                                             required
                                             value={formData.date}
                                             onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                                            className="w-full px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
+                                            className={`w-full px-4 py-3 bg-[#F5F5F5] border-2 ${errors.date ? 'border-red-500' : 'border-transparent'} rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all`}
                                         />
                                     </div>
 

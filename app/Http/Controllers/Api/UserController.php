@@ -51,6 +51,29 @@ class UserController extends Controller
         return response()->json($users);
     }
 
+        /**
+         * Search users by name or username.
+         */
+        public function search(Request $request)
+        {
+            $query = $request->get('q', '');
+
+            if (strlen($query) < 2) {
+                return response()->json(['data' => []]);
+            }
+
+            $users = User::where(function($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                  ->orWhere('username', 'like', "%{$query}%");
+            })
+            ->where('status', 'active')
+            ->select('id', 'name', 'username', 'email')
+            ->limit(10)
+            ->get();
+
+            return response()->json(['data' => $users]);
+        }
+
     /**
      * Store a newly created user.
      */

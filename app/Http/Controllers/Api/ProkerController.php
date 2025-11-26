@@ -96,11 +96,17 @@ class ProkerController extends Controller
     }
 
     /**
-     * Display the specified proker.
+     * Display the specified proker with full details.
      */
     public function show(Proker $proker)
     {
-    return response()->json($proker->load(['divisions', 'media', 'anggota.user']));
+        return response()->json($proker->load([
+            'divisions',
+            'media',
+            'anggota' => function($query) {
+                $query->with(['user', 'position', 'division']);
+            }
+        ]));
     }
 
     /**
@@ -109,7 +115,8 @@ class ProkerController extends Controller
     public function update(Request $request, Proker $proker)
     {
         $validated = $request->validate([
-            'division_id' => 'sometimes|exists:divisions,id',
+            'division_ids' => 'sometimes|array',
+            'division_ids.*' => 'exists:divisions,id',
             'title' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
             'date' => 'sometimes|date',
@@ -117,7 +124,11 @@ class ProkerController extends Controller
             'status' => 'sometimes|in:planned,ongoing,done',
         ]);
 
-        $proker->update($validated);
+        // Update only the fields that don't require special handling
+        $updateData = array_diff_key($validated, array_flip(['division_ids']));
+        $proker->update($updateData);
+
+        // Handle division_ids separately
         if ($request->has('division_ids')) {
             $proker->divisions()->sync($request->division_ids ?: []);
         }
