@@ -14,6 +14,23 @@ Route::get('/', function () {
     return Inertia::render('PublicPage');
 })->name('home');
 
+// Simple public routes for individual sections/pages
+Route::get('/about', function () {
+    return Inertia::render('AboutPage');
+})->name('about');
+
+Route::get('/struktur', function () {
+    return Inertia::render('StrukturPage');
+})->name('struktur');
+
+Route::get('/gallery', function () {
+    return Inertia::render('GalleryPage');
+})->name('gallery');
+
+Route::get('/contact', function () {
+    return Inertia::render('ContactPage');
+})->name('contact');
+
 // Login Page - OSINTRA (Accessible without login)
 Route::get('/login', function () {
     // If already logged in, redirect to dashboard

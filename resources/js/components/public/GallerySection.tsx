@@ -27,7 +27,7 @@ const GallerySection: React.FC = () => {
         return (
             <section className="py-20 px-4 bg-white">
                 <div className="max-w-6xl mx-auto text-center">
-                    <p className="text-gray-600">Memuat galeri...</p>
+                    <p style={{ color: '#6E8BA3' }}>Memuat galeri...</p>
                 </div>
             </section>
         );
@@ -37,11 +37,11 @@ const GallerySection: React.FC = () => {
         <section id="gallery" className="py-20 px-4 bg-white">
             <div className="max-w-6xl mx-auto">
                 <div className="text-center mb-16">
-                    <h2 className="text-4xl md:text-5xl font-bold text-[#1E3A8A] mb-4">
+                    <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: '#3B4D3A' }}>
                         Galeri Kegiatan
                     </h2>
-                    <div className="w-24 h-1 bg-[#FFD700] mx-auto rounded-full mb-4" />
-                    <p className="text-gray-600 text-lg">
+                    <div className="w-24 h-1 mx-auto rounded-full mb-4" style={{ backgroundColor: '#E8DCC3' }} />
+                    <p style={{ color: '#6E8BA3' }} className="text-lg">
                         Dokumentasi kegiatan dan program kerja OSIS
                     </p>
                 </div>
@@ -91,7 +91,7 @@ const GallerySection: React.FC = () => {
 
                 {media.length === 0 && (
                     <div className="text-center py-12">
-                        <p className="text-gray-500">Belum ada media yang tersedia</p>
+                        <p style={{ color: '#6E8BA3' }}>Belum ada media yang tersedia</p>
                     </div>
                 )}
             </div>

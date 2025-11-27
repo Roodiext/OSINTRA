@@ -1,5 +1,6 @@
 import React from 'react';
 import { Head } from '@inertiajs/react';
+import PublicLayout from '@/components/public/PublicLayout';
 import HeroSection from '@/components/public/HeroSection';
 import AboutSection from '@/components/public/AboutSection';
 import DivisionsSection from '@/components/public/DivisionsSection';
@@ -11,14 +12,13 @@ const PublicPage: React.FC = () => {
     return (
         <>
             <Head title="OSINTRA - OSIS SMKN 6 Surakarta" />
-            <div className="min-h-screen">
+            <PublicLayout>
                 <HeroSection />
                 <AboutSection />
                 <DivisionsSection />
                 <GallerySection />
                 <ContactSection />
-                <FooterSection />
-            </div>
+            </PublicLayout>
         </>
     );
 };

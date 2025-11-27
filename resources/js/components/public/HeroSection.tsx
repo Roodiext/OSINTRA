@@ -1,5 +1,7 @@
 import React from 'react';
 import { ChevronDown } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import SectionHeader from '@/components/ui/section-header';
 
 const HeroSection: React.FC = () => {
     const scrollToAbout = () => {
@@ -7,59 +9,41 @@ const HeroSection: React.FC = () => {
     };
 
     return (
-        <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1E3A8A] via-[#1E40AF] to-[#2563EB] text-white overflow-hidden">
-            {/* Background Pattern */}
-            <div className="absolute inset-0 opacity-10">
-                <div className="absolute inset-0" style={{
-                    backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
-                    backgroundSize: '40px 40px'
-                }} />
-            </div>
+        <section className="relative min-h-[72vh] flex items-center justify-center overflow-hidden bg-white">
+            {/* Subtle dotted backdrop */}
+            <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(0,0,0,0.06) 1px, transparent 0)', backgroundSize: '36px 36px' }} />
 
-            {/* Content */}
-            <div className="relative z-10 text-center px-4 max-w-5xl mx-auto animate-fade-in">
-                <div className="mb-6">
-                    <div className="inline-block px-6 py-2 bg-[#FFD700] text-[#1E3A8A] rounded-full font-semibold text-sm mb-8">
-                        OSIS SMKN 6 Surakarta
+            <div className="relative z-10 text-center px-6 max-w-6xl mx-auto py-24 w-full">
+
+
+
+                <div className="mb-4">
+                    <div className="inline-block px-5 py-2 rounded-full font-semibold text-sm" style={{ backgroundColor: '#E8DCC3', color: '#1E1E1E' }}>
+                        Organisasi Siswa Intra Sekolah
                     </div>
                 </div>
-                
-                <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-                    OSINTRA
-                </h1>
-                
-                <p className="text-xl md:text-2xl mb-4 text-blue-100">
-                    OSIS Interactive Administration
-                </p>
-                
-                <p className="text-lg md:text-xl mb-12 text-blue-200 max-w-3xl mx-auto">
-                    Sistem Manajemen Organisasi Siswa Intra Sekolah yang Modern, Profesional, dan Inovatif
-                </p>
 
-                <div className="flex gap-4 justify-center flex-wrap">
-                    <button
-                        onClick={scrollToAbout}
-                        className="px-8 py-4 bg-[#FFD700] text-[#1E3A8A] rounded-2xl font-semibold hover:bg-yellow-400 transition-all duration-300 transform hover:scale-105 shadow-lg"
-                    >
+
+                                <h1 className="text-4xl md:text-5xl lg:text-[56px] font-extrabold mb-4 leading-tight" style={{ color: '#3B4D3A' }}>OSIS SMK NEGERI 6 SURAKARTA</h1>
+                                <p className="text-base md:text-lg mb-6" style={{ color: '#6E8BA3' }}>
+                                    Bersama, Berkarya, Berprestasi — Mewujudkan Generasi Emas Berkarakter dan Berjiwa Kepemimpinan.
+                                </p>
+
+                <div className="flex gap-4 justify-center">
+                    <button onClick={scrollToAbout} className="px-8 py-3 rounded-lg font-semibold text-white transform hover:scale-105 transition-all" style={{ backgroundColor: '#3B4D3A' }}>
                         Pelajari Lebih Lanjut
                     </button>
-                    <a
-                        href="/login"
-                        className="px-8 py-4 bg-white/10 backdrop-blur-sm text-white rounded-2xl font-semibold hover:bg-white/20 transition-all duration-300 border-2 border-white/30"
-                    >
-                        Login Dashboard
-                    </a>
                 </div>
 
                 {/* Scroll Indicator */}
-                <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
-                    <ChevronDown className="w-8 h-8 text-white/70" />
+                <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+                    <ChevronDown className="w-8 h-8" style={{ color: '#6E8BA3' }} />
                 </div>
             </div>
 
-            {/* Decorative Elements */}
-            <div className="absolute top-20 left-10 w-20 h-20 bg-[#FFD700] rounded-full opacity-20 blur-xl" />
-            <div className="absolute bottom-20 right-10 w-32 h-32 bg-[#FFD700] rounded-full opacity-20 blur-xl" />
+            {/* Decorative soft accents using dashboard accent color */}
+            <div className="absolute -left-16 -top-16 w-40 h-40 rounded-full opacity-10 blur-3xl" style={{ backgroundColor: '#3B4D3A' }} />
+            <div className="absolute -right-16 -bottom-16 w-56 h-56 rounded-full opacity-5 blur-3xl" style={{ backgroundColor: '#6E8BA3' }} />
         </section>
     );
 };

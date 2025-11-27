@@ -24,35 +24,35 @@ const AboutSection: React.FC = () => {
         <section id="about" className="py-20 px-4 bg-white">
             <div className="max-w-6xl mx-auto">
                 <div className="text-center mb-16 animate-fade-in">
-                    <h2 className="text-4xl md:text-5xl font-bold text-[#1E3A8A] mb-4">
+                    <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: '#3B4D3A' }}>
                         Tentang OSIS
                     </h2>
-                    <div className="w-24 h-1 bg-[#FFD700] mx-auto rounded-full" />
+                    <div className="w-24 h-1 mx-auto rounded-full" style={{ backgroundColor: '#E8DCC3' }} />
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-12">
                     {/* Visi */}
-                    <div className="bg-gradient-to-br from-[#1E3A8A] to-[#2563EB] p-8 rounded-2xl text-white shadow-xl transform hover:scale-105 transition-all duration-300">
+                    <div className="p-8 rounded-2xl shadow-xl transform hover:scale-100 transition-all duration-300" style={{ backgroundColor: '#F5F5F5', color: '#1E1E1E' }}>
                         <div className="flex items-center gap-4 mb-6">
-                            <div className="p-3 bg-[#FFD700] rounded-xl">
-                                <Eye className="w-8 h-8 text-[#1E3A8A]" />
+                            <div className="p-3 rounded-xl" style={{ backgroundColor: '#3B4D3A' }}>
+                                <Eye className="w-8 h-8 text-white" />
                             </div>
                             <h3 className="text-3xl font-bold">Visi</h3>
                         </div>
-                        <p className="text-lg leading-relaxed text-blue-100">
+                        <p className="text-lg leading-relaxed" style={{ color: '#6E8BA3' }}>
                             {vision}
                         </p>
                     </div>
 
                     {/* Misi */}
-                    <div className="bg-gradient-to-br from-[#FFD700] to-yellow-400 p-8 rounded-2xl text-[#1E3A8A] shadow-xl transform hover:scale-105 transition-all duration-300">
+                    <div className="p-8 rounded-2xl shadow-xl transform hover:scale-100 transition-all duration-300" style={{ backgroundColor: '#F5F5F5', color: '#1E1E1E' }}>
                         <div className="flex items-center gap-4 mb-6">
-                            <div className="p-3 bg-[#1E3A8A] rounded-xl">
-                                <Target className="w-8 h-8 text-[#FFD700]" />
+                            <div className="p-3 rounded-xl" style={{ backgroundColor: '#E8DCC3' }}>
+                                <Target className="w-8 h-8 text-white" />
                             </div>
                             <h3 className="text-3xl font-bold">Misi</h3>
                         </div>
-                        <p className="text-lg leading-relaxed">
+                        <p className="text-lg leading-relaxed" style={{ color: '#6E8BA3' }}>
                             {mission}
                         </p>
                     </div>
@@ -60,17 +60,17 @@ const AboutSection: React.FC = () => {
 
                 {/* Additional Info */}
                 <div className="mt-16 grid md:grid-cols-3 gap-8 text-center">
-                    <div className="p-6 bg-[#E5E7EB] rounded-2xl">
-                        <div className="text-4xl font-bold text-[#1E3A8A] mb-2">10+</div>
-                        <div className="text-gray-600">Divisi Aktif</div>
+                    <div className="p-6 rounded-2xl" style={{ backgroundColor: '#F5F5F5' }}>
+                        <div className="text-4xl font-bold mb-2" style={{ color: '#3B4D3A' }}>10+</div>
+                        <div style={{ color: '#6E8BA3' }}>Divisi Aktif</div>
                     </div>
-                    <div className="p-6 bg-[#E5E7EB] rounded-2xl">
-                        <div className="text-4xl font-bold text-[#1E3A8A] mb-2">50+</div>
-                        <div className="text-gray-600">Anggota OSIS</div>
+                    <div className="p-6 rounded-2xl" style={{ backgroundColor: '#F5F5F5' }}>
+                        <div className="text-4xl font-bold mb-2" style={{ color: '#3B4D3A' }}>50+</div>
+                        <div style={{ color: '#6E8BA3' }}>Anggota OSIS</div>
                     </div>
-                    <div className="p-6 bg-[#E5E7EB] rounded-2xl">
-                        <div className="text-4xl font-bold text-[#1E3A8A] mb-2">20+</div>
-                        <div className="text-gray-600">Program Kerja</div>
+                    <div className="p-6 rounded-2xl" style={{ backgroundColor: '#F5F5F5' }}>
+                        <div className="text-4xl font-bold mb-2" style={{ color: '#3B4D3A' }}>20+</div>
+                        <div style={{ color: '#6E8BA3' }}>Program Kerja</div>
                     </div>
                 </div>
             </div>

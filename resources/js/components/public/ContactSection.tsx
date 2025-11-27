@@ -36,14 +36,14 @@ const ContactSection: React.FC = () => {
     };
 
     return (
-        <section id="contact" className="py-20 px-4 bg-[#E5E7EB]">
+        <section id="contact" className="py-20 px-4 bg-white">
             <div className="max-w-6xl mx-auto">
                 <div className="text-center mb-16">
-                    <h2 className="text-4xl md:text-5xl font-bold text-[#1E3A8A] mb-4">
+                    <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: '#3B4D3A' }}>
                         Hubungi Kami
                     </h2>
-                    <div className="w-24 h-1 bg-[#FFD700] mx-auto rounded-full mb-4" />
-                    <p className="text-gray-600 text-lg">
+                    <div className="w-24 h-1 mx-auto rounded-full mb-4" style={{ backgroundColor: '#E8DCC3' }} />
+                    <p className="text-lg" style={{ color: '#6E8BA3' }}>
                         Ada pertanyaan? Kirim pesan kepada kami
                     </p>
                 </div>
@@ -51,48 +51,48 @@ const ContactSection: React.FC = () => {
                 <div className="grid md:grid-cols-2 gap-12">
                     {/* Contact Info */}
                     <div className="space-y-6">
-                        <div className="bg-white p-6 rounded-2xl shadow-lg">
+                        <div className="p-6 rounded-2xl shadow-lg" style={{ backgroundColor: '#F5F5F5' }}>
                             <div className="flex items-start gap-4">
-                                <div className="p-3 bg-[#1E3A8A] rounded-xl">
-                                    <Mail className="w-6 h-6 text-[#FFD700]" />
+                                <div className="p-3 rounded-xl" style={{ backgroundColor: '#3B4D3A' }}>
+                                    <Mail className="w-6 h-6 text-white" />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-[#1E3A8A] mb-1">Email</h3>
-                                    <p className="text-gray-600">osis@smkn6solo.sch.id</p>
+                                    <h3 className="font-bold mb-1" style={{ color: '#3B4D3A' }}>Email</h3>
+                                    <p style={{ color: '#6E8BA3' }}>osis@smkn6solo.sch.id</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="bg-white p-6 rounded-2xl shadow-lg">
+                        <div className="p-6 rounded-2xl shadow-lg" style={{ backgroundColor: '#F5F5F5' }}>
                             <div className="flex items-start gap-4">
-                                <div className="p-3 bg-[#1E3A8A] rounded-xl">
-                                    <Phone className="w-6 h-6 text-[#FFD700]" />
+                                <div className="p-3 rounded-xl" style={{ backgroundColor: '#3B4D3A' }}>
+                                    <Phone className="w-6 h-6 text-white" />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-[#1E3A8A] mb-1">Telepon</h3>
-                                    <p className="text-gray-600">(0271) 123456</p>
+                                    <h3 className="font-bold mb-1" style={{ color: '#3B4D3A' }}>Telepon</h3>
+                                    <p style={{ color: '#6E8BA3' }}>(0271) 123456</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="bg-white p-6 rounded-2xl shadow-lg">
+                        <div className="p-6 rounded-2xl shadow-lg" style={{ backgroundColor: '#F5F5F5' }}>
                             <div className="flex items-start gap-4">
-                                <div className="p-3 bg-[#1E3A8A] rounded-xl">
-                                    <MapPin className="w-6 h-6 text-[#FFD700]" />
+                                <div className="p-3 rounded-xl" style={{ backgroundColor: '#3B4D3A' }}>
+                                    <MapPin className="w-6 h-6 text-white" />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-[#1E3A8A] mb-1">Alamat</h3>
-                                    <p className="text-gray-600">Jl. LU Adisucipto No. 42, Surakarta</p>
+                                    <h3 className="font-bold mb-1" style={{ color: '#3B4D3A' }}>Alamat</h3>
+                                    <p style={{ color: '#6E8BA3' }}>Jl. LU Adisucipto No. 42, Surakarta</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Contact Form */}
-                    <div className="bg-white p-8 rounded-2xl shadow-lg">
+                    <div className="p-8 rounded-2xl shadow-lg" style={{ backgroundColor: '#F5F5F5' }}>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-semibold text-[#1E3A8A] mb-2">
+                                <label className="block text-sm font-semibold mb-2" style={{ color: '#3B4D3A' }}>
                                     Nama
                                 </label>
                                 <input
@@ -101,13 +101,14 @@ const ContactSection: React.FC = () => {
                                     value={formData.name}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent outline-none transition-all"
+                                    className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all bg-white"
+                                    style={{ borderColor: '#E8DCC3', color: '#1E1E1E' }}
                                     placeholder="Nama lengkap Anda"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-semibold text-[#1E3A8A] mb-2">
+                                <label className="block text-sm font-semibold mb-2" style={{ color: '#3B4D3A' }}>
                                     Email
                                 </label>
                                 <input
@@ -116,13 +117,14 @@ const ContactSection: React.FC = () => {
                                     value={formData.email}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent outline-none transition-all"
+                                    className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all bg-white"
+                                    style={{ borderColor: '#E8DCC3', color: '#1E1E1E' }}
                                     placeholder="email@example.com"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-semibold text-[#1E3A8A] mb-2">
+                                <label className="block text-sm font-semibold mb-2" style={{ color: '#3B4D3A' }}>
                                     Subjek
                                 </label>
                                 <input
@@ -131,13 +133,14 @@ const ContactSection: React.FC = () => {
                                     value={formData.subject}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent outline-none transition-all"
+                                    className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all bg-white"
+                                    style={{ borderColor: '#E8DCC3', color: '#1E1E1E' }}
                                     placeholder="Subjek pesan"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-semibold text-[#1E3A8A] mb-2">
+                                <label className="block text-sm font-semibold mb-2" style={{ color: '#3B4D3A' }}>
                                     Pesan
                                 </label>
                                 <textarea
@@ -146,19 +149,20 @@ const ContactSection: React.FC = () => {
                                     onChange={handleChange}
                                     required
                                     rows={5}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent outline-none transition-all resize-none"
+                                    className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all resize-none bg-white"
+                                    style={{ borderColor: '#E8DCC3', color: '#1E1E1E' }}
                                     placeholder="Tulis pesan Anda di sini..."
                                 />
                             </div>
 
                             {success && (
-                                <div className="p-4 bg-green-100 text-green-700 rounded-xl">
+                                <div className="p-4 rounded-xl" style={{ backgroundColor: '#E8F5E9', color: '#2E7D32' }}>
                                     Pesan berhasil dikirim! Terima kasih.
                                 </div>
                             )}
 
                             {error && (
-                                <div className="p-4 bg-red-100 text-red-700 rounded-xl">
+                                <div className="p-4 rounded-xl" style={{ backgroundColor: '#FFEBEE', color: '#C62828' }}>
                                     {error}
                                 </div>
                             )}
@@ -166,7 +170,8 @@ const ContactSection: React.FC = () => {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full px-6 py-4 bg-gradient-to-r from-[#1E3A8A] to-[#2563EB] text-white rounded-xl font-semibold hover:from-[#1E40AF] hover:to-[#3B82F6] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full px-6 py-4 text-white rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                style={{ backgroundColor: '#3B4D3A' }}
                             >
                                 {loading ? 'Mengirim...' : (
                                     <>
