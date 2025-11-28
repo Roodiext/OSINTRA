@@ -136,19 +136,19 @@ Struktur OSINTRA terdiri dari tabel utama & tabel pendukung Laravel:
 
 #### 1.1 Beranda (Homepage)
 Menampilkan profil OSIS, visi–misi, highlight kegiatan, dan navigasi utama.
-![Homepage](screenshots/public/homepage.jpg)
+![Homepage](screenshot/public/homepage.jpg)
 
 #### 1.2 Divisi OSIS
 Daftar lengkap divisi, penjelasan tugas, dan struktur anggotanya.
-![Divisions Page](screenshots/public/divisi.jpg)
+![Divisions Page](screenshot/public/divisi.jpg)
 
 #### 1.3 Galeri Kegiatan
 Foto & video dokumentasi kegiatan OSIS yang diambil dari tabel `proker_media`.
-![Galeri Page](screenshots/public/galeri.jpg)
+![Galeri Page](screenshot/public/galeri.jpg)
 
 #### 1.4 Contact Page
 Form untuk pengunjung mengirim pesan ke OSIS (tersimpan ke tabel `messages`).
-![Contact Page](screenshots/public/contact.jpg)
+![Contact Page](screenshot/public/contact.jpg)
 
 
 ---
@@ -162,38 +162,38 @@ Menampilkan ringkasan statistik:
 - Total proker  
 - Saldo keuangan  
 - Log aktivitas terbaru  
-![Dashboard](screenshots/internal/dashboard.jpg)
+![Dashboard](screenshot/internal/dashboard.jpg)
 
 #### 2.2 Manajemen Pengguna (Users)
 CRUD anggota OSIS, pembina, admin, serta pengaturan role/permission.
-![Users Page](screenshots/internal/user.jpg)
+![Users Page](screenshot/internal/user.jpg)
 
 #### 2.3 Divisi OSIS (Divisions)
 CRUD divisi OSIS dan melihat daftar anggota tiap divisi.
-![Dashboard Divisions](screenshots/internal/dashboard.jpg)
+![Dashboard Divisions](screenshot/internal/dashboard.jpg)
 
 #### 2.4 Jabatan (Positions)
 Pengelolaan struktur jabatan OSIS seperti Ketua, Wakil, Sekretaris, Bendahara, dan lainnya.
-![Positions](screenshots/internal/divisi.jpg)
+![Positions](screenshot/internal/divisi.jpg)
 
 #### 2.5 Program Kerja (Prokers)
 CRUD proker berikut detailnya:
 - Informasi proker  
 - Anggota pelaksana  
 - Galeri kegiatan  
-![Dashboard Prokers](screenshots/internal/proker.jpg)
+![Dashboard Prokers](screenshot/internal/proker.jpg)
 
 #### 2.6 Manajemen Keuangan (Transactions)
 Pencatatan pemasukan/pengeluaran OSIS serta laporan saldo.
-![Transactions](screenshots/internal/keuangan.jpg)
+![Transactions](screenshot/internal/keuangan.jpg)
 
 #### 2.7 Pesan Pengunjung (Messages)
 Daftar pesan dari halaman publik dengan status unread, read, dan archived.
-![Messages](screenshots/internal/pesan.jpg)
+![Messages](screenshot/internal/pesan.jpg)
 
 #### 2.8 Audit Log
 Mencatat aktivitas penting pengguna untuk keamanan sistem.
-![Audit Logs](screenshots/internal/log.jpg)
+![Audit Logs](screenshot/internal/log.jpg)
 
 #### 2.9 App Settings
 Pengaturan global aplikasi:
