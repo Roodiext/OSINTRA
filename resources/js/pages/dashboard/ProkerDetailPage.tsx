@@ -173,7 +173,7 @@ const ProkerDetailPage: React.FC = () => {
             });
 
             Swal.fire('Berhasil!', 'Media berhasil diupload', 'success');
-            
+
             // Refresh proker data
             const response = await api.get(`/prokers/${proker.id}`);
             setProker(response.data);
@@ -202,7 +202,7 @@ const ProkerDetailPage: React.FC = () => {
             try {
                 await api.delete(`/prokers/${proker.id}/media/${media.id}`);
                 Swal.fire('Terhapus!', 'Media berhasil dihapus', 'success');
-                
+
                 // Refresh proker data
                 const response = await api.get(`/prokers/${proker.id}`);
                 setProker(response.data);
@@ -441,7 +441,13 @@ const ProkerDetailPage: React.FC = () => {
                                         <h3 className="text-xl font-bold text-[#3B4D3A] mb-4">{division.name}</h3>
 
                                         <div className="overflow-x-auto">
-                                            <table className="w-full text-left text-sm">
+                                            <table className="w-full text-left text-sm table-fixed">
+                                                <colgroup>
+                                                    <col style={{ width: '60px' }} />
+                                                    <col style={{ width: 'auto' }} />
+                                                    <col style={{ width: '200px' }} />
+                                                    <col style={{ width: '200px' }} />
+                                                </colgroup>
                                                 <thead>
                                                     <tr className="bg-gray-100">
                                                         <th className="px-4 py-2 font-semibold text-gray-700">#</th>

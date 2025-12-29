@@ -118,7 +118,7 @@ const DivisionsPage: React.FC<DivisionsPageProps> = ({ divisions: initialDivisio
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div>
                             <h1 className="text-3xl font-bold text-[#3B4D3A]">Manajemen Divisi</h1>
-                            <p className="text-[#6E8BA3] mt-1">Kelola divisi-divisi OSIS</p>
+                            <p className="text-[#6E8BA3] mt-1">Kelola divisi-divisi OSIS dalam kepanitiaan event</p>
                         </div>
                         <button
                             onClick={() => handleOpenModal()}
@@ -148,18 +148,20 @@ const DivisionsPage: React.FC<DivisionsPageProps> = ({ divisions: initialDivisio
                         {filteredDivisions.map((division) => (
                             <div
                                 key={division.id}
-                                className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all p-6 border-l-4 border-[#3B4D3A]"
+                                className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all p-6 border-l-4 border-[#3B4D3A] h-64 flex flex-col"
                             >
-                                <div className="flex items-start justify-between mb-4">
-                                    <div className="flex-1">
-                                        <h3 className="text-xl font-bold text-[#3B4D3A] mb-2">{division.name}</h3>
-                                        <p className="text-sm text-[#6E8BA3] line-clamp-2">{division.description || 'Tidak ada deskripsi'}</p>
+                                <div className="flex-1 flex flex-col">
+                                    <div className="mb-4">
+                                        <h3 className="text-xl font-bold text-[#3B4D3A] mb-2 line-clamp-2">{division.name}</h3>
+                                        <div className="h-16 overflow-hidden">
+                                            <p className="text-sm text-[#6E8BA3] line-clamp-3">{division.description || 'Tidak ada deskripsi'}</p>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div className="flex items-center gap-2 mb-4 text-[#6E8BA3]">
-                                    <Users className="w-4 h-4" />
-                                    <span className="text-sm font-medium">{division.users_count || 0} Anggota</span>
+                                    <div className="flex items-center gap-2 mb-4 text-[#6E8BA3] mt-auto">
+                                        <Users className="w-4 h-4" />
+                                        <span className="text-sm font-medium">{division.users_count || 0} Anggota</span>
+                                    </div>
                                 </div>
 
                                 <div className="flex gap-2">

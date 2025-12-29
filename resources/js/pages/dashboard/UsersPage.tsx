@@ -177,7 +177,7 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divis
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div>
                             <h1 className="text-3xl font-bold text-[#3B4D3A]">Manajemen Pengguna</h1>
-                            <p className="text-[#6E8BA3] mt-1">Kelola data pengguna OSINTRA</p>
+                            <p className="text-[#6E8BA3] mt-1">Kelola data pengguna OSVIS</p>
                         </div>
                         <button
                             onClick={() => handleOpenModal()}
