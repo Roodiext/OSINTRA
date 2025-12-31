@@ -12,10 +12,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     return (
         <div className="min-h-screen bg-gray-50">
             <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-            
+
             <div className="lg:ml-64">
                 <Topbar onMenuClick={() => setSidebarOpen(true)} />
-                
+
                 <main className="p-6 osintra-content">
                     {children}
                 </main>

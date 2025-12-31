@@ -152,27 +152,38 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
                         </div>
                     </div>
 
-                    {/* Chart */}
-                    <div className="bg-white rounded-xl shadow-md p-8">
+                    <div className="bg-white rounded-xl shadow-md p-6 md:p-8">
                         <h3 className="text-xl font-bold text-[#3B4D3A] mb-6">Grafik Keuangan Bulanan</h3>
-                        <ResponsiveContainer width="100%" height={300}>
-                            <BarChart data={monthlyData}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#E8DCC3" />
-                                <XAxis dataKey="month" stroke="#6E8BA3" />
-                                <YAxis stroke="#6E8BA3" />
-                                <Tooltip
-                                    contentStyle={{
-                                        backgroundColor: '#fff',
-                                        border: '2px solid #E8DCC3',
-                                        borderRadius: '12px',
-                                    }}
-                                    formatter={(value: number) => formatCurrency(value)}
-                                />
-                                <Legend />
-                                <Bar dataKey="income" fill="#22c55e" name="Pemasukan" radius={[8, 8, 0, 0]} />
-                                <Bar dataKey="expense" fill="#ef4444" name="Pengeluaran" radius={[8, 8, 0, 0]} />
-                            </BarChart>
-                        </ResponsiveContainer>
+                        <div className="overflow-x-auto -mx-6 px-6 md:mx-0 md:px-0 pb-2">
+                            <div className="min-w-[600px] h-[300px]">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={monthlyData} margin={{ left: 30, right: 10 }}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#E8DCC3" />
+                                        <XAxis dataKey="month" stroke="#6E8BA3" />
+                                        <YAxis
+                                            stroke="#6E8BA3"
+                                            width={80}
+                                            tickFormatter={(value) => {
+                                                if (value >= 1000000) return `${(value / 1000000).toFixed(1)}jt`;
+                                                if (value >= 1000) return `${(value / 1000).toFixed(0)}rb`;
+                                                return value;
+                                            }}
+                                        />
+                                        <Tooltip
+                                            contentStyle={{
+                                                backgroundColor: '#fff',
+                                                border: '2px solid #E8DCC3',
+                                                borderRadius: '12px',
+                                            }}
+                                            formatter={(value: number) => formatCurrency(value)}
+                                        />
+                                        <Legend />
+                                        <Bar dataKey="income" fill="#22c55e" name="Pemasukan" radius={[8, 8, 0, 0]} />
+                                        <Bar dataKey="expense" fill="#ef4444" name="Pengeluaran" radius={[8, 8, 0, 0]} />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Filters */}
@@ -234,17 +245,15 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
                                                 {transaction.description || '-'}
                                             </td>
                                             <td className="px-6 py-4">
-                                                <span className={`px-3 py-1 rounded-lg text-sm font-semibold ${
-                                                    transaction.type === 'income'
-                                                        ? 'bg-green-100 text-green-700'
-                                                        : 'bg-red-100 text-red-700'
-                                                }`}>
+                                                <span className={`px-3 py-1 rounded-lg text-sm font-semibold ${transaction.type === 'income'
+                                                    ? 'bg-green-100 text-green-700'
+                                                    : 'bg-red-100 text-red-700'
+                                                    }`}>
                                                     {transaction.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}
                                                 </span>
                                             </td>
-                                            <td className={`px-6 py-4 text-right font-bold ${
-                                                transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
-                                            }`}>
+                                            <td className={`px-6 py-4 text-right font-bold ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
+                                                }`}>
                                                 {transaction.type === 'income' ? '+' : '-'} {formatCurrency(transaction.amount)}
                                             </td>
                                         </tr>

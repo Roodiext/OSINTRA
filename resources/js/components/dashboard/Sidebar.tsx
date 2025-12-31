@@ -14,6 +14,7 @@ import {
     Building2
 } from 'lucide-react';
 import api from '@/lib/axios';
+import logo from '../../../asset/icon/osis-logo.png';
 
 interface SidebarProps {
     isOpen: boolean;
@@ -78,8 +79,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                     {/* Header (logo only to avoid duplicate title) */}
                     <div className="p-4 border-b border-[#4A5F49] flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-[#E8DCC3] rounded-full flex items-center justify-center text-[#3B4D3A] font-bold text-lg shadow-lg">
-                                O
+                            <div className="w-10 h-10 bg-[#E8DCC3] rounded-full flex items-center justify-center p-1.5 shadow-lg overflow-hidden">
+                                <img src={logo} alt="OSIS Logo" className="w-full h-full object-contain" />
                             </div>
                             <div>
                                 <p className="text-sm text-[#E8DCC3]/90 font-semibold">OSVIS</p>
@@ -108,8 +109,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                                         <Link
                                             href={item.path}
                                             className={`flex items-center gap-4 px-4 py-3.5 rounded-xl font-medium transition-all duration-200 ${isActive
-                                                    ? 'bg-[#E8DCC3] text-[#3B4D3A] shadow-md scale-105'
-                                                    : 'text-[#E8DCC3]/90 hover:bg-[#4A5F49] hover:text-white hover:pl-6'
+                                                ? 'bg-[#E8DCC3] text-[#3B4D3A] shadow-md scale-105'
+                                                : 'text-[#E8DCC3]/90 hover:bg-[#4A5F49] hover:text-white hover:pl-6'
                                                 }`}
                                         >
                                             <Icon className="w-5 h-5 flex-shrink-0" />

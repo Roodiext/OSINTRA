@@ -227,7 +227,7 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divis
                                         <th className="px-6 py-4 text-left text-sm font-bold text-[#3B4D3A]">Username</th>
                                         <th className="px-6 py-4 text-left text-sm font-bold text-[#3B4D3A]">Email</th>
                                         <th className="px-6 py-4 text-left text-sm font-bold text-[#3B4D3A]">Role</th>
-                                           <th className="px-6 py-4 text-left text-sm font-bold text-[#3B4D3A]">Posisi</th>
+                                        <th className="px-6 py-4 text-left text-sm font-bold text-[#3B4D3A]">Posisi</th>
                                         <th className="px-6 py-4 text-left text-sm font-bold text-[#3B4D3A]">Status</th>
                                         <th className="px-6 py-4 text-center text-sm font-bold text-[#3B4D3A]">Aksi</th>
                                     </tr>
@@ -250,7 +250,7 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divis
                                                     {user.role?.name}
                                                 </span>
                                             </td>
-                                                <td className="px-6 py-4 text-[#6E8BA3] max-w-xs truncate" title={user.position?.name || '-'}>{user.position?.name || '-'}</td>
+                                            <td className="px-6 py-4 text-[#6E8BA3] max-w-xs truncate" title={user.position?.name || '-'}>{user.position?.name || '-'}</td>
                                             <td className="px-6 py-4">
                                                 <button
                                                     onClick={() => handleToggleStatus(user)}
@@ -304,16 +304,21 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divis
 
                 {/* Modal */}
                 {showModal && (
-                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-                        <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-8 my-8">
-                            <h2 className="text-2xl font-bold text-[#3B4D3A] mb-6">
-                                {editingUser ? 'Edit Pengguna' : 'Tambah Pengguna'}
-                            </h2>
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-0 sm:p-4 overflow-y-auto">
+                        <div className="bg-white rounded-none sm:rounded-2xl shadow-2xl max-w-2xl w-full p-4 md:p-8 my-0 sm:my-8 min-h-screen sm:min-h-0">
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-base md:text-2xl font-bold text-[#3B4D3A]">
+                                    {editingUser ? 'Edit Pengguna' : 'Tambah Pengguna'}
+                                </h2>
+                                <button onClick={handleCloseModal} className="sm:hidden text-gray-400 hover:text-red-500 p-1">
+                                    <Plus className="w-5 h-5 rotate-45" />
+                                </button>
+                            </div>
 
-                            <form onSubmit={handleSubmit} className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-semibold text-[#3B4D3A] mb-2">
+                            <form onSubmit={handleSubmit} className="space-y-2.5">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2.5">
+                                    <div className="space-y-1">
+                                        <label className="block text-[11px] md:text-sm font-semibold text-[#3B4D3A]">
                                             Nama Lengkap *
                                         </label>
                                         <input
@@ -321,12 +326,12 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divis
                                             required
                                             value={formData.name}
                                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                            className="w-full px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
+                                            className="w-full px-3 py-1.5 md:py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all text-sm md:text-base"
                                         />
                                     </div>
 
-                                    <div>
-                                        <label className="block text-sm font-semibold text-[#3B4D3A] mb-2">
+                                    <div className="space-y-1">
+                                        <label className="block text-[11px] md:text-sm font-semibold text-[#3B4D3A]">
                                             Username *
                                         </label>
                                         <input
@@ -334,12 +339,12 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divis
                                             required
                                             value={formData.username}
                                             onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                                            className="w-full px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
+                                            className="w-full px-3 py-1.5 md:py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all text-sm md:text-base"
                                         />
                                     </div>
 
-                                    <div>
-                                        <label className="block text-sm font-semibold text-[#3B4D3A] mb-2">
+                                    <div className="space-y-1">
+                                        <label className="block text-[11px] md:text-sm font-semibold text-[#3B4D3A]">
                                             Email *
                                         </label>
                                         <input
@@ -347,12 +352,12 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divis
                                             required
                                             value={formData.email}
                                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                            className="w-full px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
+                                            className="w-full px-3 py-1.5 md:py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all text-sm md:text-base"
                                         />
                                     </div>
 
-                                    <div>
-                                        <label className="block text-sm font-semibold text-[#3B4D3A] mb-2">
+                                    <div className="space-y-1">
+                                        <label className="block text-[11px] md:text-sm font-semibold text-[#3B4D3A]">
                                             Password {!editingUser && '*'}
                                         </label>
                                         <input
@@ -360,20 +365,20 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divis
                                             required={!editingUser}
                                             value={formData.password}
                                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                            className="w-full px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
+                                            className="w-full px-3 py-1.5 md:py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all text-sm md:text-base"
                                             placeholder={editingUser ? 'Kosongkan jika tidak diubah' : ''}
                                         />
                                     </div>
 
-                                    <div>
-                                        <label className="block text-sm font-semibold text-[#3B4D3A] mb-2">
+                                    <div className="space-y-1">
+                                        <label className="block text-[11px] md:text-sm font-semibold text-[#3B4D3A]">
                                             Role *
                                         </label>
                                         <select
                                             required
                                             value={formData.role_id}
                                             onChange={(e) => setFormData({ ...formData, role_id: e.target.value })}
-                                            className="w-full px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
+                                            className="w-full px-3 py-1.5 md:py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all text-sm md:text-base"
                                         >
                                             <option value="">Pilih Role</option>
                                             {roles.map(role => (
@@ -382,14 +387,14 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divis
                                         </select>
                                     </div>
 
-                                    <div>
-                                        <label className="block text-sm font-semibold text-[#3B4D3A] mb-2">
+                                    <div className="space-y-1">
+                                        <label className="block text-[11px] md:text-sm font-semibold text-[#3B4D3A]">
                                             Posisi
                                         </label>
                                         <select
                                             value={formData.position_id}
                                             onChange={(e) => setFormData({ ...formData, position_id: e.target.value })}
-                                            className="w-full px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
+                                            className="w-full px-3 py-1.5 md:py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all text-sm md:text-base"
                                         >
                                             <option value="">Pilih Posisi</option>
                                             {positions.map(pos => (
@@ -399,8 +404,8 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divis
                                     </div>
                                 </div>
 
-                                <div>
-                                    <label className="block text-sm font-semibold text-[#3B4D3A] mb-2">
+                                <div className="space-y-1">
+                                    <label className="block text-[11px] md:text-sm font-semibold text-[#3B4D3A]">
                                         Status
                                     </label>
                                     <div className="flex gap-4">
@@ -429,18 +434,18 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divis
                                     </div>
                                 </div>
 
-                                <div className="flex gap-3 pt-4">
+                                <div className="flex gap-2 pt-2 md:pt-4">
                                     <button
                                         type="button"
                                         onClick={handleCloseModal}
-                                        className="flex-1 px-6 py-3 bg-[#F5F5F5] text-[#6E8BA3] rounded-xl hover:bg-[#E8DCC3] transition-all font-semibold"
+                                        className="flex-1 px-4 py-2 md:py-3 bg-[#F5F5F5] text-[#6E8BA3] rounded-xl hover:bg-[#E8DCC3] transition-all text-sm md:text-base font-semibold"
                                     >
                                         Batal
                                     </button>
                                     <button
                                         type="submit"
                                         disabled={loading}
-                                        className="flex-1 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all font-semibold disabled:opacity-50"
+                                        className="flex-1 px-4 py-2 md:py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all text-sm md:text-base font-semibold disabled:opacity-50"
                                     >
                                         {loading ? 'Menyimpan...' : 'Simpan'}
                                     </button>
