@@ -105,9 +105,9 @@ const DashboardPage: React.FC = () => {
                                     <div className="p-3 bg-white/60 rounded-xl group-hover:scale-110 transition-transform duration-300">
                                         <DollarSign className="w-7 h-7 text-[#3B4D3A]" />
                                     </div>
-                                    <div className="text-right">
+                                    <div className="flex flex-col items-end">
                                         <p className="text-sm font-medium text-[#6E8BA3] mb-1">Saldo</p>
-                                        <p className="text-2xl font-bold text-[#3B4D3A]">
+                                        <p className="text-xl sm:text-2xl font-bold text-[#3B4D3A] break-all text-right">
                                             Rp {stats?.balance?.toLocaleString('id-ID') || 0}
                                         </p>
                                     </div>
@@ -129,7 +129,7 @@ const DashboardPage: React.FC = () => {
                                     <p className="text-sm text-[#6E8BA3]">Pendapatan keseluruhan</p>
                                 </div>
                             </div>
-                            <p className="text-4xl font-bold text-green-600">
+                            <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-green-600 break-words">
                                 Rp {stats?.total_income?.toLocaleString('id-ID') || 0}
                             </p>
                         </div>
@@ -144,7 +144,7 @@ const DashboardPage: React.FC = () => {
                                     <p className="text-sm text-[#6E8BA3]">Biaya keseluruhan</p>
                                 </div>
                             </div>
-                            <p className="text-4xl font-bold text-red-600">
+                            <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-red-600 break-words">
                                 Rp {stats?.total_expense?.toLocaleString('id-ID') || 0}
                             </p>
                         </div>
@@ -188,11 +188,10 @@ const DashboardPage: React.FC = () => {
                                                 <p className="font-semibold text-[#1E1E1E] mb-1">{proker.title}</p>
                                                 <p className="text-sm text-[#6E8BA3]">{proker.division?.name}</p>
                                             </div>
-                                            <span className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide ml-4 whitespace-nowrap ${
-                                                proker.status === 'done' ? 'bg-green-100 text-green-700 border border-green-300' :
-                                                proker.status === 'ongoing' ? 'bg-yellow-100 text-yellow-700 border border-yellow-300' :
-                                                'bg-blue-100 text-blue-700 border border-blue-300'
-                                            }`}>
+                                            <span className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide ml-4 whitespace-nowrap ${proker.status === 'done' ? 'bg-green-100 text-green-700 border border-green-300' :
+                                                    proker.status === 'ongoing' ? 'bg-yellow-100 text-yellow-700 border border-yellow-300' :
+                                                        'bg-blue-100 text-blue-700 border border-blue-300'
+                                                }`}>
                                                 {proker.status}
                                             </span>
                                         </div>
@@ -218,11 +217,10 @@ const DashboardPage: React.FC = () => {
                                     <div key={message.id} className="bg-[#F5F5F5] rounded-lg p-4 hover:bg-[#E8DCC3] transition-colors border border-transparent hover:border-[#3B4D3A]">
                                         <div className="flex items-start justify-between mb-2">
                                             <p className="font-semibold text-[#1E1E1E] flex-1">{message.name}</p>
-                                            <span className={`px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wide ml-3 whitespace-nowrap ${
-                                                message.status === 'unread' ? 'bg-red-100 text-red-700 border border-red-300' :
-                                                message.status === 'read' ? 'bg-blue-100 text-blue-700 border border-blue-300' :
-                                                'bg-gray-100 text-gray-700 border border-gray-300'
-                                            }`}>
+                                            <span className={`px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wide ml-3 whitespace-nowrap ${message.status === 'unread' ? 'bg-red-100 text-red-700 border border-red-300' :
+                                                    message.status === 'read' ? 'bg-blue-100 text-blue-700 border border-blue-300' :
+                                                        'bg-gray-100 text-gray-700 border border-gray-300'
+                                                }`}>
                                                 {message.status}
                                             </span>
                                         </div>

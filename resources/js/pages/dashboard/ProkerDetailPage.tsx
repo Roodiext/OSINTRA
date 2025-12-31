@@ -272,18 +272,22 @@ const ProkerDetailPage: React.FC = () => {
                     </button>
 
                     {/* Header Section */}
-                    <div className="bg-white p-8 rounded-2xl shadow-lg">
-                        <div className="flex items-start justify-between mb-4">
-                            <div>
-                                <h1 className="text-4xl font-bold text-[#3B4D3A] mb-2">{proker.title}</h1>
-                                <span className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${statusColors[proker.status]}`}>
-                                    {statusLabels[proker.status]}
-                                </span>
+                    <div className="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
+                        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+                            <div className="space-y-3">
+                                <h1 className="text-3xl md:text-4xl font-bold text-[#3B4D3A] leading-tight">
+                                    {proker.title}
+                                </h1>
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${statusColors[proker.status]}`}>
+                                        {statusLabels[proker.status]}
+                                    </span>
+                                </div>
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 self-end md:self-start">
                                 <button
                                     onClick={() => router.visit(`/dashboard/prokers/${proker.id}/edit`)}
-                                    className="p-3 bg-[#3B4D3A] text-white rounded-lg hover:opacity-90 transition"
+                                    className="p-3 bg-[#3B4D3A] text-white rounded-xl hover:opacity-90 transition shadow-md"
                                     title="Edit"
                                 >
                                     <Edit className="w-5 h-5" />
@@ -292,7 +296,7 @@ const ProkerDetailPage: React.FC = () => {
                                     onClick={() => {
                                         // TODO: implement delete
                                     }}
-                                    className="p-3 bg-red-500 text-white rounded-lg hover:opacity-90 transition"
+                                    className="p-3 bg-red-500 text-white rounded-xl hover:opacity-90 transition shadow-md"
                                     title="Hapus"
                                 >
                                     <Trash2 className="w-5 h-5" />
@@ -347,12 +351,12 @@ const ProkerDetailPage: React.FC = () => {
                     )}
 
                     {/* Divisions Info */}
-                    <div className="bg-white p-8 rounded-2xl shadow-lg">
-                        <div className="flex items-center justify-between mb-4">
+                    <div className="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                             <h2 className="text-2xl font-bold text-[#3B4D3A]">Divisi yang Terlibat</h2>
                             <button
                                 onClick={() => setShowEditDivisionsModal(true)}
-                                className="flex items-center gap-2 px-4 py-2 bg-[#3B4D3A] text-white rounded-lg hover:opacity-90 transition text-sm font-semibold"
+                                className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#3B4D3A] text-white rounded-xl hover:opacity-90 transition text-sm font-bold shadow-md"
                             >
                                 <Edit className="w-4 h-4" />
                                 Edit Divisi
@@ -375,12 +379,12 @@ const ProkerDetailPage: React.FC = () => {
                     </div>
 
                     {/* Panitia List */}
-                    <div className="bg-white p-8 rounded-2xl shadow-lg">
-                        <div className="flex items-center justify-between mb-6">
+                    <div className="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                             <h2 className="text-2xl font-bold text-[#3B4D3A]">Daftar Panitia</h2>
                             <button
                                 onClick={() => setShowAddPanitiaModal(true)}
-                                className="flex items-center gap-2 px-4 py-2 bg-[#3B4D3A] text-white rounded-lg hover:bg-[#2d3a2d] transition-all font-semibold"
+                                className="flex items-center justify-center gap-2 px-5 py-2.5 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all font-bold shadow-md"
                             >
                                 <Plus className="w-4 h-4" />
                                 Tambah Panitia
@@ -390,8 +394,8 @@ const ProkerDetailPage: React.FC = () => {
                         {proker.anggota.length === 0 ? (
                             <p className="text-gray-500 text-center py-8">Belum ada panitia yang ditambahkan</p>
                         ) : (
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left text-sm">
+                            <div className="overflow-x-auto -mx-8 px-8 md:mx-0 md:px-0">
+                                <table className="w-full text-left text-sm min-w-[600px]">
                                     <thead>
                                         <tr className="bg-[#E8DCC3]">
                                             <th className="px-6 py-3 font-bold text-[#3B4D3A]">#</th>
@@ -440,13 +444,13 @@ const ProkerDetailPage: React.FC = () => {
                                     <div key={division.id} className="border-l-4 border-[#3B4D3A] pl-6">
                                         <h3 className="text-xl font-bold text-[#3B4D3A] mb-4">{division.name}</h3>
 
-                                        <div className="overflow-x-auto">
-                                            <table className="w-full text-left text-sm table-fixed">
+                                        <div className="overflow-x-auto -mx-6 px-6 md:mx-0 md:px-0">
+                                            <table className="w-full text-left text-sm min-w-[500px]">
                                                 <colgroup>
-                                                    <col style={{ width: '60px' }} />
-                                                    <col style={{ width: 'auto' }} />
-                                                    <col style={{ width: '200px' }} />
-                                                    <col style={{ width: '200px' }} />
+                                                    <col className="w-[40px] md:w-[60px]" />
+                                                    <col className="w-auto" />
+                                                    <col className="w-[120px] md:w-[200px]" />
+                                                    <col className="w-[120px] md:w-[200px]" />
                                                 </colgroup>
                                                 <thead>
                                                     <tr className="bg-gray-100">
@@ -480,10 +484,12 @@ const ProkerDetailPage: React.FC = () => {
                     )}
 
                     {/* Gallery Section */}
-                    <div className="bg-white p-8 rounded-2xl shadow-lg">
-                        <div className="flex items-center justify-between mb-6">
+                    <div className="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                             <div className="flex items-center gap-3">
-                                <ImageIcon className="w-6 h-6 text-[#3B4D3A]" />
+                                <div className="p-2 bg-[#E8DCC3] rounded-lg">
+                                    <ImageIcon className="w-6 h-6 text-[#3B4D3A]" />
+                                </div>
                                 <h2 className="text-2xl font-bold text-[#3B4D3A]">Galeri Dokumentasi</h2>
                             </div>
                             <div className="flex gap-2">
@@ -497,7 +503,7 @@ const ProkerDetailPage: React.FC = () => {
                                 <button
                                     onClick={() => fileInputRef.current?.click()}
                                     disabled={uploading}
-                                    className="flex items-center gap-2 px-4 py-2 bg-[#3B4D3A] text-white rounded-lg hover:bg-[#2d3a2d] transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all font-bold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {uploading ? (
                                         <>
