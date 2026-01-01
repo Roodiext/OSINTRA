@@ -379,7 +379,7 @@ const ProkerDetailPage: React.FC = () => {
                     </div>
 
                     {/* Panitia List */}
-                    <div className="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
+                    <div className="bg-white p-8 rounded-2xl shadow-lg">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                             <h2 className="text-2xl font-bold text-[#3B4D3A]">Daftar Panitia</h2>
                             <button
@@ -394,8 +394,16 @@ const ProkerDetailPage: React.FC = () => {
                         {proker.anggota.length === 0 ? (
                             <p className="text-gray-500 text-center py-8">Belum ada panitia yang ditambahkan</p>
                         ) : (
-                            <div className="overflow-x-auto -mx-8 px-8 md:mx-0 md:px-0">
+                            <div className="overflow-x-auto -mx-6 px-6 md:mx-0 md:px-0">
                                 <table className="w-full text-left text-sm min-w-[600px]">
+                                    <colgroup>
+                                        <col className="w-[50px]" />
+                                        <col className="w-auto" />
+                                        <col className="w-[150px]" />
+                                        <col className="w-[150px]" />
+                                        <col className="w-[100px]" />
+                                        <col className="w-[80px]" />
+                                    </colgroup>
                                     <thead>
                                         <tr className="bg-[#E8DCC3]">
                                             <th className="px-6 py-3 font-bold text-[#3B4D3A]">#</th>
@@ -639,4 +647,3 @@ const ProkerDetailPage: React.FC = () => {
 };
 
 export default ProkerDetailPage;
-
