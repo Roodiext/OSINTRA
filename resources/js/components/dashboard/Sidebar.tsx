@@ -14,6 +14,7 @@ import {
     Building2
 } from 'lucide-react';
 import api from '@/lib/axios';
+import Swal from 'sweetalert2';
 import logo from '../../../asset/icon/osis-logo.png';
 
 interface SidebarProps {
@@ -108,6 +109,18 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                                     <li key={item.path}>
                                         <Link
                                             href={item.path}
+                                            onClick={(e: React.MouseEvent) => {
+                                                // If this is the Settings menu and user is not admin, block and show alert
+                                                if (item.module === 'Settings' && roleName !== 'admin') {
+                                                    e.preventDefault();
+                                                    Swal.fire({
+                                                        icon: 'warning',
+                                                        title: 'Akses Ditolak',
+                                                        text: 'Hanya admin yang dapat membuka Pengaturan melalui sidebar.',
+                                                        confirmButtonColor: '#3B4D3A'
+                                                    });
+                                                }
+                                            }}
                                             className={`flex items-center gap-4 px-4 py-3.5 rounded-xl font-medium transition-all duration-200 ${isActive
                                                 ? 'bg-[#E8DCC3] text-[#3B4D3A] shadow-md scale-105'
                                                 : 'text-[#E8DCC3]/90 hover:bg-[#4A5F49] hover:text-white hover:pl-6'

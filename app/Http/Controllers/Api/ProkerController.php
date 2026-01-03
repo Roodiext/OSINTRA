@@ -57,6 +57,7 @@ class ProkerController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'date' => 'required|date',
+            'end_date' => 'nullable|date|after_or_equal:date',
             'location' => 'nullable|string',
             'status' => 'sometimes|in:planned,ongoing,done',
             'anggota' => 'nullable|array',
@@ -68,6 +69,7 @@ class ProkerController extends Controller
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
             'date' => $validated['date'],
+            'end_date' => $validated['end_date'] ?? null,
             'location' => $validated['location'] ?? null,
             'status' => $validated['status'] ?? 'planned',
         ]);
@@ -121,6 +123,7 @@ class ProkerController extends Controller
             'title' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
             'date' => 'sometimes|date',
+            'end_date' => 'nullable|date|after_or_equal:date',
             'location' => 'nullable|string',
             'status' => 'sometimes|in:planned,ongoing,done',
         ]);
@@ -295,6 +298,38 @@ class ProkerController extends Controller
     /**
      * Get all proker media for public gallery.
      */
+    public function publicGallery()
+    {
+        $media = ProkerMedia::with('proker:id,title,date')
+            ->orderBy('created_at', 'desc')
+            ->paginate(12);
+
+        return response()->json($media);
+    }
+
+    /**
+     * Set specific media as thumbnail.
+     */
+    public function setThumbnail(Proker $proker, ProkerMedia $media)
+    {
+        if ($media->proker_id !== $proker->id) {
+            return response()->json(['message' => 'Media not found in this proker'], 404);
+        }
+
+        // Reset all thumbnails for this proker
+        $proker->media()->update(['is_thumbnail' => false]);
+
+        // Set new thumbnail
+        $media->update(['is_thumbnail' => true]);
+
+        AuditLog::log('update_proker_thumbnail', "Set thumbnail for proker: {$proker->title}");
+
+        return response()->json([
+            'message' => 'Thumbnail berhasil diupdate',
+            'media' => $media
+        ]);
+    }
+
     public function getAllMedia()
     {
         $media = ProkerMedia::with('proker.divisions')

@@ -16,12 +16,14 @@ class Proker extends Model
         'title',
         'description',
         'date',
+        'end_date',
         'location',
         'status',
     ];
 
     protected $casts = [
         'date' => 'date',
+        'end_date' => 'date',
     ];
 
     /**
