@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Head, router } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
-import { ArrowLeft, Calendar, MapPin, Users, BookOpen, Edit, Trash2, Plus, Image as ImageIcon, X, Upload } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Users, BookOpen, Edit, Trash2, Plus, Image as ImageIcon, X, Upload, Star } from 'lucide-react';
 import api from '@/lib/axios';
 import Swal from 'sweetalert2';
 import AddPanitiaModal from '@/components/dashboard/AddPanitiaModal';
@@ -42,6 +42,7 @@ interface Proker {
     title: string;
     description?: string;
     date: string;
+    end_date?: string;
     location?: string;
     status: 'planned' | 'ongoing' | 'done';
     divisions: Division[];
@@ -212,6 +213,48 @@ const ProkerDetailPage: React.FC = () => {
         }
     };
 
+    const handleSetThumbnail = async (media: ProkerMedia, e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!proker) return;
+
+        // Check if there is already a thumbnail
+        const currentThumbnail = proker.media?.find(m => m.is_thumbnail);
+
+        // If clicking on the current thumbnail (already active), do nothing
+        if (currentThumbnail?.id === media.id) return;
+
+        if (currentThumbnail) {
+            const result = await Swal.fire({
+                title: 'Ganti Thumbnail?',
+                text: 'Hanya satu gambar yang bisa menjadi thumbnail. Apakah Anda ingin mengganti thumbnail saat ini?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Ganti',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#3B4D3A'
+            });
+
+            if (!result.isConfirmed) return;
+        }
+
+        try {
+            await api.put(`/prokers/${proker.id}/media/${media.id}/thumbnail`);
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil',
+                text: 'Thumbnail berhasil diperbarui',
+                timer: 1500,
+                showConfirmButton: false
+            });
+
+            // Refresh Data
+            const response = await api.get(`/prokers/${proker.id}`);
+            setProker(response.data);
+        } catch (error: any) {
+            Swal.fire('Error', error.response?.data?.message || 'Gagal update thumbnail', 'error');
+        }
+    };
+
     if (loading) {
         return (
             <DashboardLayout>
@@ -311,12 +354,28 @@ const ProkerDetailPage: React.FC = () => {
                                 <div>
                                     <p className="text-sm text-gray-500">Tanggal Pelaksanaan</p>
                                     <p className="font-semibold text-gray-800">
-                                        {new Date(proker.date).toLocaleDateString('id-ID', {
-                                            weekday: 'long',
-                                            year: 'numeric',
-                                            month: 'long',
-                                            day: 'numeric',
-                                        })}
+                                        {proker.end_date && proker.end_date !== proker.date ? (
+                                            <>
+                                                {new Date(proker.date).toLocaleDateString('id-ID', {
+                                                    day: 'numeric',
+                                                    month: 'long',
+                                                    year: 'numeric',
+                                                })}
+                                                {' - '}
+                                                {new Date(proker.end_date).toLocaleDateString('id-ID', {
+                                                    day: 'numeric',
+                                                    month: 'long',
+                                                    year: 'numeric',
+                                                })}
+                                            </>
+                                        ) : (
+                                            new Date(proker.date).toLocaleDateString('id-ID', {
+                                                weekday: 'long',
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric',
+                                            })
+                                        )}
                                     </p>
                                 </div>
                             </div>
@@ -551,6 +610,15 @@ const ProkerDetailPage: React.FC = () => {
                                         )}
                                         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
                                             <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex gap-2">
+                                                {media.media_type === 'image' && (
+                                                    <button
+                                                        onClick={(e) => handleSetThumbnail(media, e)}
+                                                        className={`p-2 rounded-lg transition ${media.is_thumbnail ? 'bg-yellow-400 text-white' : 'bg-white text-gray-600 hover:bg-yellow-100'}`}
+                                                        title={media.is_thumbnail ? "Thumbnail Aktif" : "Jadikan Thumbnail"}
+                                                    >
+                                                        <Star className={`w-4 h-4 ${media.is_thumbnail ? 'fill-current' : ''}`} />
+                                                    </button>
+                                                )}
                                                 <button
                                                     onClick={(e) => {
                                                         e.stopPropagation();
@@ -563,6 +631,13 @@ const ProkerDetailPage: React.FC = () => {
                                                 </button>
                                             </div>
                                         </div>
+
+                                        {media.is_thumbnail && (
+                                            <div className="absolute top-2 left-2 bg-yellow-400 text-white text-xs font-bold px-2 py-1 rounded shadow-md z-10 flex items-center gap-1">
+                                                <Star className="w-3 h-3 fill-current" /> Thumbnail
+                                            </div>
+                                        )}
+
                                         {media.caption && (
                                             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
                                                 <p className="text-white text-sm truncate">{media.caption}</p>

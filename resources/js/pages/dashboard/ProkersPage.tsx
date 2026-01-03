@@ -25,16 +25,32 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
         description: '',
         division_ids: [] as number[],
         date: '',
+        end_date: '',
         location: '',
         status: 'planned' as 'planned' | 'ongoing' | 'done',
     });
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [loading, setLoading] = useState(false);
+    const [isMultipleDays, setIsMultipleDays] = useState(false);
+
+    // Helper function to safely parse date to YYYY-MM-DD format
+    const formatDateForInput = (dateValue: string | null | undefined): string => {
+        if (!dateValue || dateValue === 'undefined' || dateValue === 'null') return '';
+        try {
+            if (dateValue.includes('T')) return dateValue.split('T')[0];
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) return dateValue;
+            const date = new Date(dateValue);
+            if (isNaN(date.getTime())) return '';
+            return date.toISOString().split('T')[0];
+        } catch (e) {
+            return '';
+        }
+    };
 
     const filteredProkers = prokers.filter(proker => {
         const matchesSearch = proker.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             proker.description?.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesDivision = !filterDivision || 
+        const matchesDivision = !filterDivision ||
             (proker.divisions && proker.divisions.some(d => d.id.toString() === filterDivision)) ||
             (proker.division_id && proker.division_id.toString() === filterDivision);
         const matchesStatus = !filterStatus || proker.status === filterStatus;
@@ -45,21 +61,31 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
         setErrors({});
         if (proker) {
             setEditingProker(proker);
+
+            const startDate = formatDateForInput(proker.date);
+            const endDate = formatDateForInput(proker.end_date);
+            const hasMultipleDays = !!(endDate && endDate !== startDate);
+
+            setIsMultipleDays(hasMultipleDays);
+
             setFormData({
                 title: proker.title,
                 description: proker.description || '',
                 division_ids: (proker.divisions || []).map((d: Division) => d.id),
-                date: proker.date,
+                date: startDate,
+                end_date: endDate,
                 location: proker.location || '',
                 status: proker.status,
             });
         } else {
             setEditingProker(null);
+            setIsMultipleDays(false);
             setFormData({
                 title: '',
                 description: '',
                 division_ids: [],
                 date: '',
+                end_date: '',
                 location: '',
                 status: 'planned',
             });
@@ -96,6 +122,7 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
             const submitData = {
                 ...formData,
                 division_ids: formData.division_ids.length > 0 ? formData.division_ids : [],
+                end_date: formData.end_date || null,
             };
 
             if (editingProker) {
@@ -257,77 +284,110 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
 
                     {/* Prokers Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredProkers.map((proker) => (
-                            <div
-                                key={proker.id}
-                                className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all overflow-hidden flex"
-                            >
-                                {/* Status Color Bar - Left Side */}
+                        {filteredProkers.map((proker) => {
+                            const thumbnail = proker.media?.find(m => m.is_thumbnail) || proker.media?.find(m => m.media_type === 'image');
+
+                            return (
                                 <div
-                                    className={`w-1 transition-all ${
-                                        proker.status === 'done' ? 'bg-green-500' :
-                                        proker.status === 'ongoing' ? 'bg-yellow-500' :
-                                        'bg-blue-500'
-                                    }`}
-                                />
-
-                                <div className="flex-1 p-6 flex flex-col">
-                                    <div className="flex items-start justify-between mb-2 gap-3">
-                                        <h3 className="text-lg font-bold text-[#3B4D3A] flex-1">
-                                            {proker.title}
-                                        </h3>
-                                        <span className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wide border whitespace-nowrap flex-shrink-0 ${getStatusColor(proker.status)}`}>
-                                            {getStatusLabel(proker.status)}
-                                        </span>
-                                    </div>
-
-                                    <p className="text-sm text-[#6E8BA3] mb-4 leading-relaxed flex-grow">
-                                        {proker.description || 'Tidak ada deskripsi'}
-                                    </p>
-
-                                    <div className="space-y-2 mb-5">
-                                        <div className="flex items-center gap-2 text-sm text-[#6E8BA3]">
-                                            <Users className="w-4 h-4 flex-shrink-0" />
-                                            <span className="line-clamp-1">{proker.division?.name}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2 text-sm text-[#6E8BA3]">
-                                            <Calendar className="w-4 h-4 flex-shrink-0" />
-                                            <span>{new Date(proker.date).toLocaleDateString('id-ID')}</span>
-                                        </div>
-                                        {proker.location && (
-                                            <div className="flex items-center gap-2 text-sm text-[#6E8BA3]">
-                                                <MapPin className="w-4 h-4 flex-shrink-0" />
-                                                <span className="line-clamp-1">{proker.location}</span>
+                                    key={proker.id}
+                                    className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all overflow-hidden flex flex-col h-full group"
+                                >
+                                    {/* Image Header with Thumbnail support */}
+                                    <div className="h-48 w-full bg-[#F5F5F5] relative overflow-hidden">
+                                        {thumbnail ? (
+                                            <img
+                                                src={thumbnail.media_url}
+                                                alt={proker.title}
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex flex-col items-center justify-center text-[#6E8BA3]">
+                                                <Image className="w-10 h-10 mb-2 opacity-50" />
+                                                <span className="text-xs font-medium">Belum ada dokumentasi</span>
                                             </div>
                                         )}
+
+                                        {/* Status Badge */}
+                                        <div className="absolute top-3 right-3">
+                                            <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide shadow-sm backdrop-blur-md border border-white/20 flex items-center gap-1.5 ${proker.status === 'done' ? 'bg-green-100/90 text-green-700' :
+                                                proker.status === 'ongoing' ? 'bg-yellow-100/90 text-yellow-700' :
+                                                    'bg-blue-100/90 text-blue-700'
+                                                }`}>
+                                                <span className={`w-1.5 h-1.5 rounded-full ${proker.status === 'done' ? 'bg-green-500' :
+                                                    proker.status === 'ongoing' ? 'bg-yellow-500' :
+                                                        'bg-blue-500'
+                                                    }`}></span>
+                                                {getStatusLabel(proker.status)}
+                                            </span>
+                                        </div>
                                     </div>
 
-                                    <div className="flex gap-2 pt-2 border-t border-gray-100">
-                                        <button
-                                            onClick={() => router.visit(`/dashboard/prokers/${proker.id}`)}
-                                            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#E8DCC3] text-[#3B4D3A] rounded-lg hover:bg-[#d5c9b0] transition-all font-medium text-sm"
-                                        >
-                                            <Eye className="w-4 h-4" />
-                                            Detail
-                                        </button>
-                                        <button
-                                            onClick={() => handleOpenModal(proker)}
-                                            className="p-2.5 bg-[#E8DCC3] text-[#3B4D3A] rounded-lg hover:bg-[#d5c9b0] transition-all"
-                                            title="Edit"
-                                        >
-                                            <Edit className="w-4 h-4" />
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(proker)}
-                                            className="p-2.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-all"
-                                            title="Hapus"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
+                                    {/* Content */}
+                                    <div className="flex-1 p-5 flex flex-col">
+                                        <h3 className="text-lg font-bold text-[#3B4D3A] mb-2 line-clamp-1" title={proker.title}>
+                                            {proker.title}
+                                        </h3>
+
+                                        <p className="text-sm text-[#6E8BA3] mb-4 leading-relaxed flex-grow line-clamp-2">
+                                            {proker.description || 'Tidak ada deskripsi'}
+                                        </p>
+
+                                        <div className="space-y-2 mb-5">
+                                            <div className="flex items-center gap-2 text-sm text-[#6E8BA3]">
+                                                <Users className="w-4 h-4 flex-shrink-0 text-[#3B4D3A]" />
+                                                <span className="line-clamp-1">{proker.divisions?.map(d => d.name).join(', ') || 'Umum'}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-sm text-[#6E8BA3]">
+                                                <Calendar className="w-4 h-4 flex-shrink-0 text-[#3B4D3A]" />
+                                                <span>
+                                                    {proker.end_date && proker.end_date !== proker.date ? (
+                                                        <>
+                                                            {new Date(proker.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} - {new Date(proker.end_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                        </>
+                                                    ) : (
+                                                        new Date(proker.date).toLocaleDateString('id-ID', {
+                                                            day: 'numeric',
+                                                            month: 'long',
+                                                            year: 'numeric'
+                                                        })
+                                                    )}
+                                                </span>
+                                            </div>
+                                            {proker.location && (
+                                                <div className="flex items-center gap-2 text-sm text-[#6E8BA3]">
+                                                    <MapPin className="w-4 h-4 flex-shrink-0 text-[#3B4D3A]" />
+                                                    <span className="line-clamp-1">{proker.location}</span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="flex gap-2 pt-4 border-t border-gray-100 mt-auto">
+                                            <button
+                                                onClick={() => router.visit(`/dashboard/prokers/${proker.id}`)}
+                                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[#E8DCC3] text-[#3B4D3A] rounded-lg hover:bg-[#d5c9b0] transition-all font-bold text-sm"
+                                            >
+                                                <Eye className="w-4 h-4" />
+                                                Detail
+                                            </button>
+                                            <button
+                                                onClick={() => handleOpenModal(proker)}
+                                                className="p-2 bg-gray-100 text-[#6E8BA3] rounded-lg hover:bg-gray-200 transition-all"
+                                                title="Edit"
+                                            >
+                                                <Edit className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(proker)}
+                                                className="p-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-all"
+                                                title="Hapus"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
 
                     {filteredProkers.length === 0 && (
@@ -340,119 +400,159 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
 
                 {/* Add/Edit Modal */}
                 {showModal && (
-                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-                        <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-8 my-8">
-                            <h2 className="text-2xl font-bold text-[#3B4D3A] mb-6">
-                                {editingProker ? 'Edit Proker' : 'Tambah Proker'}
-                            </h2>
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+                        <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-[95%] sm:max-w-4xl p-4 sm:p-8 my-4 transition-all relative">
+                            <div className="flex justify-between items-start mb-4 sm:mb-6">
+                                <h2 className="text-lg sm:text-2xl font-bold text-[#3B4D3A]">
+                                    {editingProker ? 'Edit Proker' : 'Tambah Proker'}
+                                </h2>
+                                <button
+                                    onClick={handleCloseModal}
+                                    className="p-1.5 -mr-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-all"
+                                >
+                                    <span className="text-xl sm:text-2xl leading-none">&times;</span>
+                                </button>
+                            </div>
 
-                            <form onSubmit={handleSubmit} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-semibold text-[#3B4D3A] mb-2">
-                                        Judul Proker * {errors.title && <span className="text-red-600">({errors.title[0]})</span>}
-                                    </label>
-                                    <input
-                                        type="text"
-                                        required
-                                        value={formData.title}
-                                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                        className={`w-full px-4 py-3 bg-[#F5F5F5] border-2 ${errors.title ? 'border-red-500' : 'border-transparent'} rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all`}
-                                        placeholder="Contoh: Pelatihan Kepemimpinan"
-                                    />
-                                </div>
+                            <form onSubmit={handleSubmit}>
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                                    {/* Left Column */}
+                                    <div className="space-y-3 sm:space-y-4">
+                                        <div>
+                                            <label className="block text-xs sm:text-sm font-semibold text-[#3B4D3A] mb-1.5 sm:mb-2">
+                                                Judul Proker * {errors.title && <span className="text-red-600">({errors.title[0]})</span>}
+                                            </label>
+                                            <input
+                                                type="text"
+                                                required
+                                                value={formData.title}
+                                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                                className={`w-full px-3 py-2 sm:px-4 sm:py-3 text-sm bg-[#F5F5F5] border-2 ${errors.title ? 'border-red-500' : 'border-transparent'} rounded-lg sm:rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all`}
+                                                placeholder="Contoh: Pelatihan Kepemimpinan"
+                                            />
+                                        </div>
 
-                                <div>
-                                    <label className="block text-sm font-semibold text-[#3B4D3A] mb-2">
-                                        Deskripsi * {errors.description && <span className="text-red-600">({errors.description[0]})</span>}
-                                    </label>
-                                    <textarea
-                                        required
-                                        value={formData.description}
-                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                        rows={4}
-                                        className={`w-full px-4 py-3 bg-[#F5F5F5] border-2 ${errors.description ? 'border-red-500' : 'border-transparent'} rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all resize-none`}
-                                        placeholder="Deskripsi proker..."
-                                    />
-                                </div>
+                                        <div>
+                                            <label className="block text-xs sm:text-sm font-semibold text-[#3B4D3A] mb-1.5 sm:mb-2">
+                                                Deskripsi * {errors.description && <span className="text-red-600">({errors.description[0]})</span>}
+                                            </label>
+                                            <textarea
+                                                required
+                                                value={formData.description}
+                                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                                rows={4}
+                                                className={`w-full px-3 py-2 sm:px-4 sm:py-3 text-sm bg-[#F5F5F5] border-2 ${errors.description ? 'border-red-500' : 'border-transparent'} rounded-lg sm:rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all resize-none`}
+                                                placeholder="Deskripsi proker..."
+                                            />
+                                        </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-semibold text-[#3B4D3A] mb-2">
-                                            Divisi * {errors.division_ids && <span className="text-red-600">({errors.division_ids[0]})</span>}
-                                        </label>
-                                        <select
-                                            multiple
-                                            required
-                                            value={formData.division_ids.map(String)}
-                                            onChange={(e) => {
-                                                const selected = Array.from(e.target.selectedOptions, option => parseInt(option.value));
-                                                setFormData({ ...formData, division_ids: selected });
-                                            }}
-                                            className="w-full px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
-                                        >
-                                            {divisions.map(division => (
-                                                <option key={division.id} value={division.id}>{division.name}</option>
-                                            ))}
-                                        </select>
+                                        <div>
+                                            <label className="block text-xs sm:text-sm font-semibold text-[#3B4D3A] mb-1.5 sm:mb-2">
+                                                Lokasi
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={formData.location}
+                                                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                                                className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm bg-[#F5F5F5] border-2 border-transparent rounded-lg sm:rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
+                                                placeholder="Contoh: Aula Sekolah"
+                                            />
+                                        </div>
                                     </div>
 
-                                    <div>
-                                        <label className="block text-sm font-semibold text-[#3B4D3A] mb-2">
-                                            Status *
-                                        </label>
-                                        <select
-                                            required
-                                            value={formData.status}
-                                            onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                                            className="w-full px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
-                                        >
-                                            <option value="planned">Direncanakan</option>
-                                            <option value="ongoing">Berlangsung</option>
-                                            <option value="done">Selesai</option>
-                                        </select>
-                                    </div>
+                                    {/* Right Column */}
+                                    <div className="space-y-3 sm:space-y-4">
+                                        {/* Division & Status Row */}
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                                            <div>
+                                                <label className="block text-xs sm:text-sm font-semibold text-[#3B4D3A] mb-1.5 sm:mb-2">
+                                                    Divisi * {errors.division_ids && <span className="text-red-600">({errors.division_ids[0]})</span>}
+                                                </label>
+                                                <select
+                                                    multiple
+                                                    required
+                                                    value={formData.division_ids.map(String)}
+                                                    onChange={(e) => {
+                                                        const selected = Array.from(e.target.selectedOptions, option => parseInt(option.value));
+                                                        setFormData({ ...formData, division_ids: selected });
+                                                    }}
+                                                    className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm bg-[#F5F5F5] border-2 border-transparent rounded-lg sm:rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all h-24 sm:h-[52px]"
+                                                >
+                                                    {divisions.map(division => (
+                                                        <option key={division.id} value={division.id}>{division.name}</option>
+                                                    ))}
+                                                </select>
+                                                <p className="text-[10px] text-gray-500 mt-1">* Tahan Ctrl</p>
+                                            </div>
 
-                                    <div>
-                                        <label className="block text-sm font-semibold text-[#3B4D3A] mb-2">
-                                            Tanggal * {errors.date && <span className="text-red-600">({errors.date[0]})</span>}
-                                        </label>
-                                        <input
-                                            type="date"
-                                            required
-                                            value={formData.date}
-                                            onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                                            className={`w-full px-4 py-3 bg-[#F5F5F5] border-2 ${errors.date ? 'border-red-500' : 'border-transparent'} rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all`}
-                                        />
-                                    </div>
+                                            <div>
+                                                <label className="block text-xs sm:text-sm font-semibold text-[#3B4D3A] mb-1.5 sm:mb-2">
+                                                    Status *
+                                                </label>
+                                                <select
+                                                    required
+                                                    value={formData.status}
+                                                    onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                                                    className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm bg-[#F5F5F5] border-2 border-transparent rounded-lg sm:rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
+                                                >
+                                                    <option value="planned">Direncanakan</option>
+                                                    <option value="ongoing">Berlangsung</option>
+                                                    <option value="done">Selesai</option>
+                                                </select>
+                                            </div>
+                                        </div>
 
-                                    <div>
-                                        <label className="block text-sm font-semibold text-[#3B4D3A] mb-2">
-                                            Lokasi
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={formData.location}
-                                            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                            className="w-full px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
-                                            placeholder="Contoh: Aula Sekolah"
-                                        />
-                                    </div>
-                                </div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                                            <div>
+                                                <label className="block text-xs sm:text-sm font-semibold text-[#3B4D3A] mb-1.5 sm:mb-2">
+                                                    Tanggal Mulai * {errors.date && <span className="text-red-600">({errors.date[0]})</span>}
+                                                </label>
+                                                <div className="relative">
+                                                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                                                    <input
+                                                        type="date"
+                                                        required
+                                                        value={formData.date}
+                                                        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                                                        className={`w-full pl-10 pr-4 py-2 sm:py-3 text-sm bg-[#F5F5F5] border-2 ${errors.date ? 'border-red-500' : 'border-transparent'} rounded-lg sm:rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all`}
+                                                    />
+                                                </div>
+                                            </div>
 
-                                <div className="flex gap-3 pt-4">
+                                            <div>
+                                                <label className="block text-xs sm:text-sm font-semibold text-[#3B4D3A] mb-1.5 sm:mb-2">
+                                                    Tanggal Selesai <span className="text-gray-400 font-normal text-xs">(Opsional)</span>
+                                                </label>
+                                                <div className="relative">
+                                                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                                                    <input
+                                                        type="date"
+                                                        value={formData.end_date}
+                                                        min={formData.date}
+                                                        onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
+                                                        className="w-full pl-10 pr-4 py-2 sm:py-3 text-sm bg-[#F5F5F5] border-2 border-transparent rounded-lg sm:rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div> {/* End Right Column */}
+                                </div> {/* End Grid 2 Cols */}
+
+                                {/* Footer Buttons */}
+                                <div className="flex gap-2 sm:gap-3 pt-4 sm:pt-6 mt-4 sm:mt-6 border-t border-gray-100">
                                     <button
                                         type="button"
                                         onClick={handleCloseModal}
-                                        className="flex-1 px-6 py-3 bg-[#F5F5F5] text-[#6E8BA3] rounded-xl hover:bg-[#E8DCC3] transition-all font-semibold"
+                                        className="flex-1 px-4 py-2.5 sm:px-6 sm:py-3 bg-white text-[#6E8BA3] border-2 border-gray-100 rounded-lg sm:rounded-xl hover:bg-gray-50 hover:border-gray-200 transition-all font-bold text-xs sm:text-base"
                                     >
                                         Batal
                                     </button>
                                     <button
                                         type="submit"
                                         disabled={loading}
-                                        className="flex-1 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all font-semibold disabled:opacity-50"
+                                        className="flex-1 px-4 py-2.5 sm:px-6 sm:py-3 bg-[#3B4D3A] text-white rounded-lg sm:rounded-xl hover:bg-[#2d3a2d] transition-all font-bold disabled:opacity-50 shadow-lg shadow-[#3B4D3A]/20 text-xs sm:text-base"
                                     >
-                                        {loading ? 'Menyimpan...' : 'Simpan'}
+                                        {loading ? 'Menyimpan...' : 'Simpan Proker'}
                                     </button>
                                 </div>
                             </form>
@@ -492,7 +592,28 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
                                     </div>
                                     <div>
                                         <h3 className="text-sm font-bold text-[#3B4D3A] mb-1">Tanggal</h3>
-                                        <p className="text-[#6E8BA3]">{new Date(viewingProker.date).toLocaleDateString('id-ID')}</p>
+                                        <p className="text-[#6E8BA3]">
+                                            {viewingProker.end_date && viewingProker.end_date !== viewingProker.date ? (
+                                                <>
+                                                    {new Date(viewingProker.date).toLocaleDateString('id-ID', {
+                                                        day: 'numeric',
+                                                        month: 'long',
+                                                        year: 'numeric'
+                                                    })} - {new Date(viewingProker.end_date).toLocaleDateString('id-ID', {
+                                                        day: 'numeric',
+                                                        month: 'long',
+                                                        year: 'numeric'
+                                                    })}
+                                                </>
+                                            ) : (
+                                                new Date(viewingProker.date).toLocaleDateString('id-ID', {
+                                                    weekday: 'long',
+                                                    day: 'numeric',
+                                                    month: 'long',
+                                                    year: 'numeric'
+                                                })
+                                            )}
+                                        </p>
                                     </div>
                                     {viewingProker.location && (
                                         <div className="col-span-2">

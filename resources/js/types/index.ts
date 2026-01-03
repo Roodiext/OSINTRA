@@ -50,6 +50,7 @@ export interface Proker {
     title: string;
     description?: string;
     date: string;
+    end_date?: string;
     location?: string;
     status: 'planned' | 'ongoing' | 'done';
     division?: Division;
@@ -72,6 +73,7 @@ export interface ProkerMedia {
     media_type: 'image' | 'video';
     media_url: string;
     caption?: string;
+    is_thumbnail?: boolean;
     proker?: Proker;
 }
 

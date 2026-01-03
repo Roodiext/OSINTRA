@@ -56,6 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/prokers/{proker}/media/upload', [ProkerController::class, 'uploadMedia']);
     Route::post('/prokers/{proker}/media', [ProkerController::class, 'addMedia']);
     Route::delete('/prokers/{proker}/media/{media}', [ProkerController::class, 'removeMedia']);
+    Route::put('/prokers/{proker}/media/{media}/thumbnail', [ProkerController::class, 'setThumbnail']);
 
     // Messages
     Route::get('/messages', [MessageController::class, 'index']);
@@ -72,6 +73,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Settings
     Route::get('/settings', [SettingController::class, 'index']);
     Route::put('/settings', [SettingController::class, 'update']);
+    Route::put('/settings/roles/{role}', [\App\Http\Controllers\Settings\RolePermissionController::class, 'update'])
+        ->middleware(\App\Http\Middleware\EnsureUserIsAdmin::class);
     Route::get('/roles', [SettingController::class, 'getRoles']);
     Route::put('/roles/{role}/permissions', [SettingController::class, 'updateRolePermissions']);
     Route::get('/audit-logs', [SettingController::class, 'getAuditLogs']);

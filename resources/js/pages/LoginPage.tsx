@@ -192,7 +192,7 @@ const LoginPage = () => {
 
                 {/* Footer */}
                 <p className="text-center text-[#6E8BA3] text-sm mt-8 font-medium">
-                    © 2025 OSIS SMKN 6 Surakarta
+                    © 2026 OSIS SMKN 6 Surakarta
                 </p>
             </div>
         </div>

@@ -11,6 +11,7 @@ interface Proker {
     title: string;
     description?: string;
     date: string;
+    end_date?: string;
     location?: string;
     status: 'planned' | 'ongoing' | 'done';
     divisions: Division[];
@@ -25,17 +26,45 @@ const ProkerEditPage: React.FC<ProkerEditPageProps> = ({ divisions }) => {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
-    
+    const [isMultipleDays, setIsMultipleDays] = useState(false);
+
     const [formData, setFormData] = useState({
         title: '',
         description: '',
         division_ids: [] as number[],
         date: '',
+        end_date: '',
         location: '',
         status: 'planned' as 'planned' | 'ongoing' | 'done',
     });
 
-    const prokerId = window.location.pathname.split('/')[4];
+    // URL format: /dashboard/prokers/{id}/edit
+    // split('/') results in: ["", "dashboard", "prokers", "123", "edit"]
+    // So ID is at index 3
+    const pathParts = window.location.pathname.split('/');
+    const prokerId = pathParts[3]; // Fixed: Changed from index 4 to 3
+
+    // Helper function to safely parse date to YYYY-MM-DD format
+    const formatDateForInput = (dateValue: string | null | undefined): string => {
+        if (!dateValue || dateValue === 'undefined' || dateValue === 'null') return '';
+        try {
+            // Handle different date formats
+            if (dateValue.includes('T')) {
+                return dateValue.split('T')[0];
+            }
+            // Check if already in YYYY-MM-DD format
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+                return dateValue;
+            }
+            // Try to parse and format
+            const date = new Date(dateValue);
+            if (isNaN(date.getTime())) return '';
+            return date.toISOString().split('T')[0];
+        } catch (e) {
+            console.warn('Error formatting date:', dateValue, e);
+            return '';
+        }
+    };
 
     useEffect(() => {
         const fetchProker = async () => {
@@ -44,17 +73,26 @@ const ProkerEditPage: React.FC<ProkerEditPageProps> = ({ divisions }) => {
                 const response = await api.get(`/prokers/${prokerId}`);
                 const data = response.data;
                 setProker(data);
-                
+
+                // Safely parse dates
+                const startDate = formatDateForInput(data.date);
+                const endDate = formatDateForInput(data.end_date);
+
+                // Check if event has multiple days
+                const hasEndDate = endDate && endDate !== startDate;
+                setIsMultipleDays(hasEndDate);
+
                 setFormData({
-                    title: data.title,
+                    title: data.title || '',
                     description: data.description || '',
                     division_ids: (data.divisions || []).map((d: Division) => d.id),
-                    date: data.date,
+                    date: startDate,
+                    end_date: endDate,
                     location: data.location || '',
-                    status: data.status,
+                    status: data.status || 'planned',
                 });
             } catch (error) {
-                console.error(error);
+                console.error('Error fetching proker:', error);
                 Swal.fire({
                     icon: 'error',
                     title: 'Gagal!',
@@ -100,8 +138,14 @@ const ProkerEditPage: React.FC<ProkerEditPageProps> = ({ divisions }) => {
         setSubmitting(true);
 
         try {
-            await api.put(`/prokers/${prokerId}`, formData);
-            
+            // Prepare data - only include end_date if multiple days is selected
+            const submitData = {
+                ...formData,
+                end_date: isMultipleDays ? formData.end_date : null,
+            };
+
+            await api.put(`/prokers/${prokerId}`, submitData);
+
             Swal.fire({
                 icon: 'success',
                 title: 'Berhasil!',
@@ -180,11 +224,10 @@ const ProkerEditPage: React.FC<ProkerEditPageProps> = ({ divisions }) => {
                                     value={formData.title}
                                     onChange={handleInputChange}
                                     placeholder="Masukkan judul program kerja"
-                                    className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none transition ${
-                                        errors.title 
-                                            ? 'border-red-500 focus:border-red-600' 
-                                            : 'border-gray-300 focus:border-[#3B4D3A]'
-                                    }`}
+                                    className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none transition ${errors.title
+                                        ? 'border-red-500 focus:border-red-600'
+                                        : 'border-gray-300 focus:border-[#3B4D3A]'
+                                        }`}
                                 />
                                 {errors.title && (
                                     <p className="text-red-500 text-sm mt-1">{errors.title}</p>
@@ -202,35 +245,108 @@ const ProkerEditPage: React.FC<ProkerEditPageProps> = ({ divisions }) => {
                                     onChange={handleInputChange}
                                     placeholder="Masukkan penjelasan event"
                                     rows={5}
-                                    className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none transition ${
-                                        errors.description 
-                                            ? 'border-red-500 focus:border-red-600' 
-                                            : 'border-gray-300 focus:border-[#3B4D3A]'
-                                    }`}
+                                    className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none transition ${errors.description
+                                        ? 'border-red-500 focus:border-red-600'
+                                        : 'border-gray-300 focus:border-[#3B4D3A]'
+                                        }`}
                                 />
                                 {errors.description && (
                                     <p className="text-red-500 text-sm mt-1">{errors.description}</p>
                                 )}
                             </div>
 
-                            {/* Date */}
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            {/* Date Section */}
+                            <div className="space-y-4">
+                                <label className="block text-sm font-semibold text-gray-700">
                                     Tanggal Pelaksanaan *
                                 </label>
-                                <input
-                                    type="date"
-                                    name="date"
-                                    value={formData.date}
-                                    onChange={handleInputChange}
-                                    className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none transition ${
-                                        errors.date 
-                                            ? 'border-red-500 focus:border-red-600' 
-                                            : 'border-gray-300 focus:border-[#3B4D3A]'
-                                    }`}
-                                />
-                                {errors.date && (
-                                    <p className="text-red-500 text-sm mt-1">{errors.date}</p>
+
+                                {/* Toggle for single/multiple days */}
+                                <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
+                                    <span className={`text-sm font-medium ${!isMultipleDays ? 'text-[#3B4D3A]' : 'text-gray-500'}`}>
+                                        Satu Hari
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setIsMultipleDays(!isMultipleDays);
+                                            if (isMultipleDays) {
+                                                // Switching to single day - clear end_date
+                                                setFormData(prev => ({ ...prev, end_date: '' }));
+                                            }
+                                        }}
+                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#3B4D3A] focus:ring-offset-2 ${isMultipleDays ? 'bg-[#3B4D3A]' : 'bg-gray-300'
+                                            }`}
+                                    >
+                                        <span
+                                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ease-in-out ${isMultipleDays ? 'translate-x-6' : 'translate-x-1'
+                                                }`}
+                                        />
+                                    </button>
+                                    <span className={`text-sm font-medium ${isMultipleDays ? 'text-[#3B4D3A]' : 'text-gray-500'}`}>
+                                        Beberapa Hari
+                                    </span>
+                                </div>
+
+                                {/* Date inputs */}
+                                <div className={`grid gap-4 ${isMultipleDays ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'}`}>
+                                    {/* Start Date */}
+                                    <div>
+                                        <label className="block text-xs text-gray-600 mb-1">
+                                            {isMultipleDays ? 'Tanggal Mulai' : 'Tanggal Pelaksanaan'}
+                                        </label>
+                                        <input
+                                            type="date"
+                                            name="date"
+                                            value={formData.date}
+                                            onChange={handleInputChange}
+                                            className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none transition ${errors.date
+                                                ? 'border-red-500 focus:border-red-600'
+                                                : 'border-gray-300 focus:border-[#3B4D3A]'
+                                                }`}
+                                        />
+                                        {errors.date && (
+                                            <p className="text-red-500 text-sm mt-1">{errors.date}</p>
+                                        )}
+                                    </div>
+
+                                    {/* End Date - only shown when isMultipleDays is true */}
+                                    {isMultipleDays && (
+                                        <div>
+                                            <label className="block text-xs text-gray-600 mb-1">
+                                                Tanggal Selesai
+                                            </label>
+                                            <input
+                                                type="date"
+                                                name="end_date"
+                                                value={formData.end_date}
+                                                onChange={handleInputChange}
+                                                min={formData.date}
+                                                className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none transition ${errors.end_date
+                                                    ? 'border-red-500 focus:border-red-600'
+                                                    : 'border-gray-300 focus:border-[#3B4D3A]'
+                                                    }`}
+                                            />
+                                            {errors.end_date && (
+                                                <p className="text-red-500 text-sm mt-1">{errors.end_date}</p>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Date preview */}
+                                {formData.date && !isNaN(new Date(formData.date).getTime()) && (
+                                    <p className="text-sm text-gray-600 bg-[#E8DCC3]/50 px-3 py-2 rounded-lg">
+                                        📅 {isMultipleDays && formData.end_date && !isNaN(new Date(formData.end_date).getTime()) ? (
+                                            <>
+                                                {new Date(formData.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                                {' - '}
+                                                {new Date(formData.end_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                            </>
+                                        ) : (
+                                            new Date(formData.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+                                        )}
+                                    </p>
                                 )}
                             </div>
 
@@ -245,11 +361,10 @@ const ProkerEditPage: React.FC<ProkerEditPageProps> = ({ divisions }) => {
                                     value={formData.location}
                                     onChange={handleInputChange}
                                     placeholder="Masukkan lokasi event"
-                                    className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none transition ${
-                                        errors.location 
-                                            ? 'border-red-500 focus:border-red-600' 
-                                            : 'border-gray-300 focus:border-[#3B4D3A]'
-                                    }`}
+                                    className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none transition ${errors.location
+                                        ? 'border-red-500 focus:border-red-600'
+                                        : 'border-gray-300 focus:border-[#3B4D3A]'
+                                        }`}
                                 />
                                 {errors.location && (
                                     <p className="text-red-500 text-sm mt-1">{errors.location}</p>
@@ -265,11 +380,10 @@ const ProkerEditPage: React.FC<ProkerEditPageProps> = ({ divisions }) => {
                                     name="status"
                                     value={formData.status}
                                     onChange={handleInputChange}
-                                    className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none transition ${
-                                        errors.status 
-                                            ? 'border-red-500 focus:border-red-600' 
-                                            : 'border-gray-300 focus:border-[#3B4D3A]'
-                                    }`}
+                                    className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none transition ${errors.status
+                                        ? 'border-red-500 focus:border-red-600'
+                                        : 'border-gray-300 focus:border-[#3B4D3A]'
+                                        }`}
                                 >
                                     <option value="planned">Direncanakan</option>
                                     <option value="ongoing">Berlangsung</option>
@@ -288,8 +402,8 @@ const ProkerEditPage: React.FC<ProkerEditPageProps> = ({ divisions }) => {
                                 <div className="space-y-2 bg-gray-50 p-4 rounded-lg border-2 border-gray-200">
                                     {divisions && divisions.length > 0 ? (
                                         divisions.map(division => (
-                                            <label 
-                                                key={division.id} 
+                                            <label
+                                                key={division.id}
                                                 className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition cursor-pointer"
                                             >
                                                 <input

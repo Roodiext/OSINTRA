@@ -100,7 +100,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/dashboard/prokers', function () {
         return Inertia::render('dashboard/ProkersPage', [
             'auth' => ['user' => auth()->user()],
-            'prokers' => \App\Models\Proker::with(['divisions'])->get(),
+            'prokers' => \App\Models\Proker::with(['divisions', 'media'])->get(),
             'divisions' => \App\Models\Division::all()
         ]);
     })->name('dashboard.prokers');
@@ -156,9 +156,30 @@ Route::middleware(['auth:sanctum'])->group(function () {
     
     Route::get('/dashboard/settings', function () {
         return Inertia::render('dashboard/SettingsPage', [
-            'auth' => ['user' => auth()->user()]
+            'auth' => ['user' => auth()->user()->load('role')]
         ]);
     })->name('dashboard.settings');
+
+    Route::get('/dashboard/settings/role-access', function () {
+        $modules = [
+            ['name' => 'Dashboard', 'label' => 'Dashboard'],
+            ['name' => 'Divisions', 'label' => 'Divisi'],
+            ['name' => 'Positions', 'label' => 'Posisi'],
+            ['name' => 'Users', 'label' => 'Pengguna'],
+            ['name' => 'Prokers', 'label' => 'Program Kerja'],
+            ['name' => 'Messages', 'label' => 'Pesan'],
+            ['name' => 'Transactions', 'label' => 'Keuangan'],
+            ['name' => 'Settings', 'label' => 'Pengaturan'],
+            ['name' => 'Profile', 'label' => 'Profil'],
+        ];
+
+        $roles = \App\Models\Role::with('permissions')->get();
+
+        return Inertia::render('dashboard/RoleAccessSetting', [
+            'roles' => $roles,
+            'modules' => $modules,
+        ]);
+    })->middleware(\App\Http\Middleware\EnsureUserIsAdmin::class)->name('dashboard.settings.role-access');
     
     Route::get('/dashboard/profile', function () {
         return Inertia::render('dashboard/ProfilePage', [
@@ -181,5 +202,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
     })->name('dashboard.gallery');
 });
 
-// Disable Laravel Fortify settings routes for now
-// require __DIR__.'/settings.php';
+// Enable Laravel settings routes
+require __DIR__.'/settings.php';

@@ -36,7 +36,7 @@ const PublicProkersPage: React.FC = () => {
     const filteredProkers = prokers.filter(proker => {
         const matchesSearch = proker.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             proker.description?.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesDivision = !filterDivision || 
+        const matchesDivision = !filterDivision ||
             (proker.divisions && proker.divisions.some(d => d.id.toString() === filterDivision));
         const matchesStatus = !filterStatus || proker.status === filterStatus;
         return matchesSearch && matchesDivision && matchesStatus;
@@ -113,68 +113,82 @@ const PublicProkersPage: React.FC = () => {
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                                {filteredProkers.map((proker) => (
-                                    <div
-                                        key={proker.id}
-                                        onClick={() => router.visit(`/prokers/${proker.id}`)}
-                                        className="bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-all transform hover:-translate-y-1"
-                                    >
-                                        {proker.media && proker.media.length > 0 && (
-                                            <div className="relative h-48 overflow-hidden">
-                                                {proker.media[0].media_type === 'image' ? (
-                                                    <img
-                                                        src={proker.media[0].media_url}
-                                                        alt={proker.title}
-                                                        className="w-full h-full object-cover"
-                                                    />
-                                                ) : (
-                                                    <video
-                                                        src={proker.media[0].media_url}
-                                                        className="w-full h-full object-cover"
-                                                        muted
-                                                    />
-                                                )}
-                                                <div className="absolute top-4 right-4">
-                                                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColors[proker.status]}`}>
-                                                        {statusLabels[proker.status]}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        )}
-                                        <div className="p-6">
-                                            <h3 className="text-xl font-bold text-[#3B4D3A] mb-3 line-clamp-2">{proker.title}</h3>
-                                            
-                                            <div className="space-y-2 mb-4">
-                                                <div className="flex items-center gap-2 text-sm text-gray-600">
-                                                    <Calendar className="w-4 h-4" />
-                                                    <span>{new Date(proker.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
-                                                </div>
-                                                {proker.location && (
-                                                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                                                        <MapPin className="w-4 h-4" />
-                                                        <span>{proker.location}</span>
-                                                    </div>
-                                                )}
-                                                {proker.divisions && proker.divisions.length > 0 && (
-                                                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                                                        <Users className="w-4 h-4" />
-                                                        <span>{proker.divisions.map(d => d.name).join(', ')}</span>
-                                                    </div>
-                                                )}
-                                            </div>
+                                {filteredProkers.map((proker) => {
+                                    const thumbnail = proker.media?.find(m => m.is_thumbnail) || proker.media?.[0];
 
-                                            {proker.description && (
-                                                <p className="text-sm text-gray-600 line-clamp-2 mb-4">{proker.description}</p>
-                                            )}
-
-                                            {proker.media && proker.media.length > 0 && (
-                                                <div className="flex items-center gap-2 text-sm text-[#3B4D3A] font-semibold">
-                                                    <span>{proker.media.length} Media</span>
+                                    return (
+                                        <div
+                                            key={proker.id}
+                                            onClick={() => router.visit(`/prokers/${proker.id}`)}
+                                            className="bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-all transform hover:-translate-y-1"
+                                        >
+                                            {thumbnail && (
+                                                <div className="relative h-48 overflow-hidden">
+                                                    {thumbnail.media_type === 'image' ? (
+                                                        <img
+                                                            src={thumbnail.media_url}
+                                                            alt={proker.title}
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        <video
+                                                            src={thumbnail.media_url}
+                                                            className="w-full h-full object-cover"
+                                                            muted
+                                                        />
+                                                    )}
+                                                    <div className="absolute top-4 right-4">
+                                                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColors[proker.status]}`}>
+                                                            {statusLabels[proker.status]}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             )}
+                                            <div className="p-6">
+                                                <h3 className="text-xl font-bold text-[#3B4D3A] mb-3 line-clamp-2">{proker.title}</h3>
+
+                                                <div className="space-y-2 mb-4">
+                                                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                        <Calendar className="w-4 h-4" />
+                                                        <span>
+                                                            {proker.end_date && proker.end_date !== proker.date ? (
+                                                                <>
+                                                                    {new Date(proker.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                                                    {' - '}
+                                                                    {new Date(proker.end_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                                                </>
+                                                            ) : (
+                                                                new Date(proker.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+                                                            )}
+                                                        </span>
+                                                    </div>
+                                                    {proker.location && (
+                                                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                            <MapPin className="w-4 h-4" />
+                                                            <span>{proker.location}</span>
+                                                        </div>
+                                                    )}
+                                                    {proker.divisions && proker.divisions.length > 0 && (
+                                                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                            <Users className="w-4 h-4" />
+                                                            <span>{proker.divisions.map(d => d.name).join(', ')}</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {proker.description && (
+                                                    <p className="text-sm text-gray-600 line-clamp-2 mb-4">{proker.description}</p>
+                                                )}
+
+                                                {proker.media && proker.media.length > 0 && (
+                                                    <div className="flex items-center gap-2 text-sm text-[#3B4D3A] font-semibold">
+                                                        <span>{proker.media.length} Media</span>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         )}
                     </div>

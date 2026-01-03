@@ -90,12 +90,28 @@ const PublicProkerDetailPage: React.FC = () => {
                                     <div>
                                         <p className="text-sm text-gray-500">Tanggal Pelaksanaan</p>
                                         <p className="font-semibold text-gray-800">
-                                            {new Date(proker.date).toLocaleDateString('id-ID', {
-                                                weekday: 'long',
-                                                year: 'numeric',
-                                                month: 'long',
-                                                day: 'numeric',
-                                            })}
+                                            {proker.end_date && proker.end_date !== proker.date ? (
+                                                <>
+                                                    {new Date(proker.date).toLocaleDateString('id-ID', {
+                                                        day: 'numeric',
+                                                        month: 'long',
+                                                        year: 'numeric',
+                                                    })}
+                                                    {' - '}
+                                                    {new Date(proker.end_date).toLocaleDateString('id-ID', {
+                                                        day: 'numeric',
+                                                        month: 'long',
+                                                        year: 'numeric',
+                                                    })}
+                                                </>
+                                            ) : (
+                                                new Date(proker.date).toLocaleDateString('id-ID', {
+                                                    weekday: 'long',
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                })
+                                            )}
                                         </p>
                                     </div>
                                 </div>

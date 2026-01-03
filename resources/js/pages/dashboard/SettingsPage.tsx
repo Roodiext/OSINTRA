@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import {
     Settings as SettingsIcon,
@@ -127,8 +127,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
                         </h1>
                         <p className="text-gray-500 mt-1">
                             Kelola konfigurasi dasar dan tampilan aplikasi
-                        </p>
-                    </div>
+                        </p>                    </div>
 
                     <button
                         onClick={handleSave}
@@ -330,6 +329,33 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
                                         {maintenanceMode ? 'Turn Off' : 'Turn On'}
                                     </button>
                                 </div>
+                                {/* Role Access */}
+                                <div className="p-4 bg-gray-50 rounded-xl hover:bg-[#E8DCC3]/10 transition-colors border border-transparent hover:border-[#E8DCC3]">
+                                    <div className="flex items-start justify-between mb-3">
+                                        <div>
+                                            <h3 className="font-bold text-[#3B4D3A]">Pengaturan Akses Role</h3>
+                                            <p className="text-xs text-gray-500">Atur hak akses per role untuk setiap modul.</p>
+                                        </div>
+                                        <Database className="w-5 h-5 text-gray-400" />
+                                    </div>
+
+                                    {auth?.user?.role?.name && auth.user.role.name.toLowerCase() === 'admin' ? (
+                                        <Link href={(window as any).route ? (window as any).route('dashboard.settings.role-access') : '/dashboard/settings/role-access'} className="w-full block text-center py-2 bg-white border border-gray-200 text-[#3B4D3A] font-semibold rounded-lg hover:bg-[#3B4D3A] hover:text-white transition-all text-sm">Buka Pengaturan Akses Role</Link>
+                                    ) : (
+                                        <button
+                                            onClick={() => Swal.fire({
+                                                icon: 'warning',
+                                                title: 'Akses Ditolak',
+                                                text: 'Hanya admin yang dapat membuka Pengaturan Akses Role.',
+                                                confirmButtonColor: '#3B4D3A'
+                                            })}
+                                            className="w-full py-2 bg-white border border-gray-200 text-gray-500 font-semibold rounded-lg text-sm"
+                                        >
+                                            Buka Pengaturan Akses Role
+                                        </button>
+                                    )}
+                                </div>
+
                             </div>
                         </div>
 
