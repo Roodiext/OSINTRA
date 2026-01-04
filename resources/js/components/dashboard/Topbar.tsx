@@ -1,12 +1,16 @@
 import React from 'react';
 import { Menu, Bell } from 'lucide-react';
 
+import { usePage, Link } from '@inertiajs/react';
+import { SharedData } from '@/types';
+
 interface TopbarProps {
     onMenuClick: () => void;
 }
 
 const Topbar: React.FC<TopbarProps> = ({ onMenuClick }) => {
-    const user = { name: 'Admin', role: { name: 'Admin' } };
+    const { auth } = usePage<SharedData>().props;
+    const user = auth.user;
 
     return (
         <header className="bg-white border-b-2 border-[#E8DCC3] px-6 py-4 sticky top-0 z-30 shadow-sm backdrop-blur-sm bg-white/95">
@@ -26,15 +30,18 @@ const Topbar: React.FC<TopbarProps> = ({ onMenuClick }) => {
                 <div className="flex items-center gap-4">
 
                     {/* User Profile */}
-                    <div className="flex items-center gap-3 bg-[#E8DCC3] rounded-xl px-3 py-2 hover:bg-[#d5c9b0] transition-colors cursor-pointer group">
+                    <Link
+                        href="/dashboard/profile"
+                        className="flex items-center gap-3 bg-[#E8DCC3] rounded-xl px-3 py-2 hover:bg-[#d5c9b0] transition-colors cursor-pointer group"
+                    >
                         <div className="text-right hidden sm:block">
-                            <p className="text-sm font-bold text-[#3B4D3A]">{user?.name}</p>
-                            <p className="text-xs text-[#6E8BA3] font-medium">{user?.role?.name}</p>
+                            <p className="text-sm font-bold text-[#3B4D3A]">{user.name}</p>
+                            <p className="text-xs text-[#6E8BA3] font-medium">{user.role?.name || 'No Role'}</p>
                         </div>
                         <div className="w-10 h-10 bg-[#3B4D3A] rounded-full flex items-center justify-center text-[#E8DCC3] font-bold text-lg shadow-md ring-2 ring-[#6E8BA3]/30 group-hover:ring-[#3B4D3A] transition-all">
-                            {user?.name.charAt(0).toUpperCase()}
+                            {user.name.charAt(0).toUpperCase()}
                         </div>
-                    </div>
+                    </Link>
                 </div>
             </div>
         </header>

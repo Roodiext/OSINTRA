@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import {
     Settings as SettingsIcon,
@@ -20,9 +20,13 @@ interface SettingsPageProps {
     auth: {
         user: any;
     };
+    permission_denied?: string | null;
 }
 
 const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
+    const { props } = usePage<SettingsPageProps>();
+    usePermissionAlert(props.permission_denied);
+    
     // Application Configuration State
     const [siteName, setSiteName] = useState('OSIS SMAN 1 Indonesia');
     const [academicPeriod, setAcademicPeriod] = useState('2024/2025');

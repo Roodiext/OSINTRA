@@ -77,7 +77,8 @@ class RoleSeeder extends Seeder
 
     private function seedRolePermissions(): void
     {
-        $modules = ['Dashboard', 'Divisions', 'Users', 'Prokers', 'Messages', 'Transactions', 'Settings', 'Profile'];
+        // Canonical modules list - must match RolePermissionController
+        $modules = ['Dashboard', 'Divisions', 'Positions', 'Users', 'Prokers', 'Messages', 'Transactions', 'Settings', 'Profile'];
 
         // Lookup role IDs by name to avoid hardcoded IDs
         $roleAdmin = DB::table('roles')->where('name', 'Admin')->value('id');
@@ -89,10 +90,9 @@ class RoleSeeder extends Seeder
         $roleHumas = DB::table('roles')->where('name', 'Humas')->value('id');
         $roleMedkom = DB::table('roles')->where('name', 'Medkom')->value('id');
 
-        // Admin - Full access
+        // Admin - Full access to all modules
         if ($roleAdmin) {
             foreach ($modules as $module) {
-                // avoid duplicate permission rows
                 $permExists = DB::table('role_permissions')
                     ->where('role_id', $roleAdmin)
                     ->where('module_name', $module)
@@ -112,7 +112,7 @@ class RoleSeeder extends Seeder
             }
         }
 
-        // Ketua OSIS - Prokers, Transactions, Messages
+        // Ketua OSIS - Prokers, Transactions, Messages, Profile
         $ketuaModules = ['Dashboard', 'Prokers', 'Transactions', 'Messages', 'Profile'];
         if ($roleKetua) {
             foreach ($ketuaModules as $module) {
@@ -135,7 +135,7 @@ class RoleSeeder extends Seeder
             }
         }
 
-        // Wakil Ketua OSIS - Prokers, Messages, Divisions
+        // Wakil Ketua OSIS - Prokers, Messages, Divisions, Profile
         $wakilKetuaModules = ['Dashboard', 'Prokers', 'Messages', 'Divisions', 'Profile'];
         if ($roleWakilKetua) {
             foreach ($wakilKetuaModules as $module) {
@@ -158,7 +158,7 @@ class RoleSeeder extends Seeder
             }
         }
 
-        // Sekretaris - Messages, Divisions
+        // Sekretaris - Messages, Divisions, Profile
         $sekretarisModules = ['Dashboard', 'Messages', 'Divisions', 'Profile'];
         if ($roleSekretaris) {
             foreach ($sekretarisModules as $module) {
@@ -181,7 +181,7 @@ class RoleSeeder extends Seeder
             }
         }
 
-        // Bendahara - Transactions
+        // Bendahara - Transactions, Profile
         $bendaharaModules = ['Dashboard', 'Transactions', 'Profile'];
         if ($roleBendahara) {
             foreach ($bendaharaModules as $module) {
@@ -204,7 +204,7 @@ class RoleSeeder extends Seeder
             }
         }
 
-        // Anggota - Dashboard & Profile only
+        // Anggota - Dashboard & Profile only (read-only + edit profile)
         $anggotaModules = ['Dashboard', 'Profile'];
         if ($roleAnggota) {
             foreach ($anggotaModules as $module) {
@@ -227,7 +227,7 @@ class RoleSeeder extends Seeder
             }
         }
 
-        // Humas - Messages, Prokers (view and create posts), Dashboard
+        // Humas - Messages, Prokers, Profile
         $humasModules = ['Dashboard', 'Prokers', 'Messages', 'Profile'];
         if ($roleHumas) {
             foreach ($humasModules as $module) {
@@ -241,7 +241,7 @@ class RoleSeeder extends Seeder
                         'module_name' => $module,
                         'can_view' => true,
                         'can_create' => $module === 'Messages' || $module === 'Prokers',
-                        'can_edit' => $module === 'Messages' || $module === 'Prokers',
+                        'can_edit' => $module === 'Messages' || $module === 'Prokers' || $module === 'Profile',
                         'can_delete' => false,
                         'created_at' => now(),
                         'updated_at' => now(),
@@ -250,7 +250,7 @@ class RoleSeeder extends Seeder
             }
         }
 
-        // Medkom - Media & Prokers access for uploading and managing media
+        // Medkom - Prokers, Profile
         $medkomModules = ['Dashboard', 'Prokers', 'Profile'];
         if ($roleMedkom) {
             foreach ($medkomModules as $module) {

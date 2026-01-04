@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Plus, Search, TrendingUp, TrendingDown, DollarSign, Calendar } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -22,6 +22,9 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
     totalIncome,
     totalExpense
 }) => {
+    const { props } = usePage<TransactionsPageProps>();
+    usePermissionAlert(props.permission_denied);
+    
     const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions || []);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState<string>('');

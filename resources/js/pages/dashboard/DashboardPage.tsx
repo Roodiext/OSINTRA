@@ -1,13 +1,36 @@
 import React, { useEffect, useState } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Users, FolderKanban, Mail, DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
 import api from '@/lib/axios';
 import type { DashboardStats } from '@/types';
+import Swal from 'sweetalert2';
 
 const DashboardPage: React.FC = () => {
+    const { flash } = usePage().props;
     const [stats, setStats] = useState<DashboardStats | null>(null);
     const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        // Show permission denied alert if exists
+        if (flash?.permission_denied) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Akses Ditolak',
+                text: flash?.permission_message || 'Anda tidak memiliki izin untuk mengakses halaman tersebut.',
+                confirmButtonColor: '#3B4D3A',
+                confirmButtonText: 'Kembali ke Dashboard',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    // Blur background
+                    const backdrop = document.querySelector('.swal2-container');
+                    if (backdrop) {
+                        backdrop.style.backdropFilter = 'blur(4px)';
+                    }
+                }
+            });
+        }
+    }, [flash?.permission_denied]);
 
     useEffect(() => {
         const fetchStats = async () => {

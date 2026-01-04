@@ -74,8 +74,15 @@ class AuthController extends Controller
      */
     public function me(Request $request)
     {
+        $user = $request->user();
+        
+        \Log::info('AuthController@me: User data retrieved', [
+            'user_id' => $user->id,
+            'username' => $user->username,
+        ]);
+
         return response()->json([
-            'user' => $request->user()->load(['role.permissions', 'position']),
+            'user' => $user->load(['role.permissions', 'position']),
         ]);
     }
 
@@ -88,6 +95,7 @@ class AuthController extends Controller
 
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
+            'username' => 'sometimes|string|unique:users,username,' . $user->id,
             'email' => 'sometimes|email|unique:users,email,' . $user->id,
             'profile_picture' => 'sometimes|nullable|string',
         ]);

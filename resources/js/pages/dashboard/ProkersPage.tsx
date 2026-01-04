@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Plus, Edit, Trash2, Search, Eye, Users, Image, Calendar, MapPin } from 'lucide-react';
 import type { Proker, Division } from '@/types';
@@ -12,6 +12,7 @@ interface ProkersPageProps {
 }
 
 const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divisions }) => {
+    
     const [prokers, setProkers] = useState<Proker[]>(initialProkers || []);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterDivision, setFilterDivision] = useState<string>('');

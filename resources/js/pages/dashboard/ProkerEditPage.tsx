@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { ArrowLeft, X } from 'lucide-react';
 import api from '@/lib/axios';

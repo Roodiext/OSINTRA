@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Plus, Edit, Trash2, Users, Search } from 'lucide-react';
 import type { Division } from '@/types';
@@ -11,6 +11,8 @@ interface DivisionsPageProps {
 }
 
 const DivisionsPage: React.FC<DivisionsPageProps> = ({ divisions: initialDivisions }) => {
+    const { props } = usePage<DivisionsPageProps>();
+    
     const [divisions, setDivisions] = useState<Division[]>(initialDivisions || []);
     const [searchQuery, setSearchQuery] = useState('');
     const [showModal, setShowModal] = useState(false);
