@@ -13,7 +13,7 @@ class CheckPagePermission
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next, string $module, string $action = 'view'): Response
+    public function handle(Request $request, Closure $next, string $module, string $action = 'view', string $label = null): Response
     {
         $user = auth()->user();
         
@@ -28,10 +28,11 @@ class CheckPagePermission
 
         // Check if user has permission
         if (!$user->hasPermission($module, $action)) {
+            $displayName = $label ?? $module;
             // Return alert response
             return redirect('/dashboard')->with([
                 'permission_denied' => true,
-                'permission_message' => "Anda tidak memiliki izin untuk mengakses halaman {$module}.",
+                'permission_message' => "Anda tidak memiliki izin untuk mengakses halaman {$displayName}.",
             ]);
         }
 

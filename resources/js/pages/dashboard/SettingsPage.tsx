@@ -15,6 +15,7 @@ import {
     CheckCircle2
 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { usePermissionAlert } from '@/hooks/usePermissionAlert';
 
 interface SettingsPageProps {
     auth: {
@@ -24,9 +25,9 @@ interface SettingsPageProps {
 }
 
 const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
-    const { props } = usePage<SettingsPageProps>();
-    usePermissionAlert(props.permission_denied);
-    
+    const { props } = usePage<any>();
+    usePermissionAlert(props.flash?.permission_message);
+
     // Application Configuration State
     const [siteName, setSiteName] = useState('OSIS SMAN 1 Indonesia');
     const [academicPeriod, setAcademicPeriod] = useState('2024/2025');

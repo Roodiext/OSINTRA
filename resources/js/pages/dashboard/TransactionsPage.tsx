@@ -6,6 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import type { Transaction } from '@/types';
 import Swal from 'sweetalert2';
 import api from '@/lib/axios';
+import { usePermissionAlert } from '@/hooks/usePermissionAlert';
 
 interface TransactionsPageProps {
     transactions: Transaction[];
@@ -22,9 +23,9 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
     totalIncome,
     totalExpense
 }) => {
-    const { props } = usePage<TransactionsPageProps>();
-    usePermissionAlert(props.permission_denied);
-    
+    const { props } = usePage<any>();
+    usePermissionAlert(props.flash?.permission_message);
+
     const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions || []);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState<string>('');
