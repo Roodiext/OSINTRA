@@ -135,12 +135,12 @@ const AboutSection: React.FC = () => {
                     <div className="grid lg:grid-cols-5 gap-10 items-center">
 
                         {/* Ketos Left Column: Photo + Info */}
-                        <div className="lg:col-span-2 flex flex-col items-center group">
+                        <div className="lg:col-span-2 flex flex-col items-center group mb-12 lg:mb-0">
                             <div className="relative w-full max-w-[340px]">
                                 {/* Diagonal Background Text - Adjusted Size */}
                                 <div className="absolute -inset-10 flex items-center justify-center -z-10 pointer-events-none overflow-hidden select-none">
                                     <div className="text-[90px] font-black text-[#3B4D3A]/[0.08] uppercase leading-none rotate-[-25deg] whitespace-nowrap">
-                                        Ketua Osis <br /> Ketua Osis
+                                        Ketua Osis <br /> Ketua Osis <br /> Ketua Osis <br /> Ketua Osis <br /> Ketua Osis
                                     </div>
                                 </div>
 
@@ -158,7 +158,7 @@ const AboutSection: React.FC = () => {
                             </div>
 
                             {/* Info below card as requested */}
-                            <div className="mt-2 text-center animate-slideUp">
+                            <div className="-mt-12 text-center animate-slideUp relative z-20">
                                 <h4 className="text-2xl font-black text-[#3B4D3A] tracking-tight">{sambutanKetos.name}</h4>
                                 <div className="inline-flex items-center gap-2 mt-2 px-4 py-1.5 bg-[#E8DCC3]/90 backdrop-blur-sm rounded-full border border-[#DBCAB0] shadow-sm">
                                     <Sparkles className="w-3.5 h-3.5 text-[#3B4D3A]" />
