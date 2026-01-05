@@ -39,5 +39,13 @@ export interface User {
     two_factor_enabled?: boolean;
     created_at: string;
     updated_at: string;
+    role?: Role;
     [key: string]: unknown; // This allows for additional properties...
+}
+
+export interface Role {
+    id: number;
+    name: string;
+    description?: string;
+    // Add other role properties if needed
 }

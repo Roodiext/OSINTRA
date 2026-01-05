@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Plus, Edit, Trash2, Search, Filter, UserCircle, Key, ToggleLeft, ToggleRight } from 'lucide-react';
 import type { User, Role, Division } from '@/types';
 import type { Position } from '@/types';
 import Swal from 'sweetalert2';
 import api from '@/lib/axios';
+import { usePermissionAlert } from '@/hooks/usePermissionAlert';
 
 interface UsersPageProps {
+    [key: string]: any;
     users: User[];
     roles: Role[];
     divisions: Division[];
@@ -15,6 +17,9 @@ interface UsersPageProps {
 }
 
 const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divisions, positions }) => {
+    const { props } = usePage<any>();
+    usePermissionAlert(props.flash?.permission_message);
+
     const [users, setUsers] = useState<User[]>(initialUsers || []);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterRole, setFilterRole] = useState<string>('');

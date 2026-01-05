@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Search, Mail, MailOpen, Archive, Eye } from 'lucide-react';
 import type { Message } from '@/types';
@@ -11,6 +11,7 @@ interface MessagesPageProps {
 }
 
 const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }) => {
+    
     const [messages, setMessages] = useState<Message[]>(initialMessages || []);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterStatus, setFilterStatus] = useState<string>('');

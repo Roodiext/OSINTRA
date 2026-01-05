@@ -106,23 +106,32 @@ class User extends Authenticatable
      */
     public function hasPermission(string $module, string $action): bool
     {
+        // If no role, deny access
         if (!$this->role) {
             return false;
         }
 
+        // Admin role always has all permissions
+        if ($this->role->name === 'Admin') {
+            return true;
+        }
+
+        // Check role permissions
         $permission = $this->role->permissions()
             ->where('module_name', $module)
             ->first();
 
+        // If no permission record found, deny access
         if (!$permission) {
             return false;
         }
 
+        // Check specific action permission
         return match($action) {
-            'view' => $permission->can_view,
-            'create' => $permission->can_create,
-            'edit' => $permission->can_edit,
-            'delete' => $permission->can_delete,
+            'view' => (bool) $permission->can_view,
+            'create' => (bool) $permission->can_create,
+            'edit' => (bool) $permission->can_edit,
+            'delete' => (bool) $permission->can_delete,
             default => false,
         };
     }

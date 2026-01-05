@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { ArrowLeft, Calendar, MapPin, Users, BookOpen, Edit, Trash2, Plus, Image as ImageIcon, X, Upload, Star } from 'lucide-react';
 import api from '@/lib/axios';
@@ -51,6 +51,8 @@ interface Proker {
 }
 
 const ProkerDetailPage: React.FC = () => {
+    const { props } = usePage<ProkerDetailPageProps>();
+    
     const [proker, setProker] = useState<Proker | null>(null);
     const [loading, setLoading] = useState(true);
     const [positions, setPositions] = useState<Position[]>([]);

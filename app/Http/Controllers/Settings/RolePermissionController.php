@@ -10,12 +10,12 @@ use Inertia\Inertia;
 
 class RolePermissionController extends Controller
 {
-
-
-    public function index()
+    /**
+     * Canonical module list - must match database module names
+     */
+    private function getModules(): array
     {
-        // Canonical module list (use same names as seeded permissions)
-        $modules = [
+        return [
             ['name' => 'Dashboard', 'label' => 'Dashboard'],
             ['name' => 'Divisions', 'label' => 'Divisi'],
             ['name' => 'Positions', 'label' => 'Posisi'],
@@ -26,8 +26,14 @@ class RolePermissionController extends Controller
             ['name' => 'Settings', 'label' => 'Pengaturan'],
             ['name' => 'Profile', 'label' => 'Profil'],
         ];
+    }
 
-        $roles = Role::with('permissions')->get();
+    public function index()
+    {
+        $modules = $this->getModules();
+        $roles = Role::with(['permissions' => function ($query) {
+            $query->orderBy('module_name');
+        }])->orderBy('name')->get();
 
         return Inertia::render('settings/RoleAccessSetting', [
             'roles' => $roles,
@@ -35,27 +41,54 @@ class RolePermissionController extends Controller
         ]);
     }
 
+    /**
+     * Update permissions for a specific role
+     */
     public function update(Request $request, Role $role)
     {
+        // Validate input
         $data = $request->validate([
             'permissions' => 'required|array',
+            'permissions.*' => 'array',
+            'permissions.*.can_view' => 'boolean',
+            'permissions.*.can_create' => 'boolean',
+            'permissions.*.can_edit' => 'boolean',
+            'permissions.*.can_delete' => 'boolean',
         ]);
 
         $permissions = $data['permissions']; // structure: ['module_name' => ['can_view'=>true, ...], ...]
+        $modules = $this->getModules();
+        $moduleNames = array_column($modules, 'name');
 
-        foreach ($permissions as $module => $perms) {
-            $rp = RolePermission::firstOrNew([
-                'role_id' => $role->id,
-                'module_name' => $module,
-            ]);
+        // Update permissions for each module
+        foreach ($permissions as $moduleName => $perms) {
+            // Validate module name exists in canonical list
+            if (!in_array($moduleName, $moduleNames)) {
+                continue; // Skip invalid module names
+            }
 
-            $rp->can_view = !empty($perms['can_view']);
-            $rp->can_create = !empty($perms['can_create']);
-            $rp->can_edit = !empty($perms['can_edit']);
-            $rp->can_delete = !empty($perms['can_delete']);
-            $rp->save();
+            // Use firstOrCreate to avoid duplicates and ensure atomicity
+            $rp = RolePermission::updateOrCreate(
+                [
+                    'role_id' => $role->id,
+                    'module_name' => $moduleName,
+                ],
+                [
+                    'can_view' => (bool)($perms['can_view'] ?? false),
+                    'can_create' => (bool)($perms['can_create'] ?? false),
+                    'can_edit' => (bool)($perms['can_edit'] ?? false),
+                    'can_delete' => (bool)($perms['can_delete'] ?? false),
+                ]
+            );
         }
 
-        return response()->json(['message' => 'Permissions updated']);
+        // Log the change
+        \Illuminate\Support\Facades\Log::info("Permissions updated for role {$role->name} (ID: {$role->id}) by user " . auth()->id());
+
+        return response()->json([
+            'message' => 'Permissions updated successfully',
+            'role_id' => $role->id,
+            'role_name' => $role->name,
+        ], 200);
     }
 }

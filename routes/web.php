@@ -58,7 +58,23 @@ Route::get('/login', function () {
 */
 
 Route::middleware(['auth:sanctum'])->group(function () {
-    // Dashboard Home
+    // Permission Denied Page - Show SweetAlert2 with backdrop blur
+    Route::get('/permission-denied', function () {
+        $message = request()->query('message', 'Anda tidak memiliki izin untuk mengakses halaman ini.');
+        $redirect = request()->query('redirect', route('dashboard'));
+        
+        // Validate redirect URL is safe (starts with / or domain)
+        if (!str_starts_with($redirect, '/') && !str_starts_with($redirect, url('/'))) {
+            $redirect = route('dashboard');
+        }
+        
+        return Inertia::render('PermissionDenied', [
+            'message' => $message,
+            'redirect' => $redirect,
+        ]);
+    })->name('permission-denied');
+    
+    // Dashboard Home - Everyone can view
     Route::get('/dashboard', function () {
         return Inertia::render('dashboard/DashboardPage', [
             'auth' => [
@@ -67,25 +83,19 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ]);
     })->name('dashboard');
     
-    // Dashboard Modules
+    // Dashboard Modules - With permission checks
     Route::get('/dashboard/divisions', function () {
         return Inertia::render('dashboard/DivisionsPage', [
             'auth' => ['user' => auth()->user()],
-            'divisions' => \App\Models\Division::withCount('users')->get()
+            'divisions' => \App\Models\Division::withCount('users')->get(),
         ]);
-    })->name('dashboard.divisions');
+    })->middleware('check.permission:Divisions,view,Divisi')->name('dashboard.divisions');
     
     Route::get('/dashboard/positions', function () {
-        $user = auth()->user();
-        $role = strtolower(optional($user->role)->name ?? '');
-        // Only allow admin, ketua, wakil ketua to access Positions page
-        if (!in_array($role, ['admin', 'ketua', 'wakil ketua'])) {
-            abort(403);
-        }
         return Inertia::render('dashboard/PositionsPage', [
-            'auth' => ['user' => $user],
+            'auth' => ['user' => auth()->user()],
         ]);
-    })->name('dashboard.positions');
+    })->middleware('check.permission:Positions,view,Posisi')->name('dashboard.positions');
     
     Route::get('/dashboard/users', function () {
         return Inertia::render('dashboard/UsersPage', [
@@ -93,37 +103,37 @@ Route::middleware(['auth:sanctum'])->group(function () {
             'users' => \App\Models\User::with(['role', 'position'])->get(),
             'roles' => \App\Models\Role::all(),
             'divisions' => \App\Models\Division::all(),
-            'positions' => \App\Models\Position::orderBy('id')->get()
+            'positions' => \App\Models\Position::all(),
         ]);
-    })->name('dashboard.users');
+    })->middleware('check.permission:Users,view,Pengguna')->name('dashboard.users');
     
     Route::get('/dashboard/prokers', function () {
         return Inertia::render('dashboard/ProkersPage', [
             'auth' => ['user' => auth()->user()],
             'prokers' => \App\Models\Proker::with(['divisions', 'media'])->get(),
-            'divisions' => \App\Models\Division::all()
+            'divisions' => \App\Models\Division::all(),
         ]);
-    })->name('dashboard.prokers');
+    })->middleware('check.permission:Prokers,view,Program Kerja')->name('dashboard.prokers');
     
     Route::get('/dashboard/prokers/{id}', function ($id) {
         return Inertia::render('dashboard/ProkerDetailPage', [
             'auth' => ['user' => auth()->user()],
         ]);
-    })->name('dashboard.prokers.detail');
+    })->middleware('check.permission:Prokers,view,Program Kerja')->name('dashboard.prokers.detail');
     
     Route::get('/dashboard/prokers/{id}/edit', function ($id) {
         return Inertia::render('dashboard/ProkerEditPage', [
             'auth' => ['user' => auth()->user()],
-            'divisions' => \App\Models\Division::all()
+            'divisions' => \App\Models\Division::all(),
         ]);
-    })->name('dashboard.prokers.edit');
+    })->middleware('check.permission:Prokers,edit,Program Kerja')->name('dashboard.prokers.edit');
     
     Route::get('/dashboard/messages', function () {
         return Inertia::render('dashboard/MessagesPage', [
             'auth' => ['user' => auth()->user()],
-            'messages' => \App\Models\Message::orderBy('created_at', 'desc')->get()
+            'messages' => \App\Models\Message::orderBy('created_at', 'desc')->get(),
         ]);
-    })->name('dashboard.messages');
+    })->middleware('check.permission:Messages,view,Pesan')->name('dashboard.messages');
     
     Route::get('/dashboard/transactions', function () {
         $transactions = \App\Models\Transaction::with('creator')->orderBy('date', 'desc')->get();
@@ -143,22 +153,22 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ->get()
         ->reverse()
         ->values();
-        
+    
         return Inertia::render('dashboard/TransactionsPage', [
             'auth' => ['user' => auth()->user()],
             'transactions' => $transactions,
             'balance' => $balance,
             'totalIncome' => $totalIncome,
             'totalExpense' => $totalExpense,
-            'monthlyData' => $monthlyData
+            'monthlyData' => $monthlyData,
         ]);
-    })->name('dashboard.transactions');
+    })->middleware('check.permission:Transactions,view,Keuangan')->name('dashboard.transactions');
     
     Route::get('/dashboard/settings', function () {
         return Inertia::render('dashboard/SettingsPage', [
-            'auth' => ['user' => auth()->user()->load('role')]
+            'auth' => ['user' => auth()->user()->load('role')],
         ]);
-    })->name('dashboard.settings');
+    })->middleware('check.permission:Settings,view,Pengaturan')->name('dashboard.settings');
 
     Route::get('/dashboard/settings/role-access', function () {
         $modules = [
@@ -172,14 +182,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
             ['name' => 'Settings', 'label' => 'Pengaturan'],
             ['name' => 'Profile', 'label' => 'Profil'],
         ];
-
+        
         $roles = \App\Models\Role::with('permissions')->get();
 
         return Inertia::render('dashboard/RoleAccessSetting', [
             'roles' => $roles,
             'modules' => $modules,
         ]);
-    })->middleware(\App\Http\Middleware\EnsureUserIsAdmin::class)->name('dashboard.settings.role-access');
+    })->middleware('check.permission:Settings,edit,Akses Role')->name('dashboard.settings.role-access');
     
     Route::get('/dashboard/profile', function () {
         return Inertia::render('dashboard/ProfilePage', [
@@ -191,9 +201,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/dashboard/audit-logs', function () {
         return Inertia::render('dashboard/AuditLogsPage', [
             'auth' => ['user' => auth()->user()],
-            'logs' => \App\Models\AuditLog::with('user')->orderBy('created_at', 'desc')->limit(100)->get()
+            'logs' => \App\Models\AuditLog::with('user')->orderBy('created_at', 'desc')->limit(100)->get(),
         ]);
-    })->name('dashboard.audit-logs');
+    })->middleware('check.permission:Settings,view,Log Aktivitas')->name('dashboard.audit-logs');
     
     Route::get('/dashboard/gallery', function () {
         return Inertia::render('dashboard/GalleryCmsPage', [

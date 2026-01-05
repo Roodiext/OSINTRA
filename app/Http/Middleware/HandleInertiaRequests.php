@@ -43,9 +43,15 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
-                'user' => $request->user(),
+                'user' => $request->user()?->load('role'),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'flash' => [
+                'permission_denied' => session('permission_denied'),
+                'permission_message' => session('permission_message'),
+                'success' => session('success'),
+                'error' => session('error'),
+            ],
         ];
     }
 }

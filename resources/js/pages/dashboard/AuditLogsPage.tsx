@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Search, Download, Calendar, User } from 'lucide-react';
 import type { AuditLog } from '@/types';
@@ -9,6 +9,7 @@ interface AuditLogsPageProps {
 }
 
 const AuditLogsPage: React.FC<AuditLogsPageProps> = ({ logs }) => {
+    
     const [searchQuery, setSearchQuery] = useState('');
     const [filterUser, setFilterUser] = useState<string>('');
     const [filterDate, setFilterDate] = useState<string>('');

@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Plus, Edit, Trash2, Search, Eye, Users, Image, Calendar, MapPin } from 'lucide-react';
 import type { Proker, Division } from '@/types';
 import Swal from 'sweetalert2';
 import api from '@/lib/axios';
+import { usePermissionAlert } from '@/hooks/usePermissionAlert';
 
 interface ProkersPageProps {
     prokers: Proker[];
     divisions: Division[];
 }
 
-const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divisions }) => {
+const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divisions = [] }) => {
+    const { props } = usePage<any>();
+    usePermissionAlert(props.flash?.permission_message);
     const [prokers, setProkers] = useState<Proker[]>(initialProkers || []);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterDivision, setFilterDivision] = useState<string>('');

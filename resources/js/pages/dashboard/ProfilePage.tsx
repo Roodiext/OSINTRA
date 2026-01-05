@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { User, Mail, Shield, Building2, Key, Camera } from 'lucide-react';
@@ -12,6 +12,16 @@ interface ProfilePageProps {
 
 const ProfilePage: React.FC<ProfilePageProps> = ({ user: initialUser }) => {
     const [user, setUser] = useState<UserType>(initialUser);
+
+    useEffect(() => {
+        setUser(initialUser);
+        setProfileData({
+            name: initialUser.name,
+            email: initialUser.email,
+            username: initialUser.username,
+        });
+    }, [initialUser]);
+
     const [isEditingProfile, setIsEditingProfile] = useState(false);
     const [isChangingPassword, setIsChangingPassword] = useState(false);
     const [profileData, setProfileData] = useState({
@@ -122,9 +132,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user: initialUser }) => {
                                     <div className="w-32 h-32 bg-[#E8DCC3] rounded-full flex items-center justify-center text-[#3B4D3A] text-5xl font-bold shadow-lg">
                                         {user.name.charAt(0).toUpperCase()}
                                     </div>
-                                    <button className="absolute bottom-0 right-0 p-3 bg-[#3B4D3A] text-white rounded-full shadow-lg hover:bg-[#2d3a2d] transition-all">
-                                        <Camera className="w-5 h-5" />
-                                    </button>
+
                                 </div>
 
                                 <h2 className="text-2xl font-bold text-[#3B4D3A] mb-2">{user.name}</h2>
@@ -141,14 +149,12 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user: initialUser }) => {
                                 )}
 
                                 <div className="mt-6 pt-6 border-t border-[#E8DCC3]">
-                                    <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg ${
-                                        user.status === 'active'
-                                            ? 'bg-green-100 text-green-700'
-                                            : 'bg-red-100 text-red-700'
-                                    }`}>
-                                        <div className={`w-2 h-2 rounded-full ${
-                                            user.status === 'active' ? 'bg-green-600' : 'bg-red-600'
-                                        }`} />
+                                    <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg ${user.status === 'active'
+                                        ? 'bg-green-100 text-green-700'
+                                        : 'bg-red-100 text-red-700'
+                                        }`}>
+                                        <div className={`w-2 h-2 rounded-full ${user.status === 'active' ? 'bg-green-600' : 'bg-red-600'
+                                            }`} />
                                         <span className="font-semibold text-sm">
                                             {user.status === 'active' ? 'Aktif' : 'Nonaktif'}
                                         </span>

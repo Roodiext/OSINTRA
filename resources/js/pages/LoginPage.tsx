@@ -34,14 +34,24 @@ const LoginPage = () => {
 
             const { token, user } = response.data;
 
+            console.log('Login response received:', {
+                hasToken: !!token,
+                userName: user?.name,
+                userId: user?.id,
+            });
+
             if (token) {
                 // Simpan token ke localStorage (konsisten dengan axios interceptor)
                 localStorage.setItem('auth_token', token);
+                console.log('Token saved to localStorage');
+
                 // Set default header untuk request selanjutnya
                 api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                console.log('Authorization header set');
 
                 // Simpan data user jika diperlukan
                 localStorage.setItem('user', JSON.stringify(user));
+                console.log('User data saved to localStorage');
 
                 // Tampilkan alert sukses dengan animasi
                 await Swal.fire({
@@ -54,6 +64,7 @@ const LoginPage = () => {
                     iconColor: '#22c55e',
                 });
 
+                console.log('Navigating to /dashboard...');
                 // Gunakan router Inertia untuk navigasi
                 router.visit('/dashboard', {
                     method: 'get',

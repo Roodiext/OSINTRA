@@ -15,6 +15,12 @@ class InertiaAuth
     {
         // Check if user is authenticated via Sanctum
         if (!$request->user()) {
+            \Log::info('InertiaAuth: User not authenticated', [
+                'path' => $request->path(),
+                'header' => $request->header('Authorization') ? 'Has Bearer' : 'No Bearer',
+                'x-inertia' => $request->header('X-Inertia'),
+            ]);
+            
             // If it's an Inertia request, redirect to login
             if ($request->header('X-Inertia')) {
                 return redirect()->route('login');
@@ -24,6 +30,12 @@ class InertiaAuth
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
+        \Log::info('InertiaAuth: User authenticated', [
+            'user_id' => $request->user()->id,
+            'path' => $request->path(),
+        ]);
+
         return $next($request);
     }
 }
+

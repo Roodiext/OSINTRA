@@ -39,26 +39,84 @@ router.on('error', (event) => {
     }
 });
 
-createInertiaApp({
-    title: (title) => (title ? `${title} - ${appName}` : appName),
-    resolve: (name) =>
-        resolvePageComponent(
-            `./pages/${name}.tsx`,
-            import.meta.glob('./pages/**/*.tsx'),
-        ),
-    setup({ el, App, props }) {
-        const root = createRoot(el);
+// Verify token validity on app load
+const verifyToken = async () => {
+    const storedToken = localStorage.getItem('auth_token');
+    
+    // If no token, skip verification
+    if (!storedToken) {
+        console.log('No auth token found, skipping verification');
+        return;
+    }
 
-        root.render(
-            <StrictMode>
-                <App {...props} />
-            </StrictMode>,
-        );
-    },
-    progress: {
-        color: '#4B5563',
-    },
-});
+    console.log('Token found, verifying with backend...');
 
-// This will set light / dark mode on load...
-initializeTheme();
+    try {
+        // Create temporary axios instance with token for verification
+        const verifyAxios = axios.create({
+            baseURL: '/api',
+            headers: {
+                'Authorization': `Bearer ${storedToken}`,
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            withCredentials: true,
+        });
+
+        // Verify token with backend by calling /api/me
+        const response = await verifyAxios.get('/me', {
+            timeout: 10000, // 10 second timeout for verification
+        });
+        
+        // Token is valid, ensure it's set in default axios instance
+        if (response.data?.user) {
+            console.log('Token verified successfully, user:', response.data.user.name);
+            localStorage.setItem('user', JSON.stringify(response.data.user));
+            localStorage.setItem('auth_token', storedToken); // Re-ensure token is saved
+            axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
+        }
+    } catch (error: any) {
+        // Token is invalid or expired
+        const status = error.response?.status;
+        const errorMsg = error.response?.data?.message || error.message;
+        console.log(`Token verification failed (${status}):`, errorMsg);
+        
+        // Clear invalid token and user data
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user');
+        axios.defaults.headers.common['Authorization'] = '';
+    }
+};
+
+// Initialize app with token verification
+const initializeApp = async () => {
+    // Verify token before rendering app
+    await verifyToken();
+
+    createInertiaApp({
+        title: (title) => (title ? `${title} - ${appName}` : appName),
+        resolve: (name) =>
+            resolvePageComponent(
+                `./pages/${name}.tsx`,
+                import.meta.glob('./pages/**/*.tsx'),
+            ),
+        setup({ el, App, props }) {
+            const root = createRoot(el);
+
+            root.render(
+                <StrictMode>
+                    <App {...props} />
+                </StrictMode>,
+            );
+        },
+        progress: {
+            color: '#4B5563',
+        },
+    });
+
+    // Set light / dark mode on load
+    initializeTheme();
+};
+
+// Start app initialization
+initializeApp();

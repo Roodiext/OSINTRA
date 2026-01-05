@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import api from '@/lib/axios';
 import Swal from 'sweetalert2';
@@ -7,6 +7,7 @@ import Modal from '@/components/ui/Modal';
 import { Edit, Trash2 } from 'lucide-react';
 
 const PositionsPage: React.FC = () => {
+    
     const [positions, setPositions] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [name, setName] = useState('');
