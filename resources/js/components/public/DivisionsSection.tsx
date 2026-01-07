@@ -284,7 +284,7 @@ const DivisionsSection: React.FC = () => {
                                 {structure.middle.length > 0 && (
                                     <div className="absolute" style={{ top: '100%', left: '50%', transform: 'translateX(-50%)' }}>
                                         <div className="vertical-line w-0.5 h-16" style={{ backgroundColor: '#E8DCC3' }} />
-                                        <div className="connector-dot w-3 h-3 rounded-full absolute -bottom-1.5 left-1/2 -translate-x-1/2" style={{ backgroundColor: '#3B4D3A' }} />
+                                        <div className="connector-dot w-2 h-2 rounded-full absolute -bottom-1 left-1/2 -translate-x-1/2" style={{ backgroundColor: '#3B4D3A' }} />
                                     </div>
                                 )}
                             </div>
@@ -334,7 +334,7 @@ const DivisionsSection: React.FC = () => {
                                 {structure.divisions.length > 0 && (
                                     <div className="relative mt-8">
                                         <div className="vertical-line w-0.5 h-16 mx-auto" style={{ backgroundColor: '#E8DCC3', animationDelay: '0.6s' }} />
-                                        <div className="connector-dot w-3 h-3 rounded-full absolute -bottom-1.5 left-1/2 -translate-x-1/2" style={{ backgroundColor: '#3B4D3A', animationDelay: '0.6s' }} />
+                                        <div className="connector-dot w-2 h-2 rounded-full absolute -bottom-1 left-1/2 -translate-x-1/2" style={{ backgroundColor: '#3B4D3A', animationDelay: '0.6s' }} />
                                     </div>
                                 )}
                             </div>
@@ -385,7 +385,7 @@ const DivisionsSection: React.FC = () => {
                                                     {/* Garis Vertikal Kecil ke Kartu */}
                                                     <div className="absolute -top-8 left-1/2 -translate-x-1/2">
                                                         <div className="h-8 w-0.5" style={{ backgroundColor: '#E8DCC3' }} />
-                                                        <div className="w-1.5 h-1.5 rounded-full absolute top-0 left-1/2 -translate-x-1/2" style={{ backgroundColor: '#3B4D3A' }} />
+                                                        <div className="w-2 h-2 rounded-full absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ backgroundColor: '#3B4D3A' }} />
                                                     </div>
 
                                                     <button

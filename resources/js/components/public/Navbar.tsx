@@ -69,13 +69,14 @@ const Navbar: React.FC = () => {
                   window.location.href = '/dashboard';
                 }
               }}
-              className="group flex items-center gap-3 font-bold text-xl md:text-2xl transition-transform duration-300 hover:scale-105"
+              className="group flex items-center gap-2 font-bold text-xl md:text-2xl transition-transform duration-300 hover:scale-105"
             >
               <img
                 src="/build/assets/osis-logo-mBAtwUV-.png"
                 alt="OSIS Logo"
-                className="w-10 h-10 object-contain"
+                className="w-12 h-12 object-contain"
               />
+              <span style={{ color: '#3B4D3A', letterSpacing: '-0.02em' }}>OSVIS</span>
             </a>
 
             {/* Desktop Navigation */}

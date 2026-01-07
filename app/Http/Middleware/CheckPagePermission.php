@@ -15,7 +15,8 @@ class CheckPagePermission
      */
     public function handle(Request $request, Closure $next, string $module, string $action = 'view', string $label = null): Response
     {
-        $user = auth()->user();
+        // Check Sanctum first (from Bearer token or cookie), fallback to session
+        $user = auth('sanctum')->user() ?? auth()->user();
         
         if (!$user) {
             return redirect('/login');
