@@ -49,10 +49,24 @@ class AuthController extends Controller
         // Log the login
         AuditLog::log('login', 'User logged in', $user->id);
 
-        return response()->json([
+        // Create response
+        $response = response()->json([
             'user' => $user->load(['role', 'position']),
             'token' => $token,
         ]);
+
+        // Set token as cookie for stateful auth on page loads (7 days expiry)
+        $response->withCookie(cookie(
+            'auth_token',
+            $token,
+            60 * 24 * 7,  // expires in 7 days
+            '/',          // path
+            null,         // domain
+            false,        // secure
+            false         // httpOnly (false so JS can read it)
+        ));
+
+        return $response;
     }
 
     /**
@@ -62,11 +76,16 @@ class AuthController extends Controller
     {
         AuditLog::log('logout', 'User logged out');
         
-        $request->user()->currentAccessToken()->delete();
+        $request->user('sanctum')->currentAccessToken()->delete();
 
-        return response()->json([
+        $response = response()->json([
             'message' => 'Logged out successfully',
         ]);
+
+        // Clear auth token cookie
+        $response->withCookie(cookie('auth_token', '', -1, '/'));
+
+        return $response;
     }
 
     /**
@@ -74,7 +93,14 @@ class AuthController extends Controller
      */
     public function me(Request $request)
     {
-        $user = $request->user();
+        $user = $request->user('sanctum');
+        
+        if (!$user) {
+            \Log::warning('AuthController@me: User not found', [
+                'header' => $request->header('Authorization') ? 'Has Bearer' : 'No Bearer',
+            ]);
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
         
         \Log::info('AuthController@me: User data retrieved', [
             'user_id' => $user->id,
