@@ -14,9 +14,15 @@ interface UsersPageProps {
     roles: Role[];
     divisions: Division[];
     positions: Position[];
+    permissions?: {
+        can_view: boolean;
+        can_create: boolean;
+        can_edit: boolean;
+        can_delete: boolean;
+    };
 }
 
-const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divisions, positions }) => {
+const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divisions, positions, permissions = {} }) => {
     const { props } = usePage<any>();
     usePermissionAlert(props.flash?.permission_message);
 
@@ -107,12 +113,24 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divis
             router.reload();
             handleCloseModal();
         } catch (error: any) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Gagal!',
-                text: error.response?.data?.message || 'Terjadi kesalahan',
-                confirmButtonColor: '#3B4D3A',
-            });
+            const statusCode = error.response?.status;
+            const errorMessage = error.response?.data?.message || 'Terjadi kesalahan';
+            
+            if (statusCode === 403) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Akses Ditolak!',
+                    text: 'Anda tidak memiliki izin untuk melakukan tindakan ini.',
+                    confirmButtonColor: '#3B4D3A',
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: errorMessage,
+                    confirmButtonColor: '#3B4D3A',
+                });
+            }
         } finally {
             setLoading(false);
         }
@@ -141,12 +159,24 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divis
                 });
                 router.reload();
             } catch (error: any) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal!',
-                    text: error.response?.data?.message || 'Terjadi kesalahan',
-                    confirmButtonColor: '#3B4D3A',
-                });
+                const statusCode = error.response?.status;
+                const errorMessage = error.response?.data?.message || 'Terjadi kesalahan';
+                
+                if (statusCode === 403) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Akses Ditolak!',
+                        text: 'Anda tidak memiliki izin untuk menghapus user ini.',
+                        confirmButtonColor: '#3B4D3A',
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: errorMessage,
+                        confirmButtonColor: '#3B4D3A',
+                    });
+                }
             }
         }
     };
@@ -164,12 +194,24 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divis
             });
             router.reload();
         } catch (error: any) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Gagal!',
-                text: error.response?.data?.message || 'Terjadi kesalahan',
-                confirmButtonColor: '#3B4D3A',
-            });
+            const statusCode = error.response?.status;
+            const errorMessage = error.response?.data?.message || 'Terjadi kesalahan';
+            
+            if (statusCode === 403) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Akses Ditolak!',
+                    text: 'Anda tidak memiliki izin untuk mengubah status user ini.',
+                    confirmButtonColor: '#3B4D3A',
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: errorMessage,
+                    confirmButtonColor: '#3B4D3A',
+                });
+            }
         }
     };
 
@@ -184,13 +226,15 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divis
                             <h1 className="text-3xl font-bold text-[#3B4D3A]">Manajemen Pengguna</h1>
                             <p className="text-[#6E8BA3] mt-1">Kelola data pengguna OSVIS</p>
                         </div>
-                        <button
-                            onClick={() => handleOpenModal()}
-                            className="flex items-center gap-2 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all shadow-md"
-                        >
-                            <Plus className="w-5 h-5" />
-                            Tambah Pengguna
-                        </button>
+                        {permissions?.can_create && (
+                            <button
+                                onClick={() => handleOpenModal()}
+                                className="flex items-center gap-2 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all shadow-md"
+                            >
+                                <Plus className="w-5 h-5" />
+                                Tambah Pengguna
+                            </button>
+                        )}
                     </div>
 
                     {/* Filters */}
@@ -276,20 +320,24 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divis
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center justify-center gap-2">
-                                                    <button
-                                                        onClick={() => handleOpenModal(user)}
-                                                        className="p-2 bg-[#E8DCC3] text-[#3B4D3A] rounded-lg hover:bg-[#d5c9b0] transition-all"
-                                                        title="Edit"
-                                                    >
-                                                        <Edit className="w-4 h-4" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDelete(user)}
-                                                        className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-all"
-                                                        title="Hapus"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
+                                                    {permissions?.can_edit && (
+                                                        <button
+                                                            onClick={() => handleOpenModal(user)}
+                                                            className="p-2 bg-[#E8DCC3] text-[#3B4D3A] rounded-lg hover:bg-[#d5c9b0] transition-all"
+                                                            title="Edit"
+                                                        >
+                                                            <Edit className="w-4 h-4" />
+                                                        </button>
+                                                    )}
+                                                    {permissions?.can_delete && (
+                                                        <button
+                                                            onClick={() => handleDelete(user)}
+                                                            className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-all"
+                                                            title="Hapus"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </td>
                                         </tr>

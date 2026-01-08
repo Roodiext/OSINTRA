@@ -19,9 +19,21 @@ interface Proker {
 
 interface ProkerEditPageProps {
     divisions: Division[];
+    permissions?: {
+        can_view: boolean;
+        can_create: boolean;
+        can_edit: boolean;
+        can_delete: boolean;
+    };
 }
 
-const ProkerEditPage: React.FC<ProkerEditPageProps> = ({ divisions }) => {
+const ProkerEditPage: React.FC<ProkerEditPageProps> = ({ divisions, permissions: defaultPermissions }) => {
+    const permissions = defaultPermissions || {
+        can_view: false,
+        can_create: false,
+        can_edit: false,
+        can_delete: false,
+    };
     const [proker, setProker] = useState<Proker | null>(null);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
@@ -155,7 +167,14 @@ const ProkerEditPage: React.FC<ProkerEditPageProps> = ({ divisions }) => {
                 router.visit('/dashboard/prokers');
             });
         } catch (error: any) {
-            if (error.response?.data?.errors) {
+            if (error.response?.status === 403) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: 'Anda tidak memiliki izin untuk mengedit proker ini',
+                    confirmButtonColor: '#3B4D3A',
+                });
+            } else if (error.response?.data?.errors) {
                 setErrors(error.response.data.errors);
                 const errorMessages = Object.entries(error.response.data.errors)
                     .map(([field, msgs]: [string, any]) => {

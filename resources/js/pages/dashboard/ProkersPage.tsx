@@ -10,9 +10,15 @@ import { usePermissionAlert } from '@/hooks/usePermissionAlert';
 interface ProkersPageProps {
     prokers: Proker[];
     divisions: Division[];
+    permissions?: {
+        can_view: boolean;
+        can_create: boolean;
+        can_edit: boolean;
+        can_delete: boolean;
+    };
 }
 
-const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divisions = [] }) => {
+const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divisions = [], permissions = {} }) => {
     const { props } = usePage<any>();
     usePermissionAlert(props.flash?.permission_message);
     const [prokers, setProkers] = useState<Proker[]>(initialProkers || []);
@@ -166,12 +172,24 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
                     confirmButtonColor: '#3B4D3A',
                 });
             } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal!',
-                    text: error.response?.data?.message || 'Terjadi kesalahan',
-                    confirmButtonColor: '#3B4D3A',
-                });
+                const statusCode = error.response?.status;
+                const errorMessage = error.response?.data?.message || 'Terjadi kesalahan';
+                
+                if (statusCode === 403) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Akses Ditolak!',
+                        text: 'Anda tidak memiliki izin untuk melakukan tindakan ini.',
+                        confirmButtonColor: '#3B4D3A',
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: errorMessage,
+                        confirmButtonColor: '#3B4D3A',
+                    });
+                }
             }
         } finally {
             setLoading(false);
@@ -201,12 +219,24 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
                 });
                 router.reload();
             } catch (error: any) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal!',
-                    text: error.response?.data?.message || 'Terjadi kesalahan',
-                    confirmButtonColor: '#3B4D3A',
-                });
+                const statusCode = error.response?.status;
+                const errorMessage = error.response?.data?.message || 'Terjadi kesalahan';
+                
+                if (statusCode === 403) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Akses Ditolak!',
+                        text: 'Anda tidak memiliki izin untuk menghapus proker ini.',
+                        confirmButtonColor: '#3B4D3A',
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: errorMessage,
+                        confirmButtonColor: '#3B4D3A',
+                    });
+                }
             }
         }
     };
@@ -238,13 +268,15 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
                             <h1 className="text-3xl font-bold text-[#3B4D3A]">Program Kerja</h1>
                             <p className="text-[#6E8BA3] mt-1">Kelola program kerja OSIS</p>
                         </div>
-                        <button
-                            onClick={() => handleOpenModal()}
-                            className="flex items-center gap-2 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all shadow-md"
-                        >
-                            <Plus className="w-5 h-5" />
-                            Tambah Proker
-                        </button>
+                        {permissions?.can_create && (
+                            <button
+                                onClick={() => handleOpenModal()}
+                                className="flex items-center gap-2 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all shadow-md"
+                            >
+                                <Plus className="w-5 h-5" />
+                                Tambah Proker
+                            </button>
+                        )}
                     </div>
 
                     {/* Filters */}
@@ -372,20 +404,24 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
                                                 <Eye className="w-4 h-4" />
                                                 Detail
                                             </button>
-                                            <button
-                                                onClick={() => handleOpenModal(proker)}
-                                                className="p-2 bg-gray-100 text-[#6E8BA3] rounded-lg hover:bg-gray-200 transition-all"
-                                                title="Edit"
-                                            >
-                                                <Edit className="w-4 h-4" />
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(proker)}
-                                                className="p-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-all"
-                                                title="Hapus"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
+                                            {permissions?.can_edit && (
+                                                <button
+                                                    onClick={() => handleOpenModal(proker)}
+                                                    className="p-2 bg-gray-100 text-[#6E8BA3] rounded-lg hover:bg-gray-200 transition-all"
+                                                    title="Edit"
+                                                >
+                                                    <Edit className="w-4 h-4" />
+                                                </button>
+                                            )}
+                                            {permissions?.can_delete && (
+                                                <button
+                                                    onClick={() => handleDelete(proker)}
+                                                    className="p-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-all"
+                                                    title="Hapus"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 </div>

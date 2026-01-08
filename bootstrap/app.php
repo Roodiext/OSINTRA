@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\CheckPagePermission;
+use App\Http\Middleware\CheckPermission;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\InertiaAuth;
@@ -27,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'check.permission' => CheckPagePermission::class,
+            'permission' => CheckPermission::class,
             'inertia.auth' => InertiaAuth::class,
         ]);
     })

@@ -6,7 +6,16 @@ import Swal from 'sweetalert2';
 import Modal from '@/components/ui/Modal';
 import { Edit, Trash2 } from 'lucide-react';
 
-const PositionsPage: React.FC = () => {
+interface PositionsPageProps {
+    permissions?: {
+        can_view: boolean;
+        can_create: boolean;
+        can_edit: boolean;
+        can_delete: boolean;
+    };
+}
+
+const PositionsPage: React.FC<PositionsPageProps> = ({ permissions = {} }) => {
     
     const [positions, setPositions] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -61,8 +70,12 @@ const PositionsPage: React.FC = () => {
             fetch();
             closeModal();
         } catch (err: any) {
+            const statusCode = err.response?.status;
             const resp = err?.response?.data;
-            if (resp && resp.errors) {
+            
+            if (statusCode === 403) {
+                Swal.fire('Akses Ditolak!', 'Anda tidak memiliki izin untuk melakukan tindakan ini.', 'error');
+            } else if (resp && resp.errors) {
                 const first = Object.values(resp.errors)[0];
                 const message = Array.isArray(first) ? first[0] : String(first);
                 Swal.fire('Gagal', message, 'error');
@@ -76,9 +89,19 @@ const PositionsPage: React.FC = () => {
     const remove = async (id: number) => {
         const result = await Swal.fire({ title: 'Hapus position?', icon: 'warning', showCancelButton: true });
         if (!result.isConfirmed) return;
-        await api.delete(`/positions/${id}`);
-        Swal.fire('Dihapus', '', 'success');
-        fetch();
+        
+        try {
+            await api.delete(`/positions/${id}`);
+            Swal.fire('Dihapus', '', 'success');
+            fetch();
+        } catch (err: any) {
+            const statusCode = err.response?.status;
+            if (statusCode === 403) {
+                Swal.fire('Akses Ditolak!', 'Anda tidak memiliki izin untuk menghapus posisi ini.', 'error');
+            } else {
+                Swal.fire('Gagal', err.response?.data?.message || 'Terjadi kesalahan', 'error');
+            }
+        }
     };
 
     return (
@@ -96,7 +119,9 @@ const PositionsPage: React.FC = () => {
                             <p className="text-sm text-[#6E8BA3]">Tambah atau kelola posisi OSIS</p>
                         </div>
                         <div>
-                            <button onClick={() => openModal()} className="bg-[#3B4D3A] text-white px-4 py-2 rounded-lg">Add</button>
+                            {permissions?.can_create && (
+                                <button onClick={() => openModal()} className="bg-[#3B4D3A] text-white px-4 py-2 rounded-lg">Add</button>
+                            )}
                         </div>
                     </div>
 
@@ -124,20 +149,24 @@ const PositionsPage: React.FC = () => {
                                                 <td className="px-6 py-4 text-[#6E8BA3] text-sm" title={p.description || '-'}>{p.description ?? '-'}</td>
                                                 <td className="px-6 py-4 text-right">
                                                     <div className="flex items-center justify-end gap-2">
-                                                        <button 
-                                                            onClick={() => openModal(p)} 
-                                                            className="inline-flex items-center gap-2 px-4 py-2 bg-[#E8DCC3] text-[#3B4D3A] rounded-lg hover:bg-[#d5c9b0] transition-all font-medium text-sm whitespace-nowrap"
-                                                        >
-                                                            <Edit className="w-4 h-4" />
-                                                            Edit
-                                                        </button>
-                                                        <button 
-                                                            onClick={() => remove(p.id)} 
-                                                            className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-all font-medium text-sm whitespace-nowrap"
-                                                        >
-                                                            <Trash2 className="w-4 h-4" />
-                                                            Hapus
-                                                        </button>
+                                                        {permissions?.can_edit && (
+                                                            <button 
+                                                                onClick={() => openModal(p)} 
+                                                                className="inline-flex items-center gap-2 px-4 py-2 bg-[#E8DCC3] text-[#3B4D3A] rounded-lg hover:bg-[#d5c9b0] transition-all font-medium text-sm whitespace-nowrap"
+                                                            >
+                                                                <Edit className="w-4 h-4" />
+                                                                Edit
+                                                            </button>
+                                                        )}
+                                                        {permissions?.can_delete && (
+                                                            <button 
+                                                                onClick={() => remove(p.id)} 
+                                                                className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-all font-medium text-sm whitespace-nowrap"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                                Hapus
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 </td>
                                             </tr>
