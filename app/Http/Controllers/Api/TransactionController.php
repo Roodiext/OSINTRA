@@ -15,11 +15,24 @@ class TransactionController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Transaction::with('creator');
+        $query = Transaction::with('creator', 'approver');
 
         // Filter by type
         if ($request->has('type')) {
             $query->where('type', $request->type);
+        }
+
+        // Filter by status
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Filter by amount range
+        if ($request->has('min_amount')) {
+            $query->where('amount', '>=', $request->min_amount);
+        }
+        if ($request->has('max_amount')) {
+            $query->where('amount', '<=', $request->max_amount);
         }
 
         // Filter by date range
@@ -28,6 +41,11 @@ class TransactionController extends Controller
         }
         if ($request->has('end_date')) {
             $query->whereDate('date', '<=', $request->end_date);
+        }
+
+        // Filter by category
+        if ($request->has('category')) {
+            $query->where('category', $request->category);
         }
 
         // Search
@@ -56,9 +74,11 @@ class TransactionController extends Controller
             'type' => 'required|in:income,expense',
             'description' => 'nullable|string',
             'date' => 'required|date',
+            'category' => 'nullable|string|max:255',
         ]);
 
         $validated['created_by'] = $request->user()->id;
+        $validated['status'] = 'pending';
 
         $transaction = Transaction::create($validated);
 
@@ -89,6 +109,7 @@ class TransactionController extends Controller
             'type' => 'sometimes|in:income,expense',
             'description' => 'nullable|string',
             'date' => 'sometimes|date',
+            'category' => 'nullable|string|max:255',
         ]);
 
         $transaction->update($validated);
@@ -96,8 +117,33 @@ class TransactionController extends Controller
         AuditLog::log('update_transaction', "Updated transaction: {$transaction->title}");
 
         return response()->json([
-            'transaction' => $transaction->fresh()->load('creator'),
+            'transaction' => $transaction->fresh()->load('creator', 'approver'),
             'message' => 'Transaction updated successfully',
+        ]);
+    }
+
+    /**
+     * Approve or reject a transaction.
+     */
+    public function approveTransaction(Request $request, Transaction $transaction)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:approved,rejected',
+        ]);
+
+        $transaction->update([
+            'status' => $validated['status'],
+            'approved_by' => $request->user()->id,
+        ]);
+
+        AuditLog::log(
+            'approve_transaction',
+            "Transaction {$validated['status']}: {$transaction->title} by {$request->user()->name}"
+        );
+
+        return response()->json([
+            'transaction' => $transaction->fresh()->load('creator', 'approver'),
+            'message' => "Transaction {$validated['status']} successfully",
         ]);
     }
 

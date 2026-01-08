@@ -12,6 +12,7 @@ type RolePermissionRow = {
   can_create: boolean;
   can_edit: boolean;
   can_delete: boolean;
+  can_approve: boolean;
 };
 type Role = {
   id: number;
@@ -52,6 +53,7 @@ const RoleAccessSetting: React.FC<Props> = ({ roles = [], modules = [] }) => {
           can_create: !!found?.can_create,
           can_edit: !!found?.can_edit,
           can_delete: !!found?.can_delete,
+          can_approve: !!found?.can_approve,
           id: found?.id,
         };
       });
@@ -116,6 +118,7 @@ const RoleAccessSetting: React.FC<Props> = ({ roles = [], modules = [] }) => {
           can_create: !!localPermissions[m.name]?.can_create,
           can_edit: !!localPermissions[m.name]?.can_edit,
           can_delete: !!localPermissions[m.name]?.can_delete,
+          can_approve: !!localPermissions[m.name]?.can_approve,
         };
       });
 
@@ -290,6 +293,19 @@ const RoleAccessSetting: React.FC<Props> = ({ roles = [], modules = [] }) => {
                         />
                         <span className="text-sm">Hapus</span>
                       </label>
+
+                      {m.name === 'Transactions' && (
+                        <label className="inline-flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={!!localPermissions[m.name]?.can_approve}
+                            disabled={saving || loading}
+                            onChange={() => toggle(m.name, 'can_approve')}
+                            className="cursor-pointer"
+                          />
+                          <span className="text-sm">Approve</span>
+                        </label>
+                      )}
                     </div>
                   </div>
                 ))}

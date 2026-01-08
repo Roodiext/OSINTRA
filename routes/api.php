@@ -99,6 +99,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('transactions/{transaction}', [TransactionController::class, 'show']);
     Route::put('transactions/{transaction}', [TransactionController::class, 'update'])
         ->middleware('permission:Transactions,edit');
+    Route::patch('transactions/{transaction}/approve', [TransactionController::class, 'approveTransaction'])
+        ->middleware('permission:Transactions,edit');
     Route::delete('transactions/{transaction}', [TransactionController::class, 'destroy'])
         ->middleware('permission:Transactions,delete');
     Route::get('/transactions-statistics', [TransactionController::class, 'statistics']);

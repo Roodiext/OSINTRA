@@ -215,6 +215,7 @@ Route::middleware(['inertia.auth'])->group(function () {
                 'can_create' => $user?->hasPermission('Transactions', 'create') ?? false,
                 'can_edit' => $user?->hasPermission('Transactions', 'edit') ?? false,
                 'can_delete' => $user?->hasPermission('Transactions', 'delete') ?? false,
+                'can_approve' => $user?->hasPermission('Transactions', 'approve') ?? false,
             ],
         ]);
     })->middleware('check.permission:Transactions,view,Keuangan')->name('dashboard.transactions');

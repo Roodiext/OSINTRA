@@ -17,6 +17,9 @@ class Transaction extends Model
         'description',
         'created_by',
         'date',
+        'status',
+        'approved_by',
+        'category',
     ];
 
     protected $casts = [
@@ -30,5 +33,13 @@ class Transaction extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Get the user that approved the transaction.
+     */
+    public function approver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by');
     }
 }
