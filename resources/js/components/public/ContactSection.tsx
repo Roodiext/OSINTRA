@@ -8,6 +8,9 @@ const ContactSection: React.FC = () => {
         email: '',
         subject: '',
         message: '',
+        category: 'saran_program',
+        priority: 'normal',
+        is_anonymous: false,
     });
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -22,7 +25,7 @@ const ContactSection: React.FC = () => {
         try {
             await api.post('/messages', formData);
             setSuccess(true);
-            setFormData({ name: '', email: '', subject: '', message: '' });
+            setFormData({ name: '', email: '', subject: '', message: '', category: 'saran_program', priority: 'normal', is_anonymous: false });
             setTimeout(() => setSuccess(false), 5000);
         } catch (err: any) {
             setError(err.response?.data?.message || 'Gagal mengirim pesan. Silakan coba lagi.');
@@ -143,6 +146,59 @@ const ContactSection: React.FC = () => {
                                     style={{ borderColor: '#E8DCC3', color: '#1E1E1E' }}
                                     placeholder="Subjek pesan"
                                 />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold mb-2" style={{ color: '#3B4D3A' }}>
+                                    Kategori *
+                                </label>
+                                <select
+                                    name="category"
+                                    value={formData.category}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border rounded-xl transition-all bg-white
+                                            focus:outline focus:outline-2 focus:outline-[#E8DCC3]
+                                            focus:border-transparent"
+                                    style={{ borderColor: '#E8DCC3', color: '#1E1E1E' }}
+                                >
+                                    <option value="saran_program">Saran Program</option>
+                                    <option value="kritik_feedback">Kritik/Feedback</option>
+                                    <option value="laporan_masalah">Laporan Masalah</option>
+                                    <option value="ide_usulan">Ide/Usulan</option>
+                                    <option value="komplain">Komplain Urgent</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold mb-2" style={{ color: '#3B4D3A' }}>
+                                    Prioritas *
+                                </label>
+                                <select
+                                    name="priority"
+                                    value={formData.priority}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border rounded-xl transition-all bg-white
+                                            focus:outline focus:outline-2 focus:outline-[#E8DCC3]
+                                            focus:border-transparent"
+                                    style={{ borderColor: '#E8DCC3', color: '#1E1E1E' }}
+                                >
+                                    <option value="low">Rendah</option>
+                                    <option value="normal">Normal</option>
+                                    <option value="high">Tinggi</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="flex items-center gap-3 cursor-pointer" style={{ color: '#3B4D3A' }}>
+                                    <input
+                                        type="checkbox"
+                                        name="is_anonymous"
+                                        checked={formData.is_anonymous}
+                                        onChange={(e) => setFormData({ ...formData, is_anonymous: e.target.checked })}
+                                        className="w-4 h-4 rounded"
+                                    />
+                                    <span className="text-sm font-medium">Kirim Anonim (Nama tidak ditampilkan)</span>
+                                </label>
                             </div>
 
                             <div>

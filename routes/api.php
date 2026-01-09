@@ -89,6 +89,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/messages/{message}', [MessageController::class, 'show']);
     Route::put('/messages/{message}/status', [MessageController::class, 'updateStatus'])
         ->middleware('permission:Messages,edit');
+    Route::post('/messages/{message}/reply', [MessageController::class, 'reply'])
+        ->middleware('permission:Messages,edit');
     Route::delete('/messages/{message}', [MessageController::class, 'destroy'])
         ->middleware('permission:Messages,delete');
 

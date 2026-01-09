@@ -25,13 +25,6 @@ interface TransactionsPageProps {
     balance: number;
     totalIncome: number;
     totalExpense: number;
-    permissions?: {
-        can_view: boolean;
-        can_create: boolean;
-        can_edit: boolean;
-        can_delete: boolean;
-        can_approve: boolean;
-    };
 }
 
 const CATEGORIES = ['Iuran', 'Donasi', 'Supplies', 'Event', 'Utility', 'Transport', 'Other'];
@@ -44,13 +37,6 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
     totalExpense
 }) => {
     const { props } = usePage<any>();
-    const permissions = (props.permissions as TransactionsPageProps['permissions']) || {
-        can_view: false,
-        can_create: false,
-        can_edit: false,
-        can_delete: false,
-        can_approve: false,
-    };
     usePermissionAlert(props.flash?.permission_message);
 
     const [transactions, setTransactions] = useState<ExtendedTransaction[]>(initialTransactions || []);
@@ -131,12 +117,15 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
         setLoading(true);
 
         try {
+            // Parse amount properly - convert string numeric to actual number
+            const amountValue = parseAmountInput(formData.amount);
+            
             const submitData = {
                 title: formData.title,
-                amount: parseFloat(formData.amount),
+                amount: amountValue,
                 type: formData.type,
                 description: formData.description,
-                category: formData.category || null,  // Explicitly include category
+                category: formData.category || null,
                 date: formData.date,
             };
 
@@ -160,22 +149,12 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
             router.reload();
             handleCloseModal();
         } catch (error: any) {
-            if (error.response?.status === 403) {
-                const action = editingId ? 'mengedit' : 'membuat';
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal!',
-                    text: `Anda tidak memiliki izin untuk ${action} transaksi`,
-                    confirmButtonColor: '#3B4D3A',
-                });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal!',
-                    text: error.response?.data?.message || 'Terjadi kesalahan',
-                    confirmButtonColor: '#3B4D3A',
-                });
-            }
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: error.response?.data?.message || 'Terjadi kesalahan',
+                confirmButtonColor: '#3B4D3A',
+            });
         } finally {
             setLoading(false);
         }
@@ -204,21 +183,12 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
                 });
                 router.reload();
             } catch (error: any) {
-                if (error.response?.status === 403) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal!',
-                        text: 'Anda tidak memiliki izin untuk menghapus transaksi',
-                        confirmButtonColor: '#3B4D3A',
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal!',
-                        text: error.response?.data?.message || 'Terjadi kesalahan',
-                        confirmButtonColor: '#3B4D3A',
-                    });
-                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: error.response?.data?.message || 'Terjadi kesalahan',
+                    confirmButtonColor: '#3B4D3A',
+                });
             }
         }
     };
@@ -247,21 +217,12 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
                 });
                 router.reload();
             } catch (error: any) {
-                if (error.response?.status === 403) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal!',
-                        text: 'Anda tidak memiliki izin untuk approve transaksi',
-                        confirmButtonColor: '#3B4D3A',
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal!',
-                        text: error.response?.data?.message || 'Terjadi kesalahan',
-                        confirmButtonColor: '#3B4D3A',
-                    });
-                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: error.response?.data?.message || 'Terjadi kesalahan',
+                    confirmButtonColor: '#3B4D3A',
+                });
             }
         }
     };
@@ -295,12 +256,43 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
         );
     };
 
-    const formatCurrency = (amount: number) => {
+    const parseAmountInput = (value: string): number => {
+        if (!value) return 0;
+        // Remove all non-numeric characters
+        const numericOnly = value.replace(/\D/g, '');
+        return parseInt(numericOnly) || 0;
+    };
+
+    const formatInputValue = (value: string | number): string => {
+        if (!value) return '';
+        const numValue = typeof value === 'string' ? parseAmountInput(value) : parseInt(value.toString());
+        if (!numValue) return '';
+        return new Intl.NumberFormat('id-ID', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(numValue);
+    };
+
+    const formatCurrency = (value: number | string): string => {
+        if (value === null || value === undefined) return 'Rp 0';
+        // Always treat as a number - no additional parsing if already numeric
+        const numValue = typeof value === 'string' ? parseAmountInput(value) : Math.floor(value);
         return new Intl.NumberFormat('id-ID', {
             style: 'currency',
             currency: 'IDR',
             minimumFractionDigits: 0,
-        }).format(amount);
+            maximumFractionDigits: 0,
+        }).format(numValue);
+    };
+
+    const handleAmountChange = (value: string, setter: Function) => {
+        try {
+            // Store as numeric string for consistency
+            const numericValue = parseAmountInput(value);
+            setter(numericValue.toString());
+        } catch (error) {
+            console.error('Error in handleAmountChange:', error);
+        }
     };
 
     return (
@@ -314,20 +306,18 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
                             <h1 className="text-3xl font-bold text-[#3B4D3A]">Transaksi Keuangan</h1>
                             <p className="text-[#6E8BA3] mt-1">Kelola pemasukan dan pengeluaran OSIS</p>
                         </div>
-                        {permissions.can_create && (
-                            <button
-                                type="button"
-                                onClick={(e) => {
-                                    console.log('Button clicked!', e);
-                                    e.preventDefault();
-                                    handleOpenModal();
-                                }}
-                                className="flex items-center gap-2 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] active:scale-95 transition-all shadow-md cursor-pointer"
-                            >
-                                <Plus className="w-5 h-5" />
-                                Tambah Transaksi
-                            </button>
-                        )}
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                console.log('Button clicked!', e);
+                                e.preventDefault();
+                                handleOpenModal();
+                            }}
+                            className="flex items-center gap-2 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] active:scale-95 transition-all shadow-md cursor-pointer"
+                        >
+                            <Plus className="w-5 h-5" />
+                            Tambah Transaksi
+                        </button>
                     </div>
 
                     {/* Summary Cards */}
@@ -488,32 +478,22 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
 
                             <div>
                                 <input
-                                    type="number"
+                                    type="text"
                                     placeholder="Min. Jumlah"
-                                    value={minAmount}
-                                    onChange={(e) => setMinAmount(e.target.value)}
+                                    value={minAmount ? formatInputValue(minAmount) : ''}
+                                    onChange={(e) => handleAmountChange(e.target.value, setMinAmount)}
                                     className="px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all w-full"
                                 />
-                                {minAmount && (
-                                    <p className="text-xs text-[#6E8BA3] mt-1">
-                                        {formatCurrency(parseFloat(minAmount))}
-                                    </p>
-                                )}
                             </div>
 
                             <div>
                                 <input
-                                    type="number"
+                                    type="text"
                                     placeholder="Max. Jumlah"
-                                    value={maxAmount}
-                                    onChange={(e) => setMaxAmount(e.target.value)}
+                                    value={maxAmount ? formatInputValue(maxAmount) : ''}
+                                    onChange={(e) => handleAmountChange(e.target.value, setMaxAmount)}
                                     className="px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all w-full"
                                 />
-                                {maxAmount && (
-                                    <p className="text-xs text-[#6E8BA3] mt-1">
-                                        {formatCurrency(parseFloat(maxAmount))}
-                                    </p>
-                                )}
                             </div>
                         </div>
                     </div>
@@ -562,7 +542,7 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex gap-2 justify-center">
-                                                    {permissions.can_approve && (transaction.status === 'pending' || !transaction.status) && (
+                                                    {(transaction.status === 'pending' || !transaction.status) && (
                                                         <>
                                                             <button
                                                                 onClick={() => handleApprove(transaction.id, 'approved')}
@@ -580,24 +560,20 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
                                                             </button>
                                                         </>
                                                     )}
-                                                    {permissions.can_edit && (
-                                                        <button
-                                                            onClick={() => handleOpenModal(transaction)}
-                                                            className="p-2 hover:bg-[#E8DCC3] rounded-lg transition-colors"
-                                                            title="Edit"
-                                                        >
-                                                            <Edit2 className="w-5 h-5 text-[#3B4D3A]" />
-                                                        </button>
-                                                    )}
-                                                    {permissions.can_delete && (
-                                                        <button
-                                                            onClick={() => handleDelete(transaction.id)}
-                                                            className="p-2 hover:bg-red-100 rounded-lg transition-colors"
-                                                            title="Hapus"
-                                                        >
-                                                            <Trash2 className="w-5 h-5 text-red-600" />
-                                                        </button>
-                                                    )}
+                                                    <button
+                                                        onClick={() => handleOpenModal(transaction)}
+                                                        className="p-2 hover:bg-[#E8DCC3] rounded-lg transition-colors"
+                                                        title="Edit"
+                                                    >
+                                                        <Edit2 className="w-5 h-5 text-[#3B4D3A]" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDelete(transaction.id)}
+                                                        className="p-2 hover:bg-red-100 rounded-lg transition-colors"
+                                                        title="Hapus"
+                                                    >
+                                                        <Trash2 className="w-5 h-5 text-red-600" />
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -643,14 +619,14 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
                                         Jumlah *
                                     </label>
                                     <input
-                                        type="number"
+                                        type="text"
                                         required
-                                        value={formData.amount}
-                                        onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                                        value={formData.amount ? formatInputValue(formData.amount) : ''}
+                                        onChange={(e) => handleAmountChange(e.target.value, (val: string) => setFormData({ ...formData, amount: val }))}
                                         className="w-full px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
-                                        placeholder="0"
-                                        min="0"
+                                        placeholder="Contoh: 150000"
                                     />
+                                    <p className="text-xs text-[#6E8BA3] mt-1">Format: angka tanpa titik atau koma</p>
                                 </div>
 
                                 <div>

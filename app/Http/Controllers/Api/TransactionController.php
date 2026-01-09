@@ -77,6 +77,8 @@ class TransactionController extends Controller
             'category' => 'nullable|string|max:255',
         ]);
 
+        // Ensure amount is properly formatted as integer (stored as decimal in DB)
+        $validated['amount'] = (int)round($validated['amount']);
         $validated['created_by'] = $request->user()->id;
         $validated['status'] = 'pending';
 
@@ -111,6 +113,11 @@ class TransactionController extends Controller
             'date' => 'sometimes|date',
             'category' => 'nullable|string|max:255',
         ]);
+
+        // Ensure amount is properly formatted as integer if present
+        if (isset($validated['amount'])) {
+            $validated['amount'] = (int)round($validated['amount']);
+        }
 
         $transaction->update($validated);
 
