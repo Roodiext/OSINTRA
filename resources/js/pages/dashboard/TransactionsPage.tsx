@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
-import { Plus, Search, Edit2, Trash2, CheckCircle, XCircle, Clock, AlertCircle } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Plus, Search, Edit2, Trash2, CheckCircle, XCircle, Clock, AlertCircle, TrendingUp, TrendingDown } from 'lucide-react';
+import Chart from 'react-apexcharts';
 import type { Transaction } from '@/types';
 import Swal from 'sweetalert2';
 import api from '@/lib/axios';
@@ -59,6 +59,7 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
         date: new Date().toISOString().split('T')[0],
     });
     const [loading, setLoading] = useState(false);
+    const [chartType, setChartType] = useState<'bar' | 'line' | 'area'>('bar');
 
     const filteredTransactions = transactions.filter(transaction => {
         const matchesSearch = transaction.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -360,36 +361,44 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
                     </div>
 
                     <div className="bg-white rounded-xl shadow-md p-6 md:p-8">
-                        <h3 className="text-xl font-bold text-[#3B4D3A] mb-6">Grafik Keuangan Bulanan</h3>
-                        <div className="overflow-x-auto -mx-6 px-6 md:mx-0 md:px-0 pb-2">
-                            <div className="min-w-[600px] h-[300px]">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={monthlyData} margin={{ left: 30, right: 10 }}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="#E8DCC3" />
-                                        <XAxis dataKey="month" stroke="#6E8BA3" />
-                                        <YAxis
-                                            stroke="#6E8BA3"
-                                            width={80}
-                                            tickFormatter={(value) => {
-                                                if (value >= 1000000) return `${(value / 1000000).toFixed(1)}jt`;
-                                                if (value >= 1000) return `${(value / 1000).toFixed(0)}rb`;
-                                                return value;
-                                            }}
-                                        />
-                                        <Tooltip
-                                            contentStyle={{
-                                                backgroundColor: '#fff',
-                                                border: '2px solid #E8DCC3',
-                                                borderRadius: '12px',
-                                            }}
-                                            formatter={(value: number) => formatCurrency(value)}
-                                        />
-                                        <Legend />
-                                        <Bar dataKey="income" fill="#22c55e" name="Pemasukan" radius={[8, 8, 0, 0]} />
-                                        <Bar dataKey="expense" fill="#ef4444" name="Pengeluaran" radius={[8, 8, 0, 0]} />
-                                    </BarChart>
-                                </ResponsiveContainer>
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                            <h3 className="text-xl font-bold text-[#3B4D3A]">Grafik Keuangan Bulanan</h3>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => setChartType('bar')}
+                                    className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                                        chartType === 'bar'
+                                            ? 'bg-[#3B4D3A] text-white shadow-md'
+                                            : 'bg-[#F5F5F5] text-[#6E8BA3] hover:bg-[#E8DCC3]'
+                                    }`}
+                                >
+                                    Batang
+                                </button>
+                                <button
+                                    onClick={() => setChartType('line')}
+                                    className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                                        chartType === 'line'
+                                            ? 'bg-[#3B4D3A] text-white shadow-md'
+                                            : 'bg-[#F5F5F5] text-[#6E8BA3] hover:bg-[#E8DCC3]'
+                                    }`}
+                                >
+                                    Garis
+                                </button>
+                                <button
+                                    onClick={() => setChartType('area')}
+                                    className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                                        chartType === 'area'
+                                            ? 'bg-[#3B4D3A] text-white shadow-md'
+                                            : 'bg-[#F5F5F5] text-[#6E8BA3] hover:bg-[#E8DCC3]'
+                                    }`}
+                                >
+                                    Area
+                                </button>
                             </div>
+                        </div>
+                        <ChartSummary monthlyData={monthlyData} />
+                        <div className="mt-8">
+                            <ChartComponent monthlyData={monthlyData} chartType={chartType} />
                         </div>
                     </div>
 
@@ -723,6 +732,315 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
                 )}
             </DashboardLayout>
         </>
+    );
+};
+
+// Chart Summary Component
+interface ChartSummaryProps {
+    monthlyData: { month: string; income: number; expense: number }[];
+}
+
+const ChartSummary: React.FC<ChartSummaryProps> = ({ monthlyData }) => {
+    const stats = useMemo(() => {
+        if (!monthlyData || monthlyData.length === 0) {
+            return {
+                currentIncome: 0,
+                currentExpense: 0,
+                currentNet: 0,
+                prevIncome: 0,
+                prevExpense: 0,
+                prevNet: 0,
+                incomeChange: 0,
+                expenseChange: 0,
+                netChange: 0
+            };
+        }
+
+        const current = monthlyData[monthlyData.length - 1];
+        const previous = monthlyData.length > 1 ? monthlyData[monthlyData.length - 2] : null;
+
+        const currentIncome = current.income || 0;
+        const currentExpense = current.expense || 0;
+        const currentNet = currentIncome - currentExpense;
+
+        const prevIncome = previous?.income || 0;
+        const prevExpense = previous?.expense || 0;
+        const prevNet = prevIncome - prevExpense;
+
+        // Calculate percentage change
+        const incomeChange = prevIncome > 0 ? ((currentIncome - prevIncome) / prevIncome) * 100 : 0;
+        const expenseChange = prevExpense > 0 ? ((currentExpense - prevExpense) / prevExpense) * 100 : 0;
+        const netChange = prevNet !== 0 ? ((currentNet - prevNet) / Math.abs(prevNet)) * 100 : 0;
+
+        return {
+            currentIncome,
+            currentExpense,
+            currentNet,
+            prevIncome,
+            prevExpense,
+            prevNet,
+            incomeChange,
+            expenseChange,
+            netChange
+        };
+    }, [monthlyData]);
+
+    const formatCurrency = (value: number): string => {
+        return new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(value);
+    };
+
+    const TrendIndicator = ({ change }: { change: number }) => {
+        const isPositive = change > 0;
+        const isNeutral = change === 0;
+
+        if (isNeutral) {
+            return <span className="text-xs font-semibold text-[#6E8BA3]">-</span>;
+        }
+
+        return (
+            <div className={`flex items-center gap-1 ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+                {isPositive ? (
+                    <TrendingUp className="w-4 h-4" />
+                ) : (
+                    <TrendingDown className="w-4 h-4" />
+                )}
+                <span className="text-xs font-semibold">{Math.abs(change).toFixed(1)}%</span>
+            </div>
+        );
+    };
+
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pb-6 border-b border-[#E8DCC3]">
+            {/* Income Card */}
+            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4">
+                <div className="flex items-start justify-between mb-2">
+                    <span className="text-sm font-medium text-[#6E8BA3]">Pemasukan Bulan Ini</span>
+                    <TrendIndicator change={stats.incomeChange} />
+                </div>
+                <p className="text-2xl font-bold text-green-700 mb-2">{formatCurrency(stats.currentIncome)}</p>
+                {stats.prevIncome > 0 && (
+                    <p className="text-xs text-[#6E8BA3]">Bulan lalu: {formatCurrency(stats.prevIncome)}</p>
+                )}
+            </div>
+
+            {/* Expense Card */}
+            <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-lg p-4">
+                <div className="flex items-start justify-between mb-2">
+                    <span className="text-sm font-medium text-[#6E8BA3]">Pengeluaran Bulan Ini</span>
+                    <TrendIndicator change={stats.expenseChange} />
+                </div>
+                <p className="text-2xl font-bold text-red-700 mb-2">{formatCurrency(stats.currentExpense)}</p>
+                {stats.prevExpense > 0 && (
+                    <p className="text-xs text-[#6E8BA3]">Bulan lalu: {formatCurrency(stats.prevExpense)}</p>
+                )}
+            </div>
+
+            {/* Net Income Card */}
+            <div className={`bg-gradient-to-br rounded-lg p-4 ${
+                stats.currentNet >= 0 
+                    ? 'from-blue-50 to-blue-100' 
+                    : 'from-orange-50 to-orange-100'
+            }`}>
+                <div className="flex items-start justify-between mb-2">
+                    <span className="text-sm font-medium text-[#6E8BA3]">Net Income</span>
+                    <TrendIndicator change={stats.netChange} />
+                </div>
+                <p className={`text-2xl font-bold mb-2 ${
+                    stats.currentNet >= 0 ? 'text-blue-700' : 'text-orange-700'
+                }`}>
+                    {stats.currentNet >= 0 ? '+' : ''}{formatCurrency(stats.currentNet)}
+                </p>
+                {stats.prevNet !== 0 && (
+                    <p className="text-xs text-[#6E8BA3]">Bulan lalu: {formatCurrency(stats.prevNet)}</p>
+                )}
+            </div>
+        </div>
+    );
+};
+
+// Chart Component using ApexCharts
+interface ChartComponentProps {
+    monthlyData: { month: string; income: number; expense: number }[];
+    chartType: 'bar' | 'line' | 'area';
+}
+
+const ChartComponent: React.FC<ChartComponentProps> = ({ monthlyData, chartType }) => {
+    const chartData = useMemo(() => {
+        return {
+            series: [
+                {
+                    name: 'Pemasukan',
+                    data: monthlyData.map(d => d.income),
+                    color: '#22c55e'
+                },
+                {
+                    name: 'Pengeluaran',
+                    data: monthlyData.map(d => d.expense),
+                    color: '#ef4444'
+                }
+            ],
+            categories: monthlyData.map(d => d.month)
+        };
+    }, [monthlyData]);
+
+    const options: ApexCharts.ApexOptions = useMemo(() => ({
+        chart: {
+            type: chartType as any,
+            toolbar: {
+                show: false
+            },
+            animations: {
+                enabled: true,
+                speed: 800,
+                animateGradually: {
+                    enabled: true,
+                    delay: 150
+                },
+                dynamicAnimation: {
+                    enabled: true,
+                    speed: 150
+                }
+            }
+        },
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                columnWidth: '60%',
+                borderRadiusApplication: 'end',
+                borderRadius: 8,
+                dataLabels: {
+                    position: 'top'
+                },
+                distributed: false
+            }
+        },
+        colors: ['#22c55e', '#ef4444'],
+        dataLabels: {
+            enabled: false,
+        },
+        states: {
+            hover: {
+                filter: {
+                    type: 'darken'
+                }
+            },
+            active: {
+                filter: {
+                    type: 'darken'
+                }
+            }
+        },
+        stroke: {
+            show: true,
+            width: chartType === 'line' ? 3 : chartType === 'area' ? 2 : 0,
+            curve: 'smooth'
+        },
+        fill: {
+            opacity: chartType === 'area' ? [0.25, 0.25] : 1,
+            type: 'solid'
+        },
+        markers: {
+            size: chartType === 'line' ? 5 : 0,
+            hover: {
+                size: 7
+            }
+        },
+        xaxis: {
+            categories: chartData.categories,
+            labels: {
+                style: {
+                    colors: '#6E8BA3',
+                    fontSize: '12px',
+                    fontWeight: 500
+                }
+            },
+            axisBorder: {
+                show: false
+            },
+            axisTicks: {
+                show: false
+            }
+        },
+        yaxis: {
+            labels: {
+                style: {
+                    colors: '#6E8BA3',
+                    fontSize: '12px'
+                },
+                formatter: (value) => {
+                    if (value >= 1000000) return `${(value / 1000000).toFixed(1)}jt`;
+                    if (value >= 1000) return `${(value / 1000).toFixed(0)}rb`;
+                    return `${value}`;
+                }
+            }
+        },
+        grid: {
+            show: true,
+            borderColor: '#E8DCC3',
+            strokeDashArray: 3,
+            xaxis: {
+                lines: {
+                    show: false
+                }
+            },
+            yaxis: {
+                lines: {
+                    show: true
+                }
+            }
+        },
+        tooltip: {
+            enabled: true,
+            theme: 'light',
+            style: {
+                fontSize: '12px'
+            },
+            x: {
+                show: true
+            },
+            y: {
+                formatter: (value) => {
+                    return new Intl.NumberFormat('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                    }).format(value);
+                }
+            }
+        },
+        legend: {
+            position: 'bottom',
+            horizontalAlign: 'center',
+            offsetY: 10,
+            markers: {
+                size: 8,
+                strokeWidth: 0
+            },
+            labels: {
+                colors: '#6E8BA3'
+            },
+            itemMargin: {
+                horizontal: 20,
+                vertical: 5
+            }
+        }
+    }), [chartType]);
+
+    return (
+        <div className="w-full">
+            <Chart
+                options={options}
+                series={chartData.series}
+                type={chartType}
+                height={350}
+            />
+        </div>
     );
 };
 
