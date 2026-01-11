@@ -13,6 +13,7 @@ class MessageReplyMail extends Mailable
     public $messageId;
     public $subject;
     public $replyMessage;
+    public $originalMessage;
     public $senderName;
     public $senderEmail;
     public $recipientName;
@@ -26,6 +27,7 @@ class MessageReplyMail extends Mailable
         $this->messageId = $message->id;
         $this->subject = $message->subject;
         $this->replyMessage = $message->reply_message;
+        $this->originalMessage = $message->message;
         $this->recipientName = $message->name;
         $this->recipientEmail = $message->email;
         $this->senderName = $message->repliedBy?->name ?? 'Administrator';
@@ -40,10 +42,11 @@ class MessageReplyMail extends Mailable
         return $this
             ->from(config('mail.from.address', 'osisviskaa@gmail.com'), config('mail.from.name', 'OSIS'))
             ->subject('Balasan: ' . $this->subject)
-            ->markdown('emails.message-reply')
+            ->view('emails.message-reply')
             ->with([
                 'subject' => $this->subject,
                 'replyMessage' => $this->replyMessage,
+                'originalMessage' => $this->originalMessage,
                 'senderName' => $this->senderName,
                 'senderEmail' => $this->senderEmail,
                 'recipientName' => $this->recipientName,

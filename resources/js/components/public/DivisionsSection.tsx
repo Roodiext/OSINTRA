@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Users, Briefcase, Award, Shield, DollarSign, Megaphone, Camera, Eye, X, ChevronRight, Grid } from 'lucide-react';
 import api from '@/lib/axios';
 import type { Position } from '@/types';
+import Reveal from './Reveal';
 
 const DivisionsSection: React.FC = () => {
     const [positions, setPositions] = useState<Position[]>([]);
@@ -212,15 +213,7 @@ const DivisionsSection: React.FC = () => {
         <section id="divisions" className="py-20 px-4 bg-gradient-to-b from-white to-gray-50 relative overflow-hidden">
             {/* Inject Styles */}
             <style>{`
-                @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-                @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-                @keyframes drawLine { from { transform: scaleY(0); } to { transform: scaleY(1); } }
-                @keyframes drawHorizontal { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-                .position-card { animation: fadeInUp 0.6s ease-out forwards; }
-                .position-card:hover { transform: translateY(-4px); }
-                .vertical-line { animation: drawLine 0.8s ease-out forwards; transform-origin: top; }
-                .horizontal-line { animation: drawHorizontal 0.8s ease-out forwards; transform-origin: center; }
-                .connector-dot { animation: fadeInDown 0.5s ease-out forwards; }
+                /* Removed custom keyframes as we are using Reveal component */
             `}</style>
 
             <div className="absolute inset-0 opacity-5" style={{
@@ -229,7 +222,7 @@ const DivisionsSection: React.FC = () => {
             }} />
 
             <div className="relative z-10 max-w-7xl mx-auto">
-                <div className="text-center mb-16">
+                <Reveal direction="down" className="text-center mb-16">
                     <div className="inline-block mb-4">
                         <span className="px-4 py-2 rounded-full text-sm font-semibold" style={{ backgroundColor: 'rgba(232, 220, 195, 0.2)', color: '#3B4D3A' }}>
                             Organisasi Siswa Intra Sekolah
@@ -246,7 +239,7 @@ const DivisionsSection: React.FC = () => {
                     <p style={{ color: '#6E8BA3' }} className="text-lg max-w-2xl mx-auto">
                         Hierarki kepemimpinan dan pembagian tugas dalam organisasi OSIS
                     </p>
-                </div>
+                </Reveal>
 
                 {positions.length > 0 ? (
                     <div className="space-y-0">
@@ -257,25 +250,25 @@ const DivisionsSection: React.FC = () => {
                                     {structure.top.map((position, index) => {
                                         const IconComponent = getIconForPosition(position.name);
                                         return (
-                                            <div
-                                                key={position.id}
-                                                className="position-card w-64 p-6 rounded-2xl transition-all duration-300 relative z-20"
-                                                style={{
-                                                    animationDelay: `${index * 100}ms`,
-                                                    backgroundColor: '#3B4D3A',
-                                                    boxShadow: '0 8px 25px rgba(59, 77, 58, 0.3)'
-                                                }}
-                                            >
-                                                <div className="flex items-center gap-4 mb-3">
-                                                    <div className="p-3 rounded-xl" style={{ backgroundColor: 'rgba(232, 220, 195, 0.2)' }}>
-                                                        <IconComponent className="w-6 h-6" style={{ color: '#E8DCC3' }} />
+                                            <Reveal key={position.id} delay={index * 100}>
+                                                <div
+                                                    className="w-64 p-6 rounded-2xl transition-all duration-300 relative z-20 hover:-translate-y-1"
+                                                    style={{
+                                                        backgroundColor: '#3B4D3A',
+                                                        boxShadow: '0 8px 25px rgba(59, 77, 58, 0.3)'
+                                                    }}
+                                                >
+                                                    <div className="flex items-center gap-4 mb-3">
+                                                        <div className="p-3 rounded-xl" style={{ backgroundColor: 'rgba(232, 220, 195, 0.2)' }}>
+                                                            <IconComponent className="w-6 h-6" style={{ color: '#E8DCC3' }} />
+                                                        </div>
                                                     </div>
+                                                    <h3 className="text-xl font-bold mb-2 text-white">{position.name}</h3>
+                                                    <p className="text-sm leading-relaxed" style={{ color: '#E8DCC3', opacity: 0.9 }}>
+                                                        {position.description || 'Pemimpin utama organisasi'}
+                                                    </p>
                                                 </div>
-                                                <h3 className="text-xl font-bold mb-2 text-white">{position.name}</h3>
-                                                <p className="text-sm leading-relaxed" style={{ color: '#E8DCC3', opacity: 0.9 }}>
-                                                    {position.description || 'Pemimpin utama organisasi'}
-                                                </p>
-                                            </div>
+                                            </Reveal>
                                         );
                                     })}
                                 </div>
@@ -297,7 +290,9 @@ const DivisionsSection: React.FC = () => {
                             <div className="flex flex-col items-center relative">
                                 {/* Horizontal Line Spanning Tier 2 */}
                                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[90%] max-w-6xl hidden md:block" style={{ zIndex: 0 }}>
-                                    <div className="horizontal-line h-0.5 w-full" style={{ backgroundColor: '#E8DCC3' }} />
+                                    <Reveal delay={200} duration={1000} direction="left" className="w-full">
+                                        <div className="h-0.5 w-full" style={{ backgroundColor: '#E8DCC3' }} />
+                                    </Reveal>
                                 </div>
 
                                 <div className="flex flex-wrap justify-center gap-4 md:gap-6 w-full max-w-7xl relative pt-8 px-2">
@@ -310,22 +305,26 @@ const DivisionsSection: React.FC = () => {
                                             </div>
 
                                             {/* Card */}
-                                            <div
-                                                className="position-card p-4 md:p-5 rounded-xl transition-all duration-300 w-48 md:w-56 bg-white relative z-10 h-full flex flex-col justify-between"
-                                                style={{
-                                                    animationDelay: `${(structure.top.length + index) * 100}ms`,
-                                                    border: '2px solid #E8DCC3',
-                                                    boxShadow: '0 4px 15px rgba(59, 77, 58, 0.1)'
-                                                }}
+                                            <Reveal
+                                                delay={300 + (index * 100)}
+                                                className="w-48 md:w-56 h-full"
                                             >
-                                                <div className="flex flex-col items-center text-center">
-                                                    <div className="p-2 md:p-3 rounded-lg mb-2 md:mb-3" style={{ background: 'linear-gradient(135deg, #3B4D3A 0%, #2a3729 100%)' }}>
-                                                        {React.createElement(getIconForPosition(position.name), { className: "w-4 h-4 md:w-5 md:h-5 text-white" })}
+                                                <div
+                                                    className="p-4 md:p-5 rounded-xl transition-all duration-300 w-full bg-white relative z-10 h-full flex flex-col justify-between hover:-translate-y-1"
+                                                    style={{
+                                                        border: '2px solid #E8DCC3',
+                                                        boxShadow: '0 4px 15px rgba(59, 77, 58, 0.1)'
+                                                    }}
+                                                >
+                                                    <div className="flex flex-col items-center text-center">
+                                                        <div className="p-2 md:p-3 rounded-lg mb-2 md:mb-3" style={{ background: 'linear-gradient(135deg, #3B4D3A 0%, #2a3729 100%)' }}>
+                                                            {React.createElement(getIconForPosition(position.name), { className: "w-4 h-4 md:w-5 md:h-5 text-white" })}
+                                                        </div>
+                                                        <h3 className="text-xs md:text-sm font-bold mb-1 md:mb-2" style={{ color: '#3B4D3A' }}>{position.name}</h3>
+                                                        <p className="text-xs leading-relaxed" style={{ color: '#6E8BA3' }}>{position.description || 'Koordinator bidang'}</p>
                                                     </div>
-                                                    <h3 className="text-xs md:text-sm font-bold mb-1 md:mb-2" style={{ color: '#3B4D3A' }}>{position.name}</h3>
-                                                    <p className="text-xs leading-relaxed" style={{ color: '#6E8BA3' }}>{position.description || 'Koordinator bidang'}</p>
                                                 </div>
-                                            </div>
+                                            </Reveal>
                                         </div>
                                     ))}
                                 </div>
@@ -343,13 +342,13 @@ const DivisionsSection: React.FC = () => {
                         {/* === TIER 3: Sie Bidang === */}
                         {structure.divisions.length > 0 && (
                             <div className="flex flex-col items-center pt-8">
-                                <div className="text-center mb-8">
+                                <Reveal delay={600} className="text-center mb-8">
                                     <h3 className="text-xl md:text-2xl font-bold mb-2" style={{ color: '#3B4D3A' }}>Sie Bidang</h3>
                                     <p className="text-sm" style={{ color: '#6E8BA3' }}>Divisi pelaksana program kerja</p>
-                                </div>
+                                </Reveal>
 
                                 {/* MOBILE VIEW: Button Trigger Modal */}
-                                <div className="block md:hidden w-full max-w-xs">
+                                <Reveal delay={800} className="block md:hidden w-full max-w-xs">
                                     <button
                                         onClick={() => setIsModalOpen(true)}
                                         className="w-full flex items-center justify-between p-4 rounded-xl shadow-lg transition-transform active:scale-95"
@@ -366,7 +365,7 @@ const DivisionsSection: React.FC = () => {
                                             <ChevronRight className="w-5 h-5" />
                                         </div>
                                     </button>
-                                </div>
+                                </Reveal>
 
                                 {/* DESKTOP VIEW: Neat Tree Grid */}
                                 <div className="hidden md:block w-full max-w-6xl px-4">
@@ -380,7 +379,7 @@ const DivisionsSection: React.FC = () => {
                                         {structure.divisions.map((position, index) => {
                                             const IconComponent = getIconForPosition(position.name);
                                             return (
-                                                <div key={position.id} className="relative flex flex-col items-center">
+                                                <Reveal key={position.id} delay={800 + (index * 50)} className="relative flex flex-col items-center w-full">
 
                                                     {/* Garis Vertikal Kecil ke Kartu */}
                                                     <div className="absolute -top-8 left-1/2 -translate-x-1/2">
@@ -390,9 +389,8 @@ const DivisionsSection: React.FC = () => {
 
                                                     <button
                                                         onClick={() => setSelectedDivision(position)}
-                                                        className="position-card w-full p-4 rounded-lg transition-all duration-300 relative bg-white group hover:shadow-lg hover:-translate-y-1 cursor-pointer text-left"
+                                                        className="w-full p-4 rounded-lg transition-all duration-300 relative bg-white group hover:shadow-lg hover:-translate-y-1 cursor-pointer text-left"
                                                         style={{
-                                                            animationDelay: `${(structure.top.length + structure.middle.length + index) * 50}ms`,
                                                             border: '1px solid rgba(232, 220, 195, 0.5)',
                                                             boxShadow: '0 2px 10px rgba(59, 77, 58, 0.08)'
                                                         }}
@@ -411,8 +409,9 @@ const DivisionsSection: React.FC = () => {
                                                             </div>
                                                         </div>
                                                     </button>
-                                                </div>
+                                                </Reveal>
                                             );
+
                                         })}
                                     </div>
                                 </div>

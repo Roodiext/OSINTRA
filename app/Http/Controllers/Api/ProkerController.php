@@ -219,14 +219,14 @@ class ProkerController extends Controller
         $file = $request->file('file');
         $mediaType = str_starts_with($file->getMimeType(), 'image/') ? 'image' : 'video';
         
-        // Store file in public/proker-media directory
-        // $path will be like: proker-media/filename.jpg
-        $path = $file->store('proker-media', 'public');
+        // Generate a unique filename
+        $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9.]+/', '_', $file->getClientOriginalName());
         
-        // Construct the URL path that works with storage:link symlink
-        // The symlink connects public/storage -> storage/app/public
-        // So we need URL: /storage/proker-media/filename.jpg
-        $mediaUrl = '/storage/' . $path;
+        // Move directly to public/assets
+        $file->move(public_path('assets'), $filename);
+        
+        // URL is now direct
+        $mediaUrl = '/assets/' . $filename;
 
         $media = ProkerMedia::create([
             'proker_id' => $proker->id,
@@ -278,8 +278,17 @@ class ProkerController extends Controller
             return response()->json(['message' => 'Media not found in this proker'], 404);
         }
 
-        // Delete file from storage if it's stored locally
-        if (str_starts_with($media->media_url, '/storage/')) {
+        // 1. Try deleting from public/assets (New way)
+        if (str_starts_with($media->media_url, '/assets/')) {
+            $filename = basename($media->media_url);
+            $filePath = public_path('assets/' . $filename);
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+        }
+        
+        // 2. Try deleting from storage (Old way / Backup)
+        elseif (str_starts_with($media->media_url, '/storage/')) {
             $filePath = str_replace('/storage/', '', $media->media_url);
             if (Storage::disk('public')->exists($filePath)) {
                 Storage::disk('public')->delete($filePath);
