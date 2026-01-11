@@ -174,7 +174,7 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
             } else {
                 const statusCode = error.response?.status;
                 const errorMessage = error.response?.data?.message || 'Terjadi kesalahan';
-                
+
                 if (statusCode === 403) {
                     Swal.fire({
                         icon: 'error',
@@ -221,7 +221,7 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
             } catch (error: any) {
                 const statusCode = error.response?.status;
                 const errorMessage = error.response?.data?.message || 'Terjadi kesalahan';
-                
+
                 if (statusCode === 403) {
                     Swal.fire({
                         icon: 'error',
@@ -440,7 +440,7 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
                 {/* Add/Edit Modal */}
                 {showModal && (
                     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-                        <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-[95%] sm:max-w-4xl p-4 sm:p-8 my-4 transition-all relative">
+                        <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-[95%] sm:max-w-4xl p-4 sm:p-8 my-4 transition-all relative max-h-[90vh] overflow-y-auto">
                             <div className="flex justify-between items-start mb-4 sm:mb-6">
                                 <h2 className="text-lg sm:text-2xl font-bold text-[#3B4D3A]">
                                     {editingProker ? 'Edit Proker' : 'Tambah Proker'}
@@ -507,21 +507,48 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
                                                 <label className="block text-xs sm:text-sm font-semibold text-[#3B4D3A] mb-1.5 sm:mb-2">
                                                     Divisi * {errors.division_ids && <span className="text-red-600">({errors.division_ids[0]})</span>}
                                                 </label>
-                                                <select
-                                                    multiple
-                                                    required
-                                                    value={formData.division_ids.map(String)}
-                                                    onChange={(e) => {
-                                                        const selected = Array.from(e.target.selectedOptions, option => parseInt(option.value));
-                                                        setFormData({ ...formData, division_ids: selected });
-                                                    }}
-                                                    className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm bg-[#F5F5F5] border-2 border-transparent rounded-lg sm:rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all h-24 sm:h-[52px]"
-                                                >
-                                                    {divisions.map(division => (
-                                                        <option key={division.id} value={division.id}>{division.name}</option>
-                                                    ))}
-                                                </select>
-                                                <p className="text-[10px] text-gray-500 mt-1">* Tahan Ctrl</p>
+                                                <div className="w-full bg-[#F5F5F5] border-2 border-transparent rounded-lg sm:rounded-xl focus-within:border-[#3B4D3A] transition-all p-3 max-h-60 overflow-y-auto custom-scrollbar">
+                                                    <div className="grid grid-cols-1 gap-2">
+                                                        {divisions.map((division) => (
+                                                            <label
+                                                                key={division.id}
+                                                                className={`flex items-center gap-3 p-2.5 rounded-lg border cursor-pointer transition-all ${formData.division_ids.includes(division.id)
+                                                                        ? 'bg-[#3B4D3A]/10 border-[#3B4D3A] shadow-sm'
+                                                                        : 'bg-white border-gray-200 hover:bg-gray-50'
+                                                                    }`}
+                                                            >
+                                                                <div className="relative flex items-center justify-center">
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        value={division.id}
+                                                                        checked={formData.division_ids.includes(division.id)}
+                                                                        onChange={(e) => {
+                                                                            const id = parseInt(e.target.value);
+                                                                            const newIds = e.target.checked
+                                                                                ? [...formData.division_ids, id]
+                                                                                : formData.division_ids.filter((dId) => dId !== id);
+                                                                            setFormData({ ...formData, division_ids: newIds });
+                                                                        }}
+                                                                        className="peer appearance-none w-5 h-5 border-2 border-[#6E8BA3] rounded checked:bg-[#3B4D3A] checked:border-[#3B4D3A] transition-colors"
+                                                                    />
+                                                                    <svg
+                                                                        className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"
+                                                                        fill="none"
+                                                                        viewBox="0 0 24 24"
+                                                                        stroke="currentColor"
+                                                                        strokeWidth="3"
+                                                                    >
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                                    </svg>
+                                                                </div>
+                                                                <span className={`text-sm font-medium ${formData.division_ids.includes(division.id) ? 'text-[#3B4D3A]' : 'text-[#6E8BA3]'
+                                                                    }`}>
+                                                                    {division.name}
+                                                                </span>
+                                                            </label>
+                                                        ))}
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             <div>
