@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Menu, X, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Menu, X } from 'lucide-react';
 
 const links = [
   { label: 'Beranda', href: '/' },
@@ -16,185 +16,134 @@ const Navbar: React.FC = () => {
   const [activeLink, setActiveLink] = useState('/');
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const [logoClickCount, setLogoClickCount] = useState(0);
+  const logoClicks = useRef(0);
+  const clickTimer = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const onScroll = () => {
       const currentScrollY = window.scrollY;
+      setSolid(currentScrollY > 20);
 
-      setSolid(currentScrollY > 50);
-
-      if (currentScrollY < 50) {
+      if (currentScrollY < 20) {
         setIsVisible(true);
       } else if (currentScrollY > lastScrollY) {
         setIsVisible(false);
+        setOpen(false);
       } else {
         setIsVisible(true);
       }
-
       setLastScrollY(currentScrollY);
     };
 
     window.addEventListener('scroll', onScroll);
-
     setActiveLink(window.location.pathname);
-
     return () => window.removeEventListener('scroll', onScroll);
   }, [lastScrollY]);
 
   const isActive = (href: string) => activeLink === href;
 
   return (
-    <>
-      <header
-        className="fixed inset-x-0 top-0 z-50 transition-all duration-300"
+    <div className={`fixed inset-x-0 top-4 z-50 flex justify-center transition-transform duration-500 ${isVisible ? 'translate-y-0' : '-translate-y-32'}`}>
+      <nav
+        className={`relative w-[92%] max-w-5xl bg-white/80 backdrop-blur-xl border border-white/50 shadow-lg shadow-black/5 transition-all duration-500 ease-out overflow-hidden ${open ? 'rounded-[2.5rem]' : 'rounded-[2rem]'
+          }`}
         style={{
-          backgroundColor: solid ? 'rgba(255,255,255,0.98)' : 'rgba(255,255,255,0.95)',
-          backdropFilter: 'blur(12px)',
-          borderBottom: `1px solid ${solid ? 'rgba(232,220,195,0.4)' : 'rgba(232,220,195,0.2)'}`,
-          boxShadow: solid ? '0 4px 20px rgba(59, 77, 58, 0.08)' : '0 2px 10px rgba(0, 0, 0, 0.05)',
-          transform: isVisible ? 'translateY(0)' : 'translateY(-100%)'
+          // Dynamic shadows for depth
+          boxShadow: solid || open
+            ? '0 20px 40px -10px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.5)'
+            : '0 10px 20px -5px rgba(0,0,0,0.05), 0 0 0 1px rgba(255,255,255,0.3)'
         }}
       >
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+        <div className="flex flex-col">
+          {/* Top Bar: Logo, Desktop Links, Toggle */}
+          <div className="px-6 py-3 flex items-center justify-between">
             {/* Logo */}
             <a
               href="/"
               onClick={(e) => {
                 e.preventDefault();
-                const newCount = logoClickCount + 1;
-                setLogoClickCount(newCount);
-                if (newCount === 6) {
+                if (clickTimer.current) clearTimeout(clickTimer.current);
+
+                logoClicks.current += 1;
+
+                if (logoClicks.current === 6) {
                   window.location.href = '/dashboard';
+                  logoClicks.current = 0;
+                } else {
+                  clickTimer.current = setTimeout(() => {
+                    if (window.location.pathname !== '/') {
+                      window.location.href = '/';
+                    }
+                    logoClicks.current = 0;
+                  }, 350);
                 }
               }}
-              className="group flex items-center gap-2 font-bold text-xl md:text-2xl transition-transform duration-300 hover:scale-105"
+              className="flex items-center gap-3 group"
             >
-              <img
-                src="/build/assets/osis-logo-mBAtwUV-.png"
-                alt="OSIS Logo"
-                className="w-12 h-12 object-contain"
-              />
-              <span style={{ color: '#3B4D3A', letterSpacing: '-0.02em' }}>OSVIS</span>
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-tr from-[#E8DCC3] to-[#3B4D3A] opacity-20 blur-lg rounded-full group-hover:opacity-40 transition-opacity" />
+                <img src="/build/assets/osis-logo-mBAtwUV-.png" alt="OSIS" className="relative w-9 h-9 object-contain group-hover:scale-110 transition-transform duration-300" />
+              </div>
+              <span className="font-bold text-lg tracking-tight text-[#3B4D3A]">OSVIS</span>
             </a>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-1">
-              {links.map((l) => (
+            <div className="hidden lg:flex items-center gap-1">
+              {links.map(link => (
                 <a
-                  key={l.href}
-                  href={l.href}
-                  onClick={() => setActiveLink(l.href)}
-                  className="relative px-4 py-2 rounded-xl transition-all duration-300 font-medium group"
+                  key={link.href}
+                  href={link.href}
+                  className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-300 relative group`}
                   style={{
-                    color: isActive(l.href) ? '#3B4D3A' : '#6E8BA3',
-                    fontWeight: isActive(l.href) ? '600' : '500'
+                    color: isActive(link.href) ? '#3B4D3A' : '#6E8BA3',
                   }}
                 >
-                  {l.label}
-
+                  <span className="relative z-10">{link.label}</span>
                   {/* Hover Effect */}
-                  <span
-                    className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"
-                    style={{
-                      backgroundColor: 'rgba(232,220,195,0.2)'
-                    }}
-                  />
-
-                  {/* Active Indicator */}
-                  {isActive(l.href) && (
-                    <span
-                      className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1/2 h-0.5 rounded-full"
-                      style={{ backgroundColor: '#3B4D3A' }}
-                    />
+                  <div className="absolute inset-0 bg-[#3B4D3A]/5 rounded-xl scale-90 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-300 origin-center" />
+                  {/* Active Dot */}
+                  {isActive(link.href) && (
+                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#3B4D3A] rounded-full" />
                   )}
                 </a>
               ))}
-            </nav>
-
-            {/* Right Section */}
-            <div className="flex items-center gap-4">
-
-
-              {/* Mobile Menu Button */}
-              <button
-                aria-label="Toggle menu"
-                onClick={() => setOpen((v) => !v)}
-                className="lg:hidden p-2 rounded-xl transition-all duration-300 hover:bg-gray-100"
-                style={{ color: '#3B4D3A' }}
-              >
-                {open ? <X size={24} /> : <Menu size={24} />}
-              </button>
             </div>
+
+            {/* Mobile Menu Toggle */}
+            <button
+              onClick={() => setOpen(!open)}
+              className="lg:hidden p-2 rounded-xl hover:bg-black/5 transition-colors text-[#3B4D3A]"
+            >
+              <div className={`transition-transform duration-300 ${open ? 'rotate-90' : 'rotate-0'}`}>
+                {open ? <X size={24} /> : <Menu size={24} />}
+              </div>
+            </button>
+          </div>
+
+          {/* Mobile Menu (Expandable Content) */}
+          <div
+            className={`lg:hidden flex flex-col gap-2 px-6 transition-all duration-500 ease-in-out ${open ? 'max-h-[500px] pb-6 opacity-100' : 'max-h-0 pb-0 opacity-0'
+              }`}
+          >
+            <div className="h-px w-full bg-[#3B4D3A]/10 mb-2" />
+            {links.map((link, i) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="p-3 rounded-xl font-semibold text-[#6E8BA3] hover:text-[#3B4D3A] hover:bg-[#3B4D3A]/5 transition-all text-left pl-4"
+                style={{
+                  color: isActive(link.href) ? '#3B4D3A' : undefined,
+                  backgroundColor: isActive(link.href) ? 'rgba(232,220,195,0.3)' : undefined,
+                  transitionDelay: open ? `${i * 50}ms` : '0ms'
+                }}
+              >
+                {link.label}
+              </a>
+            ))}
           </div>
         </div>
-
-        {/* Mobile Menu */}
-        {open && (
-          <div
-            className="lg:hidden border-t animate-slide-down"
-            style={{
-              backgroundColor: 'rgba(255,255,255,0.98)',
-              borderColor: 'rgba(232,220,195,0.3)'
-            }}
-          >
-            <div className="max-w-7xl mx-auto px-6 py-4 space-y-1">
-              {links.map((l, index) => (
-                <a
-                  key={l.href}
-                  href={l.href}
-                  onClick={() => {
-                    setActiveLink(l.href);
-                    setOpen(false);
-                  }}
-                  className="group relative block px-4 py-3 rounded-xl font-medium transition-all duration-300"
-                  style={{
-                    color: '#3B4D3A',
-                    backgroundColor: isActive(l.href) ? 'rgba(232,220,195,0.3)' : 'transparent',
-                    animationDelay: `${index * 50}ms`
-                  }}
-                >
-                  <span
-                    className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"
-                    style={{ backgroundColor: 'rgba(232,220,195,0.2)' }}
-                  />
-
-                  <div className="flex items-center justify-between">
-                    <span>{l.label}</span>
-                    {isActive(l.href) && (
-                      <div
-                        className="w-2 h-2 rounded-full"
-                        style={{ backgroundColor: '#3B4D3A' }}
-                      />
-                    )}
-                  </div>
-                </a>
-              ))}
-
-
-            </div>
-          </div>
-        )}
-      </header>
-
-      <style>{`
-        @keyframes slide-down {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .animate-slide-down {
-          animation: slide-down 0.3s ease-out forwards;
-        }
-      `}</style>
-    </>
+      </nav>
+    </div>
   );
 };
 

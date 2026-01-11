@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
 import api from '@/lib/axios';
+import Reveal from './Reveal';
 
 const ContactSection: React.FC = () => {
     const [formData, setFormData] = useState({
@@ -41,7 +42,7 @@ const ContactSection: React.FC = () => {
     return (
         <section id="contact" className="py-20 px-4 bg-white">
             <div className="max-w-6xl mx-auto">
-                <div className="text-center mb-16">
+                <Reveal direction="down" className="text-center mb-16">
                     <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: '#3B4D3A' }}>
                         Hubungi Kami
                     </h2>
@@ -49,50 +50,56 @@ const ContactSection: React.FC = () => {
                     <p className="text-lg" style={{ color: '#6E8BA3' }}>
                         Ada pertanyaan? Kirim pesan kepada kami
                     </p>
-                </div>
+                </Reveal>
 
                 <div className="grid md:grid-cols-2 gap-12">
                     {/* Contact Info */}
                     <div className="space-y-6 ">
-                        <div className="p-6 rounded-2xl shadow-lg" style={{ backgroundColor: '#F5F5F5' }}>
-                            <div className="flex items-start gap-4">
-                                <div className="p-3 rounded-xl" style={{ backgroundColor: '#3B4D3A' }}>
-                                    <Mail className="w-6 h-6 text-white" />
-                                </div>
-                                <div>
-                                    <h3 className="font-bold mb-1" style={{ color: '#3B4D3A' }}>Email</h3>
-                                    <p style={{ color: '#6E8BA3' }}>osis@smkn6solo.sch.id</p>
+                        <Reveal delay={200} direction="right">
+                            <div className="p-6 rounded-2xl shadow-lg" style={{ backgroundColor: '#F5F5F5' }}>
+                                <div className="flex items-start gap-4">
+                                    <div className="p-3 rounded-xl" style={{ backgroundColor: '#3B4D3A' }}>
+                                        <Mail className="w-6 h-6 text-white" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold mb-1" style={{ color: '#3B4D3A' }}>Email</h3>
+                                        <p style={{ color: '#6E8BA3' }}>osis@smkn6solo.sch.id</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </Reveal>
 
-                        <div className="p-6 rounded-2xl shadow-lg" style={{ backgroundColor: '#F5F5F5' }}>
-                            <div className="flex items-start gap-4">
-                                <div className="p-3 rounded-xl" style={{ backgroundColor: '#3B4D3A' }}>
-                                    <Phone className="w-6 h-6 text-white" />
-                                </div>
-                                <div>
-                                    <h3 className="font-bold mb-1" style={{ color: '#3B4D3A' }}>Telepon</h3>
-                                    <p style={{ color: '#6E8BA3' }}>(0271) 123456</p>
+                        <Reveal delay={400} direction="right">
+                            <div className="p-6 rounded-2xl shadow-lg" style={{ backgroundColor: '#F5F5F5' }}>
+                                <div className="flex items-start gap-4">
+                                    <div className="p-3 rounded-xl" style={{ backgroundColor: '#3B4D3A' }}>
+                                        <Phone className="w-6 h-6 text-white" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold mb-1" style={{ color: '#3B4D3A' }}>Telepon</h3>
+                                        <p style={{ color: '#6E8BA3' }}>(0271) 123456</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </Reveal>
 
-                        <div className="p-6 rounded-2xl shadow-lg" style={{ backgroundColor: '#F5F5F5' }}>
-                            <div className="flex items-start gap-4">
-                                <div className="p-3 rounded-xl" style={{ backgroundColor: '#3B4D3A' }}>
-                                    <MapPin className="w-6 h-6 text-white" />
-                                </div>
-                                <div>
-                                    <h3 className="font-bold mb-1" style={{ color: '#3B4D3A' }}>Alamat</h3>
-                                    <p style={{ color: '#6E8BA3' }}>Jl. LU Adisucipto No. 42, Surakarta</p>
+                        <Reveal delay={600} direction="right">
+                            <div className="p-6 rounded-2xl shadow-lg" style={{ backgroundColor: '#F5F5F5' }}>
+                                <div className="flex items-start gap-4">
+                                    <div className="p-3 rounded-xl" style={{ backgroundColor: '#3B4D3A' }}>
+                                        <MapPin className="w-6 h-6 text-white" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold mb-1" style={{ color: '#3B4D3A' }}>Alamat</h3>
+                                        <p style={{ color: '#6E8BA3' }}>Jl. LU Adisucipto No. 42, Surakarta</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </Reveal>
                     </div>
 
                     {/* Contact Form */}
-                    <div className="p-8 rounded-2xl shadow-lg" style={{ backgroundColor: '#F5F5F5' }}>
+                    <Reveal delay={400} direction="left" className="p-8 rounded-2xl shadow-lg" style={{ backgroundColor: '#F5F5F5' }}>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
                                 <label className="block text-sm font-semibold mb-2" style={{ color: '#3B4D3A' }}>
@@ -245,7 +252,7 @@ const ContactSection: React.FC = () => {
                                 )}
                             </button>
                         </form>
-                    </div>
+                    </Reveal>
                 </div>
             </div>
         </section>
