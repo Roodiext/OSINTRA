@@ -167,12 +167,12 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user: initialUser }) => {
                         <div className="lg:col-span-2 space-y-6">
                             {/* Personal Information */}
                             <div className="bg-white rounded-xl shadow-md p-8">
-                                <div className="flex items-center justify-between mb-6">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                                     <h3 className="text-xl font-bold text-[#3B4D3A]">Informasi Pribadi</h3>
                                     {!isEditingProfile && (
                                         <button
                                             onClick={() => setIsEditingProfile(true)}
-                                            className="px-4 py-2 bg-[#E8DCC3] text-[#3B4D3A] rounded-lg hover:bg-[#d5c9b0] transition-all font-semibold"
+                                            className="w-full sm:w-auto px-4 py-2 bg-[#E8DCC3] text-[#3B4D3A] rounded-lg hover:bg-[#d5c9b0] transition-all font-semibold"
                                         >
                                             Edit Profil
                                         </button>
@@ -293,7 +293,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user: initialUser }) => {
 
                             {/* Change Password */}
                             <div className="bg-white rounded-xl shadow-md p-8">
-                                <div className="flex items-center justify-between mb-6">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                                     <div>
                                         <h3 className="text-xl font-bold text-[#3B4D3A]">Keamanan</h3>
                                         <p className="text-sm text-[#6E8BA3] mt-1">Ubah password Anda</p>
@@ -301,7 +301,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user: initialUser }) => {
                                     {!isChangingPassword && (
                                         <button
                                             onClick={() => setIsChangingPassword(true)}
-                                            className="flex items-center gap-2 px-4 py-2 bg-[#E8DCC3] text-[#3B4D3A] rounded-lg hover:bg-[#d5c9b0] transition-all font-semibold"
+                                            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-[#E8DCC3] text-[#3B4D3A] rounded-lg hover:bg-[#d5c9b0] transition-all font-semibold"
                                         >
                                             <Key className="w-4 h-4" />
                                             Ubah Password
