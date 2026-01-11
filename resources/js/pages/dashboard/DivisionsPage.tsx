@@ -8,9 +8,15 @@ import api from '@/lib/axios';
 
 interface DivisionsPageProps {
     divisions: Division[];
+    permissions?: {
+        can_view: boolean;
+        can_create: boolean;
+        can_edit: boolean;
+        can_delete: boolean;
+    };
 }
 
-const DivisionsPage: React.FC<DivisionsPageProps> = ({ divisions: initialDivisions }) => {
+const DivisionsPage: React.FC<DivisionsPageProps> = ({ divisions: initialDivisions, permissions = {} }) => {
     const { props } = usePage<DivisionsPageProps>();
     
     const [divisions, setDivisions] = useState<Division[]>(initialDivisions || []);
@@ -67,12 +73,24 @@ const DivisionsPage: React.FC<DivisionsPageProps> = ({ divisions: initialDivisio
             router.reload();
             handleCloseModal();
         } catch (error: any) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Gagal!',
-                text: error.response?.data?.message || 'Terjadi kesalahan',
-                confirmButtonColor: '#3B4D3A',
-            });
+            const statusCode = error.response?.status;
+            const errorMessage = error.response?.data?.message || 'Terjadi kesalahan';
+            
+            if (statusCode === 403) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Akses Ditolak!',
+                    text: 'Anda tidak memiliki izin untuk melakukan tindakan ini.',
+                    confirmButtonColor: '#3B4D3A',
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: errorMessage,
+                    confirmButtonColor: '#3B4D3A',
+                });
+            }
         } finally {
             setLoading(false);
         }
@@ -101,12 +119,24 @@ const DivisionsPage: React.FC<DivisionsPageProps> = ({ divisions: initialDivisio
                 });
                 router.reload();
             } catch (error: any) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal!',
-                    text: error.response?.data?.message || 'Terjadi kesalahan',
-                    confirmButtonColor: '#3B4D3A',
-                });
+                const statusCode = error.response?.status;
+                const errorMessage = error.response?.data?.message || 'Terjadi kesalahan';
+                
+                if (statusCode === 403) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Akses Ditolak!',
+                        text: 'Anda tidak memiliki izin untuk menghapus divisi ini.',
+                        confirmButtonColor: '#3B4D3A',
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: errorMessage,
+                        confirmButtonColor: '#3B4D3A',
+                    });
+                }
             }
         }
     };
@@ -122,13 +152,15 @@ const DivisionsPage: React.FC<DivisionsPageProps> = ({ divisions: initialDivisio
                             <h1 className="text-3xl font-bold text-[#3B4D3A]">Manajemen Divisi</h1>
                             <p className="text-[#6E8BA3] mt-1">Kelola divisi-divisi OSIS dalam kepanitiaan event</p>
                         </div>
-                        <button
-                            onClick={() => handleOpenModal()}
-                            className="flex items-center gap-2 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all shadow-md"
-                        >
-                            <Plus className="w-5 h-5" />
-                            Tambah Divisi
-                        </button>
+                        {permissions?.can_create && (
+                            <button
+                                onClick={() => handleOpenModal()}
+                                className="flex items-center gap-2 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all shadow-md"
+                            >
+                                <Plus className="w-5 h-5" />
+                                Tambah Divisi
+                            </button>
+                        )}
                     </div>
 
                     {/* Search Bar */}
@@ -167,20 +199,24 @@ const DivisionsPage: React.FC<DivisionsPageProps> = ({ divisions: initialDivisio
                                 </div>
 
                                 <div className="flex gap-2">
-                                    <button
-                                        onClick={() => handleOpenModal(division)}
-                                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[#E8DCC3] text-[#3B4D3A] rounded-lg hover:bg-[#d5c9b0] transition-all font-medium"
-                                    >
-                                        <Edit className="w-4 h-4" />
-                                        Edit
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(division)}
-                                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-all font-medium"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                        Hapus
-                                    </button>
+                                    {permissions?.can_edit && (
+                                        <button
+                                            onClick={() => handleOpenModal(division)}
+                                            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[#E8DCC3] text-[#3B4D3A] rounded-lg hover:bg-[#d5c9b0] transition-all font-medium"
+                                        >
+                                            <Edit className="w-4 h-4" />
+                                            Edit
+                                        </button>
+                                    )}
+                                    {permissions?.can_delete && (
+                                        <button
+                                            onClick={() => handleDelete(division)}
+                                            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-all font-medium"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                            Hapus
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         ))}

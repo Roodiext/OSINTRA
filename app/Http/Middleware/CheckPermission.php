@@ -15,10 +15,16 @@ class CheckPermission
      */
     public function handle(Request $request, Closure $next, string $module, string $action): Response
     {
-        $user = $request->user();
+        // Check Sanctum first (from Bearer token or cookie), fallback to session
+        $user = auth('sanctum')->user() ?? auth()->user();
 
         if (!$user) {
             return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        // Admin has all permissions
+        if ($user->role && $user->role->name === 'Admin') {
+            return $next($request);
         }
 
         if (!$user->hasPermission($module, $action)) {
@@ -30,3 +36,4 @@ class CheckPermission
         return $next($request);
     }
 }
+

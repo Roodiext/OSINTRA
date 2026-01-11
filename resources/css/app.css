@@ -64,30 +64,37 @@
 
 :root {
     /* Global color tokens (align with OSINTRA design system) */
-    --background: #F5F5F5; /* Background Global */
-    --foreground: #1E1E1E; /* Text Primary */
+    --background: #F5F5F5;
+    /* Background Global */
+    --foreground: #1E1E1E;
+    /* Text Primary */
 
     /* Surfaces */
-    --card: #E8DCC3; /* Primary (Base Cream) for cards/sections */
+    --card: #E8DCC3;
+    /* Primary (Base Cream) for cards/sections */
     --card-foreground: #1E1E1E;
     --popover: #FFFFFF;
     --popover-foreground: #1E1E1E;
 
     /* Core tokens */
-    --primary: #E8DCC3; /* primary surface */
+    --primary: #E8DCC3;
+    /* primary surface */
     --primary-foreground: #1E1E1E;
-    --secondary: #6E8BA3; /* secondary accents */
+    --secondary: #6E8BA3;
+    /* secondary accents */
     --secondary-foreground: #1E1E1E;
     --muted: #F1F3F5;
     --muted-foreground: #6E8BA3;
-    --accent: #3B4D3A; /* Accent deep green */
+    --accent: #3B4D3A;
+    /* Accent deep green */
     --accent-foreground: #FFFFFF;
 
     --destructive: #EF4444;
     --destructive-foreground: #FFFFFF;
-    --border: #E6E9EB; /* subtle border */
+    --border: #E6E9EB;
+    /* subtle border */
     --input: #FFFFFF;
-    --ring: rgba(59,77,58,0.16);
+    --ring: rgba(59, 77, 58, 0.16);
 
     --chart-1: #3B4D3A;
     --chart-2: #6E8BA3;
@@ -95,7 +102,8 @@
     --chart-4: #F59E0B;
     --chart-5: #10B981;
 
-    --radius: 0.75rem; /* 12px */
+    --radius: 0.75rem;
+    /* 12px */
     --sidebar: #FFFFFF;
     --sidebar-foreground: #1E1E1E;
     --sidebar-primary: #3B4D3A;
@@ -103,7 +111,7 @@
     --sidebar-accent: #6E8BA3;
     --sidebar-accent-foreground: #FFFFFF;
     --sidebar-border: #E6E9EB;
-    --sidebar-ring: rgba(59,77,58,0.08);
+    --sidebar-ring: rgba(59, 77, 58, 0.08);
 }
 
 .dark {
@@ -146,24 +154,34 @@
         @apply border-border;
     }
 
+    html {
+        scroll-behavior: smooth;
+    }
+
     body {
         @apply bg-background text-foreground;
     }
 
     /* Force a readable dark text color for form controls (no light/dark mode)
        NOTE: do NOT include buttons here so button text / avatar icons keep their original styling */
-    input, textarea, select {
-        color: #0f172a !important; /* slate-900 */
+    input,
+    textarea,
+    select {
+        color: #0f172a !important;
+        /* slate-900 */
         caret-color: #0f172a !important;
     }
 
     /* Placeholder styling (lighter, readable) */
-    input::placeholder, textarea::placeholder {
-        color: #94a3b8; /* slate-400 */
+    input::placeholder,
+    textarea::placeholder {
+        color: #94a3b8;
+        /* slate-400 */
     }
 
     /* SweetAlert2 inline inputs (in case some dialogs still use it) */
-    .swal2-container .swal2-input, .swal2-container .swal2-textarea {
+    .swal2-container .swal2-input,
+    .swal2-container .swal2-textarea {
         color: #0f172a !important;
         background: #ffffff !important;
     }

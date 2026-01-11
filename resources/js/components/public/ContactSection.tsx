@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
 import api from '@/lib/axios';
+import Reveal from './Reveal';
 
 const ContactSection: React.FC = () => {
     const [formData, setFormData] = useState({
@@ -8,6 +9,9 @@ const ContactSection: React.FC = () => {
         email: '',
         subject: '',
         message: '',
+        category: 'saran_program',
+        priority: 'normal',
+        is_anonymous: false,
     });
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -22,7 +26,7 @@ const ContactSection: React.FC = () => {
         try {
             await api.post('/messages', formData);
             setSuccess(true);
-            setFormData({ name: '', email: '', subject: '', message: '' });
+            setFormData({ name: '', email: '', subject: '', message: '', category: 'saran_program', priority: 'normal', is_anonymous: false });
             setTimeout(() => setSuccess(false), 5000);
         } catch (err: any) {
             setError(err.response?.data?.message || 'Gagal mengirim pesan. Silakan coba lagi.');
@@ -38,7 +42,7 @@ const ContactSection: React.FC = () => {
     return (
         <section id="contact" className="py-20 px-4 bg-white">
             <div className="max-w-6xl mx-auto">
-                <div className="text-center mb-16">
+                <Reveal direction="down" className="text-center mb-16">
                     <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: '#3B4D3A' }}>
                         Hubungi Kami
                     </h2>
@@ -46,50 +50,56 @@ const ContactSection: React.FC = () => {
                     <p className="text-lg" style={{ color: '#6E8BA3' }}>
                         Ada pertanyaan? Kirim pesan kepada kami
                     </p>
-                </div>
+                </Reveal>
 
                 <div className="grid md:grid-cols-2 gap-12">
                     {/* Contact Info */}
                     <div className="space-y-6 ">
-                        <div className="p-6 rounded-2xl shadow-lg" style={{ backgroundColor: '#F5F5F5' }}>
-                            <div className="flex items-start gap-4">
-                                <div className="p-3 rounded-xl" style={{ backgroundColor: '#3B4D3A' }}>
-                                    <Mail className="w-6 h-6 text-white" />
-                                </div>
-                                <div>
-                                    <h3 className="font-bold mb-1" style={{ color: '#3B4D3A' }}>Email</h3>
-                                    <p style={{ color: '#6E8BA3' }}>osis@smkn6solo.sch.id</p>
+                        <Reveal delay={200} direction="right">
+                            <div className="p-6 rounded-2xl shadow-lg" style={{ backgroundColor: '#F5F5F5' }}>
+                                <div className="flex items-start gap-4">
+                                    <div className="p-3 rounded-xl" style={{ backgroundColor: '#3B4D3A' }}>
+                                        <Mail className="w-6 h-6 text-white" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold mb-1" style={{ color: '#3B4D3A' }}>Email</h3>
+                                        <p style={{ color: '#6E8BA3' }}>osis@smkn6solo.sch.id</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </Reveal>
 
-                        <div className="p-6 rounded-2xl shadow-lg" style={{ backgroundColor: '#F5F5F5' }}>
-                            <div className="flex items-start gap-4">
-                                <div className="p-3 rounded-xl" style={{ backgroundColor: '#3B4D3A' }}>
-                                    <Phone className="w-6 h-6 text-white" />
-                                </div>
-                                <div>
-                                    <h3 className="font-bold mb-1" style={{ color: '#3B4D3A' }}>Telepon</h3>
-                                    <p style={{ color: '#6E8BA3' }}>(0271) 123456</p>
+                        <Reveal delay={400} direction="right">
+                            <div className="p-6 rounded-2xl shadow-lg" style={{ backgroundColor: '#F5F5F5' }}>
+                                <div className="flex items-start gap-4">
+                                    <div className="p-3 rounded-xl" style={{ backgroundColor: '#3B4D3A' }}>
+                                        <Phone className="w-6 h-6 text-white" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold mb-1" style={{ color: '#3B4D3A' }}>Telepon</h3>
+                                        <p style={{ color: '#6E8BA3' }}>(0271) 123456</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </Reveal>
 
-                        <div className="p-6 rounded-2xl shadow-lg" style={{ backgroundColor: '#F5F5F5' }}>
-                            <div className="flex items-start gap-4">
-                                <div className="p-3 rounded-xl" style={{ backgroundColor: '#3B4D3A' }}>
-                                    <MapPin className="w-6 h-6 text-white" />
-                                </div>
-                                <div>
-                                    <h3 className="font-bold mb-1" style={{ color: '#3B4D3A' }}>Alamat</h3>
-                                    <p style={{ color: '#6E8BA3' }}>Jl. LU Adisucipto No. 42, Surakarta</p>
+                        <Reveal delay={600} direction="right">
+                            <div className="p-6 rounded-2xl shadow-lg" style={{ backgroundColor: '#F5F5F5' }}>
+                                <div className="flex items-start gap-4">
+                                    <div className="p-3 rounded-xl" style={{ backgroundColor: '#3B4D3A' }}>
+                                        <MapPin className="w-6 h-6 text-white" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold mb-1" style={{ color: '#3B4D3A' }}>Alamat</h3>
+                                        <p style={{ color: '#6E8BA3' }}>Jl. LU Adisucipto No. 42, Surakarta</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </Reveal>
                     </div>
 
                     {/* Contact Form */}
-                    <div className="p-8 rounded-2xl shadow-lg" style={{ backgroundColor: '#F5F5F5' }}>
+                    <Reveal delay={400} direction="left" className="p-8 rounded-2xl shadow-lg" style={{ backgroundColor: '#F5F5F5' }}>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
                                 <label className="block text-sm font-semibold mb-2" style={{ color: '#3B4D3A' }}>
@@ -147,6 +157,59 @@ const ContactSection: React.FC = () => {
 
                             <div>
                                 <label className="block text-sm font-semibold mb-2" style={{ color: '#3B4D3A' }}>
+                                    Kategori *
+                                </label>
+                                <select
+                                    name="category"
+                                    value={formData.category}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border rounded-xl transition-all bg-white
+                                            focus:outline focus:outline-2 focus:outline-[#E8DCC3]
+                                            focus:border-transparent"
+                                    style={{ borderColor: '#E8DCC3', color: '#1E1E1E' }}
+                                >
+                                    <option value="saran_program">Saran Program</option>
+                                    <option value="kritik_feedback">Kritik/Feedback</option>
+                                    <option value="laporan_masalah">Laporan Masalah</option>
+                                    <option value="ide_usulan">Ide/Usulan</option>
+                                    <option value="komplain">Komplain Urgent</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold mb-2" style={{ color: '#3B4D3A' }}>
+                                    Prioritas *
+                                </label>
+                                <select
+                                    name="priority"
+                                    value={formData.priority}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border rounded-xl transition-all bg-white
+                                            focus:outline focus:outline-2 focus:outline-[#E8DCC3]
+                                            focus:border-transparent"
+                                    style={{ borderColor: '#E8DCC3', color: '#1E1E1E' }}
+                                >
+                                    <option value="low">Rendah</option>
+                                    <option value="normal">Normal</option>
+                                    <option value="high">Tinggi</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="flex items-center gap-3 cursor-pointer" style={{ color: '#3B4D3A' }}>
+                                    <input
+                                        type="checkbox"
+                                        name="is_anonymous"
+                                        checked={formData.is_anonymous}
+                                        onChange={(e) => setFormData({ ...formData, is_anonymous: e.target.checked })}
+                                        className="w-4 h-4 rounded"
+                                    />
+                                    <span className="text-sm font-medium">Kirim Anonim (Nama tidak ditampilkan)</span>
+                                </label>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold mb-2" style={{ color: '#3B4D3A' }}>
                                     Pesan
                                 </label>
                                 <textarea
@@ -189,7 +252,7 @@ const ContactSection: React.FC = () => {
                                 )}
                             </button>
                         </form>
-                    </div>
+                    </Reveal>
                 </div>
             </div>
         </section>

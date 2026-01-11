@@ -51,7 +51,7 @@ const FooterSection: React.FC = () => {
                         <ul className="space-y-3">
                             <li className="flex items-start gap-3">
                                 <Mail className="w-5 h-5 mt-0.5" style={{ color: '#E8DCC3' }} />
-                                <span style={{ color: '#D0C5B9' }}>osis@smkn6solo.sch.id</span>
+                                <span style={{ color: '#D0C5B9' }}>osisviskaa@gmail.com</span>
                             </li>
                             <li className="flex items-start gap-3">
                                 <Phone className="w-5 h-5 mt-0.5" style={{ color: '#E8DCC3' }} />
@@ -59,7 +59,7 @@ const FooterSection: React.FC = () => {
                             </li>
                             <li className="flex items-start gap-3">
                                 <MapPin className="w-5 h-5 mt-0.5" style={{ color: '#E8DCC3' }} />
-                                <span style={{ color: '#D0C5B9' }}>Jl. LU Adisucipto No. 42, Surakarta</span>
+                                <span style={{ color: '#D0C5B9' }}>Jl. Adi Sucipto No.38, Kerten, Kec. Laweyan, Kota Surakarta, Jawa Tengah 57143</span>
                             </li>
                         </ul>
                     </div>

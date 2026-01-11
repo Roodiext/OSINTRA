@@ -6,7 +6,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   return (
     <div className="min-h-screen bg-bg text-text">
       <Navbar />
-      <main className="pt-16">{children}</main>
+      <main>{children}</main>
       <FooterSection />
     </div>
   );

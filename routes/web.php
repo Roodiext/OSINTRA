@@ -84,57 +84,107 @@ Route::middleware(['inertia.auth'])->group(function () {
     
     // Dashboard Modules - With permission checks
     Route::get('/dashboard/divisions', function () {
+        $user = auth('sanctum')->user() ?? auth()->user();
         return Inertia::render('dashboard/DivisionsPage', [
-            'auth' => ['user' => auth('sanctum')->user() ?? auth()->user()],
+            'auth' => ['user' => $user],
             'divisions' => \App\Models\Division::withCount('users')->get(),
+            'permissions' => [
+                'can_view' => $user?->hasPermission('Divisions', 'view') ?? false,
+                'can_create' => $user?->hasPermission('Divisions', 'create') ?? false,
+                'can_edit' => $user?->hasPermission('Divisions', 'edit') ?? false,
+                'can_delete' => $user?->hasPermission('Divisions', 'delete') ?? false,
+            ],
         ]);
     })->middleware('check.permission:Divisions,view,Divisi')->name('dashboard.divisions');
     
     Route::get('/dashboard/positions', function () {
+        $user = auth('sanctum')->user() ?? auth()->user();
         return Inertia::render('dashboard/PositionsPage', [
-            'auth' => ['user' => auth('sanctum')->user() ?? auth()->user()],
+            'auth' => ['user' => $user],
+            'permissions' => [
+                'can_view' => $user?->hasPermission('Positions', 'view') ?? false,
+                'can_create' => $user?->hasPermission('Positions', 'create') ?? false,
+                'can_edit' => $user?->hasPermission('Positions', 'edit') ?? false,
+                'can_delete' => $user?->hasPermission('Positions', 'delete') ?? false,
+            ],
         ]);
     })->middleware('check.permission:Positions,view,Posisi')->name('dashboard.positions');
     
     Route::get('/dashboard/users', function () {
+        $user = auth('sanctum')->user() ?? auth()->user();
         return Inertia::render('dashboard/UsersPage', [
-            'auth' => ['user' => auth('sanctum')->user() ?? auth()->user()],
+            'auth' => ['user' => $user],
             'users' => \App\Models\User::with(['role', 'position'])->get(),
             'roles' => \App\Models\Role::all(),
             'divisions' => \App\Models\Division::all(),
             'positions' => \App\Models\Position::all(),
+            'permissions' => [
+                'can_view' => $user?->hasPermission('Users', 'view') ?? false,
+                'can_create' => $user?->hasPermission('Users', 'create') ?? false,
+                'can_edit' => $user?->hasPermission('Users', 'edit') ?? false,
+                'can_delete' => $user?->hasPermission('Users', 'delete') ?? false,
+            ],
         ]);
     })->middleware('check.permission:Users,view,Pengguna')->name('dashboard.users');
     
     Route::get('/dashboard/prokers', function () {
+        $user = auth('sanctum')->user() ?? auth()->user();
         return Inertia::render('dashboard/ProkersPage', [
-            'auth' => ['user' => auth('sanctum')->user() ?? auth()->user()],
+            'auth' => ['user' => $user],
             'prokers' => \App\Models\Proker::with(['divisions', 'media'])->get(),
             'divisions' => \App\Models\Division::all(),
+            'permissions' => [
+                'can_view' => $user?->hasPermission('Prokers', 'view') ?? false,
+                'can_create' => $user?->hasPermission('Prokers', 'create') ?? false,
+                'can_edit' => $user?->hasPermission('Prokers', 'edit') ?? false,
+                'can_delete' => $user?->hasPermission('Prokers', 'delete') ?? false,
+            ],
         ]);
     })->middleware('check.permission:Prokers,view,Program Kerja')->name('dashboard.prokers');
     
     Route::get('/dashboard/prokers/{id}', function ($id) {
+        $user = auth('sanctum')->user() ?? auth()->user();
         return Inertia::render('dashboard/ProkerDetailPage', [
-            'auth' => ['user' => auth('sanctum')->user() ?? auth()->user()],
+            'auth' => ['user' => $user],
+            'permissions' => [
+                'can_view' => $user?->hasPermission('Prokers', 'view') ?? false,
+                'can_create' => $user?->hasPermission('Prokers', 'create') ?? false,
+                'can_edit' => $user?->hasPermission('Prokers', 'edit') ?? false,
+                'can_delete' => $user?->hasPermission('Prokers', 'delete') ?? false,
+            ],
         ]);
     })->middleware('check.permission:Prokers,view,Program Kerja')->name('dashboard.prokers.detail');
     
     Route::get('/dashboard/prokers/{id}/edit', function ($id) {
+        $user = auth('sanctum')->user() ?? auth()->user();
         return Inertia::render('dashboard/ProkerEditPage', [
-            'auth' => ['user' => auth('sanctum')->user() ?? auth()->user()],
+            'auth' => ['user' => $user],
             'divisions' => \App\Models\Division::all(),
+            'permissions' => [
+                'can_view' => $user?->hasPermission('Prokers', 'view') ?? false,
+                'can_create' => $user?->hasPermission('Prokers', 'create') ?? false,
+                'can_edit' => $user?->hasPermission('Prokers', 'edit') ?? false,
+                'can_delete' => $user?->hasPermission('Prokers', 'delete') ?? false,
+            ],
         ]);
     })->middleware('check.permission:Prokers,edit,Program Kerja')->name('dashboard.prokers.edit');
     
     Route::get('/dashboard/messages', function () {
+        $user = auth('sanctum')->user() ?? auth()->user();
         return Inertia::render('dashboard/MessagesPage', [
-            'auth' => ['user' => auth('sanctum')->user() ?? auth()->user()],
+            'auth' => ['user' => $user],
             'messages' => \App\Models\Message::orderBy('created_at', 'desc')->get(),
+            'permissions' => [
+                'can_view' => $user?->hasPermission('Messages', 'view') ?? false,
+                'can_create' => $user?->hasPermission('Messages', 'create') ?? false,
+                'can_edit' => $user?->hasPermission('Messages', 'edit') ?? false,
+                'can_delete' => $user?->hasPermission('Messages', 'delete') ?? false,
+            ],
         ]);
     })->middleware('check.permission:Messages,view,Pesan')->name('dashboard.messages');
     
     Route::get('/dashboard/transactions', function () {
+        $user = auth('sanctum')->user() ?? auth()->user();
         $transactions = \App\Models\Transaction::with('creator')->orderBy('date', 'desc')->get();
         $balance = $transactions->where('type', 'income')->sum('amount') - $transactions->where('type', 'expense')->sum('amount');
         $totalIncome = $transactions->where('type', 'income')->sum('amount');
@@ -154,12 +204,19 @@ Route::middleware(['inertia.auth'])->group(function () {
         ->values();
     
         return Inertia::render('dashboard/TransactionsPage', [
-            'auth' => ['user' => auth('sanctum')->user() ?? auth()->user()],
+            'auth' => ['user' => $user],
             'transactions' => $transactions,
             'balance' => $balance,
             'totalIncome' => $totalIncome,
             'totalExpense' => $totalExpense,
             'monthlyData' => $monthlyData,
+            'permissions' => [
+                'can_view' => $user?->hasPermission('Transactions', 'view') ?? false,
+                'can_create' => $user?->hasPermission('Transactions', 'create') ?? false,
+                'can_edit' => $user?->hasPermission('Transactions', 'edit') ?? false,
+                'can_delete' => $user?->hasPermission('Transactions', 'delete') ?? false,
+                'can_approve' => $user?->hasPermission('Transactions', 'approve') ?? false,
+            ],
         ]);
     })->middleware('check.permission:Transactions,view,Keuangan')->name('dashboard.transactions');
     

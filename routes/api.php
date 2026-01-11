@@ -39,34 +39,72 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index']);
 
     // Divisions
-    Route::apiResource('divisions', DivisionController::class)->except(['index']);
+    Route::get('divisions', [DivisionController::class, 'index']); // Public read
+    Route::post('divisions', [DivisionController::class, 'store'])
+        ->middleware('permission:Divisions,create');
+    Route::get('divisions/{division}', [DivisionController::class, 'show']);
+    Route::put('divisions/{division}', [DivisionController::class, 'update'])
+        ->middleware('permission:Divisions,edit');
+    Route::delete('divisions/{division}', [DivisionController::class, 'destroy'])
+        ->middleware('permission:Divisions,delete');
 
     // Users
-    Route::apiResource('users', UserController::class);
-
-        Route::get('/users/search', [UserController::class, 'search']);
+    Route::get('users', [UserController::class, 'index']);
+    Route::post('users', [UserController::class, 'store'])
+        ->middleware('permission:Users,create');
+    Route::get('users/{user}', [UserController::class, 'show']);
+    Route::put('users/{user}', [UserController::class, 'update'])
+        ->middleware('permission:Users,edit');
+    Route::delete('users/{user}', [UserController::class, 'destroy'])
+        ->middleware('permission:Users,delete');
+    Route::get('/users/search', [UserController::class, 'search']);
 
     // Prokers (protected routes)
-    Route::post('/prokers', [ProkerController::class, 'store']);
-    Route::put('/prokers/{proker}', [ProkerController::class, 'update']);
-    Route::patch('/prokers/{proker}', [ProkerController::class, 'update']);
-    Route::delete('/prokers/{proker}', [ProkerController::class, 'destroy']);
-    Route::post('/prokers/{proker}/anggota', [ProkerController::class, 'addAnggota']);
-    Route::delete('/prokers/{proker}/anggota/{anggota}', [ProkerController::class, 'removeAnggota']);
-    Route::post('/prokers/{proker}/media/upload', [ProkerController::class, 'uploadMedia']);
-    Route::post('/prokers/{proker}/media', [ProkerController::class, 'addMedia']);
-    Route::delete('/prokers/{proker}/media/{media}', [ProkerController::class, 'removeMedia']);
-    Route::put('/prokers/{proker}/media/{media}/thumbnail', [ProkerController::class, 'setThumbnail']);
+    Route::get('/prokers', [ProkerController::class, 'index']);
+    Route::post('/prokers', [ProkerController::class, 'store'])
+        ->middleware('permission:Prokers,create');
+    Route::get('/prokers/{proker}', [ProkerController::class, 'show']);
+    Route::put('/prokers/{proker}', [ProkerController::class, 'update'])
+        ->middleware('permission:Prokers,edit');
+    Route::patch('/prokers/{proker}', [ProkerController::class, 'update'])
+        ->middleware('permission:Prokers,edit');
+    Route::delete('/prokers/{proker}', [ProkerController::class, 'destroy'])
+        ->middleware('permission:Prokers,delete');
+    Route::post('/prokers/{proker}/anggota', [ProkerController::class, 'addAnggota'])
+        ->middleware('permission:Prokers,edit');
+    Route::delete('/prokers/{proker}/anggota/{anggota}', [ProkerController::class, 'removeAnggota'])
+        ->middleware('permission:Prokers,edit');
+    Route::post('/prokers/{proker}/media/upload', [ProkerController::class, 'uploadMedia'])
+        ->middleware('permission:Prokers,edit');
+    Route::post('/prokers/{proker}/media', [ProkerController::class, 'addMedia'])
+        ->middleware('permission:Prokers,edit');
+    Route::delete('/prokers/{proker}/media/{media}', [ProkerController::class, 'removeMedia'])
+        ->middleware('permission:Prokers,edit');
+    Route::put('/prokers/{proker}/media/{media}/thumbnail', [ProkerController::class, 'setThumbnail'])
+        ->middleware('permission:Prokers,edit');
 
     // Messages
     Route::get('/messages', [MessageController::class, 'index']);
     Route::get('/messages/statistics', [MessageController::class, 'statistics']);
     Route::get('/messages/{message}', [MessageController::class, 'show']);
-    Route::put('/messages/{message}/status', [MessageController::class, 'updateStatus']);
-    Route::delete('/messages/{message}', [MessageController::class, 'destroy']);
+    Route::put('/messages/{message}/status', [MessageController::class, 'updateStatus'])
+        ->middleware('permission:Messages,edit');
+    Route::post('/messages/{message}/reply', [MessageController::class, 'reply'])
+        ->middleware('permission:Messages,edit');
+    Route::delete('/messages/{message}', [MessageController::class, 'destroy'])
+        ->middleware('permission:Messages,delete');
 
     // Transactions
-    Route::apiResource('transactions', TransactionController::class);
+    Route::get('transactions', [TransactionController::class, 'index']);
+    Route::post('transactions', [TransactionController::class, 'store'])
+        ->middleware('permission:Transactions,create');
+    Route::get('transactions/{transaction}', [TransactionController::class, 'show']);
+    Route::put('transactions/{transaction}', [TransactionController::class, 'update'])
+        ->middleware('permission:Transactions,edit');
+    Route::patch('transactions/{transaction}/approve', [TransactionController::class, 'approveTransaction'])
+        ->middleware('permission:Transactions,edit');
+    Route::delete('transactions/{transaction}', [TransactionController::class, 'destroy'])
+        ->middleware('permission:Transactions,delete');
     Route::get('/transactions-statistics', [TransactionController::class, 'statistics']);
     Route::get('/transactions-monthly', [TransactionController::class, 'monthlyData']);
 
@@ -80,5 +118,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/audit-logs', [SettingController::class, 'getAuditLogs']);
     
     // Positions
-    Route::apiResource('positions', \App\Http\Controllers\Api\PositionController::class)->except(['show']);
+    Route::get('positions', [\App\Http\Controllers\Api\PositionController::class, 'index']);
+    Route::post('positions', [\App\Http\Controllers\Api\PositionController::class, 'store'])
+        ->middleware('permission:Positions,create');
+    Route::put('positions/{position}', [\App\Http\Controllers\Api\PositionController::class, 'update'])
+        ->middleware('permission:Positions,edit');
+    Route::delete('positions/{position}', [\App\Http\Controllers\Api\PositionController::class, 'destroy'])
+        ->middleware('permission:Positions,delete');
 });

@@ -50,8 +50,23 @@ interface Proker {
     media: ProkerMedia[];
 }
 
+interface ProkerDetailPageProps {
+    permissions?: {
+        can_view: boolean;
+        can_create: boolean;
+        can_edit: boolean;
+        can_delete: boolean;
+    };
+}
+
 const ProkerDetailPage: React.FC = () => {
     const { props } = usePage<ProkerDetailPageProps>();
+    const permissions = props.permissions || {
+        can_view: false,
+        can_create: false,
+        can_edit: false,
+        can_delete: false,
+    };
     
     const [proker, setProker] = useState<Proker | null>(null);
     const [loading, setLoading] = useState(true);
@@ -107,8 +122,12 @@ const ProkerDetailPage: React.FC = () => {
                 Swal.fire('Terhapus!', 'Panitia berhasil dihapus', 'success');
                 const response = await api.get(`/prokers/${proker.id}`);
                 setProker(response.data);
-            } catch (error) {
-                Swal.fire('Gagal!', 'Gagal menghapus panitia', 'error');
+            } catch (error: any) {
+                if (error.response?.status === 403) {
+                    Swal.fire('Gagal!', 'Anda tidak memiliki izin untuk menghapus panitia', 'error');
+                } else {
+                    Swal.fire('Gagal!', 'Gagal menghapus panitia', 'error');
+                }
             }
         }
     };
@@ -182,7 +201,11 @@ const ProkerDetailPage: React.FC = () => {
             setProker(response.data);
         } catch (error: any) {
             console.error(error);
-            Swal.fire('Error', error.response?.data?.message || 'Gagal upload media', 'error');
+            if (error.response?.status === 403) {
+                Swal.fire('Gagal!', 'Anda tidak memiliki izin untuk upload media', 'error');
+            } else {
+                Swal.fire('Error', error.response?.data?.message || 'Gagal upload media', 'error');
+            }
         } finally {
             setUploading(false);
             e.target.value = '';
@@ -209,8 +232,12 @@ const ProkerDetailPage: React.FC = () => {
                 // Refresh proker data
                 const response = await api.get(`/prokers/${proker.id}`);
                 setProker(response.data);
-            } catch (error) {
-                Swal.fire('Gagal!', 'Gagal menghapus media', 'error');
+            } catch (error: any) {
+                if (error.response?.status === 403) {
+                    Swal.fire('Gagal!', 'Anda tidak memiliki izin untuk menghapus media', 'error');
+                } else {
+                    Swal.fire('Gagal!', 'Gagal menghapus media', 'error');
+                }
             }
         }
     };
@@ -253,7 +280,11 @@ const ProkerDetailPage: React.FC = () => {
             const response = await api.get(`/prokers/${proker.id}`);
             setProker(response.data);
         } catch (error: any) {
-            Swal.fire('Error', error.response?.data?.message || 'Gagal update thumbnail', 'error');
+            if (error.response?.status === 403) {
+                Swal.fire('Error', 'Anda tidak memiliki izin untuk mengatur thumbnail', 'error');
+            } else {
+                Swal.fire('Error', error.response?.data?.message || 'Gagal update thumbnail', 'error');
+            }
         }
     };
 
@@ -330,22 +361,26 @@ const ProkerDetailPage: React.FC = () => {
                                 </div>
                             </div>
                             <div className="flex gap-2 self-end md:self-start">
-                                <button
-                                    onClick={() => router.visit(`/dashboard/prokers/${proker.id}/edit`)}
-                                    className="p-3 bg-[#3B4D3A] text-white rounded-xl hover:opacity-90 transition shadow-md"
-                                    title="Edit"
-                                >
-                                    <Edit className="w-5 h-5" />
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        // TODO: implement delete
-                                    }}
-                                    className="p-3 bg-red-500 text-white rounded-xl hover:opacity-90 transition shadow-md"
-                                    title="Hapus"
-                                >
-                                    <Trash2 className="w-5 h-5" />
-                                </button>
+                                {permissions.can_edit && (
+                                    <button
+                                        onClick={() => router.visit(`/dashboard/prokers/${proker.id}/edit`)}
+                                        className="p-3 bg-[#3B4D3A] text-white rounded-xl hover:opacity-90 transition shadow-md"
+                                        title="Edit"
+                                    >
+                                        <Edit className="w-5 h-5" />
+                                    </button>
+                                )}
+                                {permissions.can_delete && (
+                                    <button
+                                        onClick={() => {
+                                            // TODO: implement delete
+                                        }}
+                                        className="p-3 bg-red-500 text-white rounded-xl hover:opacity-90 transition shadow-md"
+                                        title="Hapus"
+                                    >
+                                        <Trash2 className="w-5 h-5" />
+                                    </button>
+                                )}
                             </div>
                         </div>
 
@@ -415,13 +450,15 @@ const ProkerDetailPage: React.FC = () => {
                     <div className="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                             <h2 className="text-2xl font-bold text-[#3B4D3A]">Divisi yang Terlibat</h2>
-                            <button
-                                onClick={() => setShowEditDivisionsModal(true)}
-                                className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#3B4D3A] text-white rounded-xl hover:opacity-90 transition text-sm font-bold shadow-md"
-                            >
-                                <Edit className="w-4 h-4" />
-                                Edit Divisi
-                            </button>
+                            {permissions.can_edit && (
+                                <button
+                                    onClick={() => setShowEditDivisionsModal(true)}
+                                    className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#3B4D3A] text-white rounded-xl hover:opacity-90 transition text-sm font-bold shadow-md"
+                                >
+                                    <Edit className="w-4 h-4" />
+                                    Edit Divisi
+                                </button>
+                            )}
                         </div>
                         {proker.divisions.length > 0 ? (
                             <div className="flex flex-wrap gap-2">
@@ -443,13 +480,15 @@ const ProkerDetailPage: React.FC = () => {
                     <div className="bg-white p-8 rounded-2xl shadow-lg">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                             <h2 className="text-2xl font-bold text-[#3B4D3A]">Daftar Panitia</h2>
-                            <button
-                                onClick={() => setShowAddPanitiaModal(true)}
-                                className="flex items-center justify-center gap-2 px-5 py-2.5 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all font-bold shadow-md"
-                            >
-                                <Plus className="w-4 h-4" />
-                                Tambah Panitia
-                            </button>
+                            {permissions.can_edit && (
+                                <button
+                                    onClick={() => setShowAddPanitiaModal(true)}
+                                    className="flex items-center justify-center gap-2 px-5 py-2.5 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all font-bold shadow-md"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                    Tambah Panitia
+                                </button>
+                            )}
                         </div>
 
                         {proker.anggota.length === 0 ? (
@@ -463,7 +502,7 @@ const ProkerDetailPage: React.FC = () => {
                                         <col className="w-[150px]" />
                                         <col className="w-[150px]" />
                                         <col className="w-[100px]" />
-                                        <col className="w-[80px]" />
+                                        {permissions.can_edit && <col className="w-[80px]" />}
                                     </colgroup>
                                     <thead>
                                         <tr className="bg-[#E8DCC3]">
@@ -472,7 +511,7 @@ const ProkerDetailPage: React.FC = () => {
                                             <th className="px-6 py-3 font-bold text-[#3B4D3A]">Divisi</th>
                                             <th className="px-6 py-3 font-bold text-[#3B4D3A]">Posisi</th>
                                             <th className="px-6 py-3 font-bold text-[#3B4D3A]">Role</th>
-                                            <th className="px-6 py-3 font-bold text-[#3B4D3A]">Aksi</th>
+                                            {permissions.can_edit && <th className="px-6 py-3 font-bold text-[#3B4D3A]">Aksi</th>}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -486,15 +525,17 @@ const ProkerDetailPage: React.FC = () => {
                                                 <td className="px-6 py-4 text-gray-700">{member.division?.name || '-'}</td>
                                                 <td className="px-6 py-4 text-gray-700">{member.position?.name || '-'}</td>
                                                 <td className="px-6 py-4 text-gray-700">{member.role || '-'}</td>
-                                                <td className="px-6 py-4">
-                                                    <button
-                                                        onClick={() => handleDeletePanitia(member.id)}
-                                                        className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-all"
-                                                        title="Hapus"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
-                                                </td>
+                                                {permissions.can_edit && (
+                                                    <td className="px-6 py-4">
+                                                        <button
+                                                            onClick={() => handleDeletePanitia(member.id)}
+                                                            className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-all"
+                                                            title="Hapus"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </td>
+                                                )}
                                             </tr>
                                         ))}
                                     </tbody>
@@ -569,23 +610,25 @@ const ProkerDetailPage: React.FC = () => {
                                     onChange={handleFileSelect}
                                     className="hidden"
                                 />
-                                <button
-                                    onClick={() => fileInputRef.current?.click()}
-                                    disabled={uploading}
-                                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all font-bold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    {uploading ? (
-                                        <>
-                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                            Uploading...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Upload className="w-4 h-4" />
-                                            Tambah Media
-                                        </>
-                                    )}
-                                </button>
+                                {permissions.can_edit && (
+                                    <button
+                                        onClick={() => fileInputRef.current?.click()}
+                                        disabled={uploading}
+                                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all font-bold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {uploading ? (
+                                            <>
+                                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                                Uploading...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Upload className="w-4 h-4" />
+                                                Tambah Media
+                                            </>
+                                        )}
+                                    </button>
+                                )}
                             </div>
                         </div>
 
@@ -612,7 +655,7 @@ const ProkerDetailPage: React.FC = () => {
                                         )}
                                         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
                                             <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex gap-2">
-                                                {media.media_type === 'image' && (
+                                                {permissions.can_edit && media.media_type === 'image' && (
                                                     <button
                                                         onClick={(e) => handleSetThumbnail(media, e)}
                                                         className={`p-2 rounded-lg transition ${media.is_thumbnail ? 'bg-yellow-400 text-white' : 'bg-white text-gray-600 hover:bg-yellow-100'}`}
@@ -621,16 +664,18 @@ const ProkerDetailPage: React.FC = () => {
                                                         <Star className={`w-4 h-4 ${media.is_thumbnail ? 'fill-current' : ''}`} />
                                                     </button>
                                                 )}
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleDeleteMedia(media);
-                                                    }}
-                                                    className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
-                                                    title="Hapus"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
+                                                {permissions.can_delete && (
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDeleteMedia(media);
+                                                        }}
+                                                        className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                                                        title="Hapus"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
 
@@ -652,13 +697,15 @@ const ProkerDetailPage: React.FC = () => {
                             <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-lg">
                                 <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-3" />
                                 <p className="text-gray-500 mb-4">Belum ada media dokumentasi</p>
-                                <button
-                                    onClick={() => fileInputRef.current?.click()}
-                                    className="px-4 py-2 bg-[#3B4D3A] text-white rounded-lg hover:bg-[#2d3a2d] transition-all font-semibold"
-                                >
-                                    <Upload className="w-4 h-4 inline mr-2" />
-                                    Upload Media Pertama
-                                </button>
+                                {permissions.can_edit && (
+                                    <button
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="px-4 py-2 bg-[#3B4D3A] text-white rounded-lg hover:bg-[#2d3a2d] transition-all font-semibold"
+                                    >
+                                        <Upload className="w-4 h-4 inline mr-2" />
+                                        Upload Media Pertama
+                                    </button>
+                                )}
                             </div>
                         )}
                     </div>
