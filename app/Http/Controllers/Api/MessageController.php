@@ -69,12 +69,24 @@ class MessageController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email',
-            'subject' => 'required|string|max:255',
+            // 'subject' => 'required|string|max:255', // Removed as per request
             'message' => 'required|string',
             'category' => 'required|in:saran_program,kritik_feedback,laporan_masalah,ide_usulan,komplain',
             'priority' => 'required|in:low,normal,high',
             'is_anonymous' => 'boolean',
         ]);
+
+        // Auto-generate subject if not present (mapping category to readable title)
+        if (!isset($validated['subject'])) {
+            $categories = [
+                'saran_program' => 'Saran Program',
+                'kritik_feedback' => 'Kritik/Feedback',
+                'laporan_masalah' => 'Laporan Masalah',
+                'ide_usulan' => 'Ide/Usulan',
+                'komplain' => 'Komplain Urgent',
+            ];
+            $validated['subject'] = $categories[$validated['category']] ?? 'Pesan Baru';
+        }
 
         $message = Message::create($validated);
 
@@ -154,8 +166,13 @@ class MessageController extends Controller
         try {
             Mail::to($message->email)->send(new MessageReplyMail($message));
         } catch (\Exception $e) {
-            // Log error but don't fail the reply operation
-            \Log::error('Failed to send reply email: ' . $e->getMessage());
+             \Log::error('Failed to send reply email: ' . $e->getMessage());
+             
+             // Return error response so frontend shows it
+             return response()->json([
+                 'message' => 'Reply saved but email failed to send: ' . $e->getMessage(),
+                 'data' => $message->load('repliedBy:id,name,email')
+             ], 500); 
         }
 
         AuditLog::log('reply_message', "Replied to message from: {$message->name}");

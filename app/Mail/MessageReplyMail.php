@@ -3,59 +3,50 @@
 namespace App\Mail;
 
 use App\Models\Message;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class MessageReplyMail extends Mailable implements ShouldQueue
+class MessageReplyMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use SerializesModels;
+
+    public $messageId;
+    public $subject;
+    public $replyMessage;
+    public $senderName;
+    public $senderEmail;
+    public $recipientName;
+    public $recipientEmail;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(protected Message $message)
+    public function __construct(Message $message)
     {
+        $this->messageId = $message->id;
+        $this->subject = $message->subject;
+        $this->replyMessage = $message->reply_message;
+        $this->recipientName = $message->name;
+        $this->recipientEmail = $message->email;
+        $this->senderName = $message->repliedBy?->name ?? 'Administrator';
+        $this->senderEmail = $message->repliedBy?->email ?? config('mail.from.address');
     }
 
     /**
-     * Get the message envelope.
+     * Build the message.
      */
-    public function envelope(): Envelope
+    public function build()
     {
-        $senderName = config('mail.from.name', 'OSVIS');
-        
-        return new Envelope(
-            from: config('mail.from.address'),
-            replyTo: config('mail.from.address'),
-            subject: 'Balasan: ' . $this->message->subject,
-        );
-    }
-
-    /**
-     * Get the message content definition.
-     */
-    public function content(): Content
-    {
-        return new Content(
-            view: 'emails.message-reply',
-            with: [
-                'message' => $this->message,
-                'recipientName' => $this->message->name,
-                'senderName' => $this->message->repliedBy?->name ?? 'Administrator',
-                'senderEmail' => $this->message->repliedBy?->email ?? config('mail.from.address'),
-            ],
-        );
-    }
-
-    /**
-     * Get the attachments for the message.
-     */
-    public function attachments(): array
-    {
-        return [];
+        return $this
+            ->from(config('mail.from.address', 'osisviskaa@gmail.com'), config('mail.from.name', 'OSIS'))
+            ->subject('Balasan: ' . $this->subject)
+            ->markdown('emails.message-reply')
+            ->with([
+                'subject' => $this->subject,
+                'replyMessage' => $this->replyMessage,
+                'senderName' => $this->senderName,
+                'senderEmail' => $this->senderEmail,
+                'recipientName' => $this->recipientName,
+            ]);
     }
 }

@@ -11,7 +11,7 @@ interface MessagesPageProps {
 }
 
 const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }) => {
-    
+
     const [messages, setMessages] = useState<Message[]>(initialMessages || []);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterStatus, setFilterStatus] = useState<string>('');
@@ -26,12 +26,11 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
 
     const filteredMessages = messages.filter(message => {
         const matchesSearch = message.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            message.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            message.subject.toLowerCase().includes(searchQuery.toLowerCase());
+            message.email.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesStatus = !filterStatus || message.status === filterStatus;
         const matchesCategory = !filterCategory || (message as any).category === filterCategory;
         const matchesPriority = !filterPriority || (message as any).priority === filterPriority;
-        const matchesReplyStatus = !filterReplyStatus || 
+        const matchesReplyStatus = !filterReplyStatus ||
             (filterReplyStatus === 'replied' && (message as any).replied_at) ||
             (filterReplyStatus === 'not_replied' && !(message as any).replied_at);
         return matchesSearch && matchesStatus && matchesCategory && matchesPriority && matchesReplyStatus;
@@ -54,7 +53,7 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
 
     const handleReply = async () => {
         if (!viewingMessage || !replyText.trim()) return;
-        
+
         setLoading(true);
         try {
             await api.post(`/messages/${viewingMessage.id}/reply`, {
@@ -322,7 +321,7 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
                                         <th className="px-6 py-4 text-left text-sm font-bold text-[#3B4D3A]">Tanggal</th>
                                         <th className="px-6 py-4 text-left text-sm font-bold text-[#3B4D3A]">Nama</th>
                                         <th className="px-6 py-4 text-left text-sm font-bold text-[#3B4D3A]">Email</th>
-                                        <th className="px-6 py-4 text-left text-sm font-bold text-[#3B4D3A]">Subjek</th>
+
                                         <th className="px-6 py-4 text-left text-sm font-bold text-[#3B4D3A]">Kategori</th>
                                         <th className="px-6 py-4 text-left text-sm font-bold text-[#3B4D3A]">Prioritas</th>
                                         <th className="px-6 py-4 text-left text-sm font-bold text-[#3B4D3A]">Status</th>
@@ -333,28 +332,19 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
                                     {filteredMessages.map((message) => (
                                         <tr
                                             key={message.id}
-                                            className={`hover:bg-[#F5F5F5] transition-colors ${
-                                                message.status === 'unread' ? 'bg-red-50/30' : ''
-                                            }`}
+                                            className={`hover:bg-[#F5F5F5] transition-colors ${message.status === 'unread' ? 'bg-red-50/30' : ''
+                                                }`}
                                         >
                                             <td className="px-6 py-4 text-[#6E8BA3]">
                                                 {new Date(message.created_at).toLocaleDateString('id-ID')}
                                             </td>
                                             <td className="px-6 py-4">
-                                                <span className={`font-semibold ${
-                                                    message.status === 'unread' ? 'text-[#1E1E1E]' : 'text-[#6E8BA3]'
-                                                }`}>
+                                                <span className={`font-semibold ${message.status === 'unread' ? 'text-[#1E1E1E]' : 'text-[#6E8BA3]'
+                                                    }`}>
                                                     {(message as any).is_anonymous ? 'Anonim' : message.name}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-[#6E8BA3]">{message.email}</td>
-                                            <td className="px-6 py-4">
-                                                <span className={`${
-                                                    message.status === 'unread' ? 'font-semibold text-[#1E1E1E]' : 'text-[#6E8BA3]'
-                                                }`}>
-                                                    {message.subject}
-                                                </span>
-                                            </td>
                                             <td className="px-6 py-4">
                                                 <span className={`px-3 py-1 rounded-lg text-xs font-bold ${getCategoryColor((message as any).category)}`}>
                                                     {getCategoryLabel((message as any).category)}
