@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\MessageReplyMail;
 use App\Models\Message;
 use App\Models\AuditLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class MessageController extends Controller
 {
@@ -139,11 +141,22 @@ class MessageController extends Controller
             'reply_message' => 'required|string',
         ]);
 
+        // Load repliedBy relation before updating
+        $message->load('repliedBy:id,name,email');
+
         $message->update([
             'reply_message' => $validated['reply_message'],
             'replied_at' => now(),
             'replied_by' => $request->user()->id,
         ]);
+
+        // Send email to the message sender
+        try {
+            Mail::to($message->email)->send(new MessageReplyMail($message));
+        } catch (\Exception $e) {
+            // Log error but don't fail the reply operation
+            \Log::error('Failed to send reply email: ' . $e->getMessage());
+        }
 
         AuditLog::log('reply_message', "Replied to message from: {$message->name}");
 
