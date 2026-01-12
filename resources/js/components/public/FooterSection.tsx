@@ -10,7 +10,10 @@ const FooterSection: React.FC = () => {
                 <div className="grid md:grid-cols-3 gap-8 mb-8">
                     {/* About */}
                     <div>
-                        <h3 className="text-2xl font-bold mb-4 text-white">OSVIS</h3>
+                        <div className="flex items-center gap-3 mb-4">
+                            <img src="/build/assets/osis-logo-mBAtwUV-.png" alt="OSIS Logo" className="w-10 h-10 object-contain" />
+                            <h3 className="text-2xl font-bold text-white">OSVIS</h3>
+                        </div>
                         <p className="leading-relaxed" style={{ color: '#D0C5B9' }}>
                             Sistem Manajemen OSIS SMKN 6 Surakarta yang modern dan profesional untuk mengelola kegiatan organisasi siswa.
                         </p>
