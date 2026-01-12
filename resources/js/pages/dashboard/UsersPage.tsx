@@ -115,7 +115,7 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divis
         } catch (error: any) {
             const statusCode = error.response?.status;
             const errorMessage = error.response?.data?.message || 'Terjadi kesalahan';
-            
+
             if (statusCode === 403) {
                 Swal.fire({
                     icon: 'error',
@@ -161,7 +161,7 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divis
             } catch (error: any) {
                 const statusCode = error.response?.status;
                 const errorMessage = error.response?.data?.message || 'Terjadi kesalahan';
-                
+
                 if (statusCode === 403) {
                     Swal.fire({
                         icon: 'error',
@@ -196,7 +196,7 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divis
         } catch (error: any) {
             const statusCode = error.response?.status;
             const errorMessage = error.response?.data?.message || 'Terjadi kesalahan';
-            
+
             if (statusCode === 403) {
                 Swal.fire({
                     icon: 'error',
@@ -357,153 +357,165 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divis
 
                 {/* Modal */}
                 {showModal && (
-                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-0 sm:p-4 overflow-y-auto">
-                        <div className="bg-white rounded-none sm:rounded-2xl shadow-2xl max-w-2xl w-full p-4 md:p-8 my-0 sm:my-8 min-h-screen sm:min-h-0">
-                            <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-base md:text-2xl font-bold text-[#3B4D3A]">
+                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
+                            {/* Modal Header */}
+                            <div className="px-6 py-4 md:px-8 md:py-6 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
+                                <h2 className="text-xl md:text-2xl font-bold text-[#3B4D3A]">
                                     {editingUser ? 'Edit Pengguna' : 'Tambah Pengguna'}
                                 </h2>
-                                <button onClick={handleCloseModal} className="sm:hidden text-gray-400 hover:text-red-500 p-1">
-                                    <Plus className="w-5 h-5 rotate-45" />
+                                <button
+                                    onClick={handleCloseModal}
+                                    className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400 hover:text-red-500"
+                                >
+                                    <Plus className="w-6 h-6 rotate-45" />
                                 </button>
                             </div>
 
-                            <form onSubmit={handleSubmit} className="space-y-2.5">
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2.5">
-                                    <div className="space-y-1">
-                                        <label className="block text-[11px] md:text-sm font-semibold text-[#3B4D3A]">
-                                            Nama Lengkap *
-                                        </label>
-                                        <input
-                                            type="text"
-                                            required
-                                            value={formData.name}
-                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                            className="w-full px-3 py-1.5 md:py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all text-sm md:text-base"
-                                        />
-                                    </div>
-
-                                    <div className="space-y-1">
-                                        <label className="block text-[11px] md:text-sm font-semibold text-[#3B4D3A]">
-                                            Username *
-                                        </label>
-                                        <input
-                                            type="text"
-                                            required
-                                            value={formData.username}
-                                            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                                            className="w-full px-3 py-1.5 md:py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all text-sm md:text-base"
-                                        />
-                                    </div>
-
-                                    <div className="space-y-1">
-                                        <label className="block text-[11px] md:text-sm font-semibold text-[#3B4D3A]">
-                                            Email *
-                                        </label>
-                                        <input
-                                            type="email"
-                                            required
-                                            value={formData.email}
-                                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                            className="w-full px-3 py-1.5 md:py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all text-sm md:text-base"
-                                        />
-                                    </div>
-
-                                    <div className="space-y-1">
-                                        <label className="block text-[11px] md:text-sm font-semibold text-[#3B4D3A]">
-                                            Password {!editingUser && '*'}
-                                        </label>
-                                        <input
-                                            type="password"
-                                            required={!editingUser}
-                                            value={formData.password}
-                                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                            className="w-full px-3 py-1.5 md:py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all text-sm md:text-base"
-                                            placeholder={editingUser ? 'Kosongkan jika tidak diubah' : ''}
-                                        />
-                                    </div>
-
-                                    <div className="space-y-1">
-                                        <label className="block text-[11px] md:text-sm font-semibold text-[#3B4D3A]">
-                                            Role *
-                                        </label>
-                                        <select
-                                            required
-                                            value={formData.role_id}
-                                            onChange={(e) => setFormData({ ...formData, role_id: e.target.value })}
-                                            className="w-full px-3 py-1.5 md:py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all text-sm md:text-base"
-                                        >
-                                            <option value="">Pilih Role</option>
-                                            {roles.map(role => (
-                                                <option key={role.id} value={role.id}>{role.name}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    <div className="space-y-1">
-                                        <label className="block text-[11px] md:text-sm font-semibold text-[#3B4D3A]">
-                                            Posisi
-                                        </label>
-                                        <select
-                                            value={formData.position_id}
-                                            onChange={(e) => setFormData({ ...formData, position_id: e.target.value })}
-                                            className="w-full px-3 py-1.5 md:py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all text-sm md:text-base"
-                                        >
-                                            <option value="">Pilih Posisi</option>
-                                            {positions.map(pos => (
-                                                <option key={pos.id} value={pos.id}>{pos.name}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-1">
-                                    <label className="block text-[11px] md:text-sm font-semibold text-[#3B4D3A]">
-                                        Status
-                                    </label>
-                                    <div className="flex gap-4">
-                                        <label className="flex items-center gap-2 cursor-pointer">
+                            {/* Modal Body (Scrollable) */}
+                            <div className="px-6 py-4 md:px-8 md:py-6 overflow-y-auto custom-scrollbar flex-grow">
+                                <form id="user-form" onSubmit={handleSubmit} className="space-y-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-2">
+                                            <label className="block text-sm font-semibold text-[#3B4D3A]">
+                                                Nama Lengkap *
+                                            </label>
                                             <input
-                                                type="radio"
-                                                name="status"
-                                                value="active"
-                                                checked={formData.status === 'active'}
-                                                onChange={(e) => setFormData({ ...formData, status: e.target.value as 'active' | 'inactive' })}
-                                                className="w-4 h-4 text-[#3B4D3A]"
+                                                type="text"
+                                                required
+                                                value={formData.name}
+                                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                                className="w-full px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
+                                                placeholder="Nama lengkap"
                                             />
-                                            <span className="text-sm font-medium text-[#1E1E1E]">Aktif</span>
-                                        </label>
-                                        <label className="flex items-center gap-2 cursor-pointer">
-                                            <input
-                                                type="radio"
-                                                name="status"
-                                                value="inactive"
-                                                checked={formData.status === 'inactive'}
-                                                onChange={(e) => setFormData({ ...formData, status: e.target.value as 'active' | 'inactive' })}
-                                                className="w-4 h-4 text-[#3B4D3A]"
-                                            />
-                                            <span className="text-sm font-medium text-[#1E1E1E]">Nonaktif</span>
-                                        </label>
-                                    </div>
-                                </div>
+                                        </div>
 
-                                <div className="flex gap-2 pt-2 md:pt-4">
-                                    <button
-                                        type="button"
-                                        onClick={handleCloseModal}
-                                        className="flex-1 px-4 py-2 md:py-3 bg-[#F5F5F5] text-[#6E8BA3] rounded-xl hover:bg-[#E8DCC3] transition-all text-sm md:text-base font-semibold"
-                                    >
-                                        Batal
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        disabled={loading}
-                                        className="flex-1 px-4 py-2 md:py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all text-sm md:text-base font-semibold disabled:opacity-50"
-                                    >
-                                        {loading ? 'Menyimpan...' : 'Simpan'}
-                                    </button>
-                                </div>
-                            </form>
+                                        <div className="space-y-2">
+                                            <label className="block text-sm font-semibold text-[#3B4D3A]">
+                                                Username *
+                                            </label>
+                                            <input
+                                                type="text"
+                                                required
+                                                value={formData.username}
+                                                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                                                className="w-full px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
+                                                placeholder="Username"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="block text-sm font-semibold text-[#3B4D3A]">
+                                                Email *
+                                            </label>
+                                            <input
+                                                type="email"
+                                                required
+                                                value={formData.email}
+                                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                                className="w-full px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
+                                                placeholder="email@example.com"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="block text-sm font-semibold text-[#3B4D3A]">
+                                                Password {!editingUser && '*'}
+                                            </label>
+                                            <input
+                                                type="password"
+                                                required={!editingUser}
+                                                value={formData.password}
+                                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                                className="w-full px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
+                                                placeholder={editingUser ? 'Kosongkan jika tidak diubah' : '••••••••'}
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="block text-sm font-semibold text-[#3B4D3A]">
+                                                Role *
+                                            </label>
+                                            <select
+                                                required
+                                                value={formData.role_id}
+                                                onChange={(e) => setFormData({ ...formData, role_id: e.target.value })}
+                                                className="w-full px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
+                                            >
+                                                <option value="">Pilih Role</option>
+                                                {roles.map(role => (
+                                                    <option key={role.id} value={role.id}>{role.name}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="block text-sm font-semibold text-[#3B4D3A]">
+                                                Posisi
+                                            </label>
+                                            <select
+                                                value={formData.position_id}
+                                                onChange={(e) => setFormData({ ...formData, position_id: e.target.value })}
+                                                className="w-full px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
+                                            >
+                                                <option value="">Pilih Posisi</option>
+                                                {positions.map(pos => (
+                                                    <option key={pos.id} value={pos.id}>{pos.name}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <label className="block text-sm font-semibold text-[#3B4D3A]">
+                                            Status
+                                        </label>
+                                        <div className="flex gap-6">
+                                            <label className="flex items-center gap-2 cursor-pointer group">
+                                                <input
+                                                    type="radio"
+                                                    name="status"
+                                                    value="active"
+                                                    checked={formData.status === 'active'}
+                                                    onChange={(e) => setFormData({ ...formData, status: e.target.value as 'active' | 'inactive' })}
+                                                    className="w-4 h-4 text-[#3B4D3A] focus:ring-[#3B4D3A] border-gray-300"
+                                                />
+                                                <span className="text-sm font-medium text-gray-700 group-hover:text-[#3B4D3A] transition-colors">Aktif</span>
+                                            </label>
+                                            <label className="flex items-center gap-2 cursor-pointer group">
+                                                <input
+                                                    type="radio"
+                                                    name="status"
+                                                    value="inactive"
+                                                    checked={formData.status === 'inactive'}
+                                                    onChange={(e) => setFormData({ ...formData, status: e.target.value as 'active' | 'inactive' })}
+                                                    className="w-4 h-4 text-[#3B4D3A] focus:ring-[#3B4D3A] border-gray-300"
+                                                />
+                                                <span className="text-sm font-medium text-gray-700 group-hover:text-[#3B4D3A] transition-colors">Nonaktif</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                            {/* Modal Footer */}
+                            <div className="px-6 py-4 md:px-8 md:py-6 border-t border-gray-100 flex gap-3 flex-shrink-0">
+                                <button
+                                    type="button"
+                                    onClick={handleCloseModal}
+                                    className="flex-1 px-6 py-3 bg-[#F5F5F5] text-[#6E8BA3] rounded-xl hover:bg-gray-200 transition-all font-semibold"
+                                >
+                                    Batal
+                                </button>
+                                <button
+                                    form="user-form"
+                                    type="submit"
+                                    disabled={loading}
+                                    className="flex-1 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all font-semibold shadow-lg shadow-[#3B4D3A]/20 disabled:opacity-50"
+                                >
+                                    {loading ? 'Menyimpan...' : 'Simpan'}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}
