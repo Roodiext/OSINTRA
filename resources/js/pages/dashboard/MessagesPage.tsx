@@ -341,7 +341,7 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
                                             <td className="px-6 py-4">
                                                 <span className={`font-semibold ${message.status === 'unread' ? 'text-[#1E1E1E]' : 'text-[#6E8BA3]'
                                                     }`}>
-                                                    {(message as any).is_anonymous ? 'Anonim' : message.name}
+                                                    {message.name}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-[#6E8BA3]">{message.email}</td>
@@ -398,7 +398,7 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
                 {/* Detail Modal */}
                 {showDetailModal && viewingMessage && (
                     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-                        <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-8 my-8">
+                        <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-4 sm:p-8 my-8 max-h-[90vh] overflow-y-auto">
                             <div className="flex items-start justify-between mb-6">
                                 <div className="flex-1">
                                     <h2 className="text-2xl font-bold text-[#3B4D3A] mb-2">{viewingMessage.subject}</h2>
@@ -415,14 +415,14 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
                             </div>
 
                             <div className="space-y-6">
-                                <div className="grid grid-cols-2 gap-4 p-4 bg-[#F5F5F5] rounded-xl">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-[#F5F5F5] rounded-xl">
                                     <div>
                                         <p className="text-sm font-semibold text-[#6E8BA3] mb-1">Dari</p>
-                                        <p className="font-semibold text-[#1E1E1E]">{(viewingMessage as any).is_anonymous ? 'Anonim' : viewingMessage.name}</p>
+                                        <p className="font-semibold text-[#1E1E1E]">{viewingMessage.name}</p>
                                     </div>
                                     <div>
                                         <p className="text-sm font-semibold text-[#6E8BA3] mb-1">Email</p>
-                                        <p className="text-[#1E1E1E]">{viewingMessage.email}</p>
+                                        <p className="text-[#1E1E1E] break-all">{viewingMessage.email}</p>
                                     </div>
                                     <div>
                                         <p className="text-sm font-semibold text-[#6E8BA3] mb-1">Kategori</p>
@@ -436,7 +436,7 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
                                             {getPriorityLabel((viewingMessage as any).priority)}
                                         </p>
                                     </div>
-                                    <div className="col-span-2">
+                                    <div className="sm:col-span-2">
                                         <p className="text-sm font-semibold text-[#6E8BA3] mb-1">Tanggal</p>
                                         <p className="text-[#1E1E1E]">
                                             {new Date(viewingMessage.created_at).toLocaleString('id-ID')}
@@ -446,7 +446,7 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
 
                                 <div>
                                     <h3 className="text-lg font-bold text-[#3B4D3A] mb-3">Pesan</h3>
-                                    <div className="p-4 bg-[#F5F5F5] rounded-xl">
+                                    <div className="p-4 bg-[#F5F5F5] rounded-xl max-h-60 overflow-y-auto">
                                         <p className="text-[#1E1E1E] whitespace-pre-wrap">{viewingMessage.message}</p>
                                     </div>
                                 </div>
@@ -461,13 +461,13 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
                                     </div>
                                 )}
 
-                                <div className="flex gap-3">
+                                <div className="flex flex-col sm:flex-row gap-3">
                                     {!(viewingMessage as any).replied_at && (
                                         <button
                                             onClick={() => setShowReplyModal(true)}
-                                            className="flex-1 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all font-semibold flex items-center justify-center gap-2"
+                                            className="w-full sm:flex-1 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all font-semibold flex items-center justify-center gap-2"
                                         >
-                                            💬 Balas Pesan
+                                            <span className="text-lg">💬</span> Balas Pesan
                                         </button>
                                     )}
                                     {viewingMessage.status !== 'archived' && (
@@ -476,7 +476,7 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
                                                 handleUpdateStatus(viewingMessage.id, 'archived');
                                                 setShowDetailModal(false);
                                             }}
-                                            className="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all font-semibold flex items-center justify-center gap-2"
+                                            className="w-full sm:flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all font-semibold flex items-center justify-center gap-2"
                                         >
                                             <Archive className="w-5 h-5" />
                                             Arsipkan
@@ -484,7 +484,7 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
                                     )}
                                     <button
                                         onClick={() => setShowDetailModal(false)}
-                                        className="flex-1 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all font-semibold"
+                                        className="w-full sm:flex-1 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all font-semibold"
                                     >
                                         Tutup
                                     </button>
@@ -497,11 +497,11 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
                 {/* Reply Modal */}
                 {showReplyModal && viewingMessage && (
                     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-                        <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-8 my-8">
+                        <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-4 sm:p-8 my-8 max-h-[90vh] overflow-y-auto">
                             <div className="flex items-start justify-between mb-6">
                                 <div>
                                     <h2 className="text-2xl font-bold text-[#3B4D3A] mb-2">Balas Pesan</h2>
-                                    <p className="text-sm text-[#6E8BA3]">Dari: {(viewingMessage as any).is_anonymous ? 'Anonim' : viewingMessage.name}</p>
+                                    <p className="text-sm text-[#6E8BA3]">Dari: {viewingMessage.name}</p>
                                 </div>
                                 <button
                                     onClick={() => setShowReplyModal(false)}
@@ -530,14 +530,14 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
                                     />
                                 </div>
 
-                                <div className="flex gap-3">
+                                <div className="flex flex-col sm:flex-row gap-3">
                                     <button
                                         type="button"
                                         onClick={() => {
                                             setShowReplyModal(false);
                                             setReplyText('');
                                         }}
-                                        className="flex-1 px-6 py-3 bg-[#F5F5F5] text-[#6E8BA3] rounded-xl hover:bg-[#E8DCC3] transition-all font-semibold"
+                                        className="w-full sm:flex-1 px-6 py-3 bg-[#F5F5F5] text-[#6E8BA3] rounded-xl hover:bg-[#E8DCC3] transition-all font-semibold"
                                     >
                                         Batal
                                     </button>
@@ -545,7 +545,7 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
                                         type="button"
                                         onClick={handleReply}
                                         disabled={loading || !replyText.trim()}
-                                        className="flex-1 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="w-full sm:flex-1 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {loading ? 'Mengirim...' : 'Kirim Balasan'}
                                     </button>
