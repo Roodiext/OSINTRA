@@ -10,7 +10,6 @@ const ContactSection: React.FC = () => {
         message: '',
         category: 'saran_program',
         priority: 'normal',
-        is_anonymous: false,
     });
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -25,7 +24,7 @@ const ContactSection: React.FC = () => {
         try {
             await api.post('/messages', formData);
             setSuccess(true);
-            setFormData({ name: '', email: '', message: '', category: 'saran_program', priority: 'normal', is_anonymous: false });
+            setFormData({ name: '', email: '', message: '', category: 'saran_program', priority: 'normal' });
             setTimeout(() => setSuccess(false), 5000);
         } catch (err: any) {
             setError(err.response?.data?.message || 'Gagal mengirim pesan. Silakan coba lagi.');
@@ -34,7 +33,7 @@ const ContactSection: React.FC = () => {
         }
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
@@ -178,18 +177,7 @@ const ContactSection: React.FC = () => {
                                 </select>
                             </div>
 
-                            <div>
-                                <label className="flex items-center gap-3 cursor-pointer" style={{ color: '#3B4D3A' }}>
-                                    <input
-                                        type="checkbox"
-                                        name="is_anonymous"
-                                        checked={formData.is_anonymous}
-                                        onChange={(e) => setFormData({ ...formData, is_anonymous: e.target.checked })}
-                                        className="w-4 h-4 rounded"
-                                    />
-                                    <span className="text-sm font-medium">Kirim Anonim (Nama tidak ditampilkan)</span>
-                                </label>
-                            </div>
+
 
                             <div>
                                 <label className="block text-sm font-semibold mb-2" style={{ color: '#3B4D3A' }}>

@@ -341,7 +341,7 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
                                             <td className="px-6 py-4">
                                                 <span className={`font-semibold ${message.status === 'unread' ? 'text-[#1E1E1E]' : 'text-[#6E8BA3]'
                                                     }`}>
-                                                    {(message as any).is_anonymous ? 'Anonim' : message.name}
+                                                    {message.name}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-[#6E8BA3]">{message.email}</td>
@@ -418,7 +418,7 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-[#F5F5F5] rounded-xl">
                                     <div>
                                         <p className="text-sm font-semibold text-[#6E8BA3] mb-1">Dari</p>
-                                        <p className="font-semibold text-[#1E1E1E]">{(viewingMessage as any).is_anonymous ? 'Anonim' : viewingMessage.name}</p>
+                                        <p className="font-semibold text-[#1E1E1E]">{viewingMessage.name}</p>
                                     </div>
                                     <div>
                                         <p className="text-sm font-semibold text-[#6E8BA3] mb-1">Email</p>
@@ -501,7 +501,7 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
                             <div className="flex items-start justify-between mb-6">
                                 <div>
                                     <h2 className="text-2xl font-bold text-[#3B4D3A] mb-2">Balas Pesan</h2>
-                                    <p className="text-sm text-[#6E8BA3]">Dari: {(viewingMessage as any).is_anonymous ? 'Anonim' : viewingMessage.name}</p>
+                                    <p className="text-sm text-[#6E8BA3]">Dari: {viewingMessage.name}</p>
                                 </div>
                                 <button
                                     onClick={() => setShowReplyModal(false)}

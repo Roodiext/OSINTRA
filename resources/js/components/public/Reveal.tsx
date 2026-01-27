@@ -7,6 +7,7 @@ interface RevealProps {
     delay?: number; // dalam ms
     direction?: 'up' | 'down' | 'left' | 'right' | 'none';
     duration?: number; // dalam ms
+    style?: React.CSSProperties;
 }
 
 const Reveal: React.FC<RevealProps> = ({
@@ -15,7 +16,8 @@ const Reveal: React.FC<RevealProps> = ({
     threshold = 0.1,
     delay = 0,
     direction = 'up',
-    duration = 800
+    duration = 800,
+    style
 }) => {
     const ref = useRef<HTMLDivElement>(null);
     const [isVisible, setIsVisible] = useState(false);
@@ -67,7 +69,8 @@ const Reveal: React.FC<RevealProps> = ({
                 opacity: isVisible ? 1 : 0,
                 transform: getTransform(),
                 transition: `all ${duration}ms cubic-bezier(0.5, 0, 0, 1) ${delay}ms`,
-                willChange: 'opacity, transform'
+                willChange: 'opacity, transform',
+                ...style
             }}
         >
             {children}
