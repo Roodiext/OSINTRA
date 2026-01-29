@@ -82,6 +82,8 @@ Route::middleware('auth:sanctum')->group(function () {
         ->middleware('permission:Prokers,edit');
     Route::put('/prokers/{proker}/media/{media}/thumbnail', [ProkerController::class, 'setThumbnail'])
         ->middleware('permission:Prokers,edit');
+    Route::put('/prokers/{proker}/media/{media}/highlight', [ProkerController::class, 'toggleHighlight'])
+        ->middleware('permission:Prokers,edit');
 
     // Messages
     Route::get('/messages', [MessageController::class, 'index']);

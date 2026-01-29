@@ -339,6 +339,37 @@ class ProkerController extends Controller
         ]);
     }
 
+    /**
+     * Toggle highlight status for media.
+     */
+    public function toggleHighlight(Proker $proker, ProkerMedia $media)
+    {
+        if ($media->proker_id !== $proker->id) {
+            return response()->json(['message' => 'Media not found in this proker'], 404);
+        }
+
+        $newState = !$media->is_highlight;
+
+        if ($newState) {
+            // If turning ON, check limit of 5
+            $currentHighlights = $proker->media()->where('is_highlight', true)->count();
+            if ($currentHighlights >= 5) {
+                return response()->json([
+                    'message' => 'Maksimal 5 foto highlight per proker (selain thumbnail)'
+                ], 400); 
+            }
+        }
+
+        $media->update(['is_highlight' => $newState]);
+
+        AuditLog::log('update_media_highlight', "Toggled highlight for media in: {$proker->title}");
+
+        return response()->json([
+            'message' => 'Status highlight berhasil diupdate',
+            'media' => $media
+        ]);
+    }
+
     public function getAllMedia()
     {
         $media = ProkerMedia::with('proker.divisions')

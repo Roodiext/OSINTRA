@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
-import { ArrowLeft, Calendar, MapPin, Users, BookOpen, Edit, Trash2, Plus, Image as ImageIcon, X, Upload, Star } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Users, BookOpen, Edit, Trash2, Plus, Image as ImageIcon, X, Upload, Star, Bookmark } from 'lucide-react';
 import api from '@/lib/axios';
 import Swal from 'sweetalert2';
 import AddPanitiaModal from '@/components/dashboard/AddPanitiaModal';
@@ -67,7 +67,7 @@ const ProkerDetailPage: React.FC = () => {
         can_edit: false,
         can_delete: false,
     };
-    
+
     const [proker, setProker] = useState<Proker | null>(null);
     const [loading, setLoading] = useState(true);
     const [positions, setPositions] = useState<Position[]>([]);
@@ -238,6 +238,43 @@ const ProkerDetailPage: React.FC = () => {
                 } else {
                     Swal.fire('Gagal!', 'Gagal menghapus media', 'error');
                 }
+            }
+        }
+    };
+
+    const handleToggleHighlight = async (media: ProkerMedia, e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!proker) return;
+
+        try {
+            await api.put(`/prokers/${proker.id}/media/${media.id}/highlight`);
+
+            // Refresh Data
+            const response = await api.get(`/prokers/${proker.id}`);
+            setProker(response.data);
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil',
+                text: 'Status highlight diperbarui',
+                timer: 1000,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end'
+            });
+        } catch (error: any) {
+            // Check for specific error message (like limit reached)
+            if (error.response?.data?.message) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Perhatian',
+                    text: error.response.data.message,
+                    confirmButtonColor: '#3B4D3A'
+                });
+            } else if (error.response?.status === 403) {
+                Swal.fire('Error', 'Anda tidak memiliki izin', 'error');
+            } else {
+                Swal.fire('Error', 'Gagal update status highlight', 'error');
             }
         }
     };
@@ -640,29 +677,38 @@ const ProkerDetailPage: React.FC = () => {
                                         className="group relative aspect-square rounded-lg overflow-hidden bg-gray-100 cursor-pointer"
                                         onClick={() => setSelectedMedia(media)}
                                     >
-                                        {media.media_type === 'image' ? (
-                                            <img
-                                                src={media.media_url}
-                                                alt={media.caption || ''}
-                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                            />
-                                        ) : (
+                                        {media.media_type === 'video' && !/\.(jpg|jpeg|png|webp|gif|svg)$/i.test(media.media_url) ? (
                                             <video
                                                 src={media.media_url}
                                                 className="w-full h-full object-cover"
                                                 muted
                                             />
+                                        ) : (
+                                            <img
+                                                src={media.media_url}
+                                                alt={media.caption || ''}
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                            />
                                         )}
                                         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
                                             <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex gap-2">
-                                                {permissions.can_edit && media.media_type === 'image' && (
-                                                    <button
-                                                        onClick={(e) => handleSetThumbnail(media, e)}
-                                                        className={`p-2 rounded-lg transition ${media.is_thumbnail ? 'bg-yellow-400 text-white' : 'bg-white text-gray-600 hover:bg-yellow-100'}`}
-                                                        title={media.is_thumbnail ? "Thumbnail Aktif" : "Jadikan Thumbnail"}
-                                                    >
-                                                        <Star className={`w-4 h-4 ${media.is_thumbnail ? 'fill-current' : ''}`} />
-                                                    </button>
+                                                {permissions.can_edit && media.media_type !== 'video' && (
+                                                    <>
+                                                        <button
+                                                            onClick={(e) => handleSetThumbnail(media, e)}
+                                                            className={`p-2 rounded-lg transition ${media.is_thumbnail ? 'bg-yellow-400 text-white' : 'bg-white text-gray-600 hover:bg-yellow-100'}`}
+                                                            title={media.is_thumbnail ? "Thumbnail Aktif" : "Jadikan Thumbnail"}
+                                                        >
+                                                            <Star className={`w-4 h-4 ${media.is_thumbnail ? 'fill-current' : ''}`} />
+                                                        </button>
+                                                        <button
+                                                            onClick={(e) => handleToggleHighlight(media, e)}
+                                                            className={`p-2 rounded-lg transition ${media.is_highlight ? 'bg-blue-500 text-white' : 'bg-white text-gray-600 hover:bg-blue-100'}`}
+                                                            title={media.is_highlight ? "Highlight Aktif" : "Jadikan Highlight"}
+                                                        >
+                                                            <Bookmark className={`w-4 h-4 ${media.is_highlight ? 'fill-current' : ''}`} />
+                                                        </button>
+                                                    </>
                                                 )}
                                                 {permissions.can_delete && (
                                                     <button
@@ -682,6 +728,11 @@ const ProkerDetailPage: React.FC = () => {
                                         {media.is_thumbnail && (
                                             <div className="absolute top-2 left-2 bg-yellow-400 text-white text-xs font-bold px-2 py-1 rounded shadow-md z-10 flex items-center gap-1">
                                                 <Star className="w-3 h-3 fill-current" /> Thumbnail
+                                            </div>
+                                        )}
+                                        {media.is_highlight && !media.is_thumbnail && (
+                                            <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded shadow-md z-10 flex items-center gap-1">
+                                                <Bookmark className="w-3 h-3 fill-current" /> Highlight
                                             </div>
                                         )}
 
@@ -723,17 +774,17 @@ const ProkerDetailPage: React.FC = () => {
                                 >
                                     <X className="w-6 h-6" />
                                 </button>
-                                {selectedMedia.media_type === 'image' ? (
-                                    <img
-                                        src={selectedMedia.media_url}
-                                        alt={selectedMedia.caption || ''}
-                                        className="w-full h-auto max-h-[90vh] object-contain rounded-lg"
-                                    />
-                                ) : (
+                                {selectedMedia.media_type === 'video' && !/\.(jpg|jpeg|png|webp|gif|svg)$/i.test(selectedMedia.media_url) ? (
                                     <video
                                         src={selectedMedia.media_url}
                                         controls
                                         className="w-full h-auto max-h-[90vh] rounded-lg"
+                                    />
+                                ) : (
+                                    <img
+                                        src={selectedMedia.media_url}
+                                        alt={selectedMedia.caption || ''}
+                                        className="w-full h-auto max-h-[90vh] object-contain rounded-lg"
                                     />
                                 )}
                                 {selectedMedia.caption && (

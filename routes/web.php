@@ -23,8 +23,35 @@ Route::get('/struktur', function () {
     return Inertia::render('StrukturPage');
 })->name('struktur');
 
-Route::get('/gallery', function () {
-    return Inertia::render('GalleryPage');
+Route::get('/gallery/{id?}', function ($id = null) {
+    if ($id) {
+        $initialMedia = \App\Models\ProkerMedia::with('proker')->find($id);
+        
+        if ($initialMedia) {
+            // Fetch all media belonging to the same proker
+            $media = \App\Models\ProkerMedia::with('proker')
+                ->where('proker_id', $initialMedia->proker_id)
+                ->where(function($q) {
+                    $q->where('is_thumbnail', true)
+                      ->orWhere('is_highlight', true);
+                })
+                ->orderBy('is_thumbnail', 'desc') // Show thumbnail first
+                ->orderBy('is_highlight', 'desc') // Then highlights
+                ->get();
+            
+            return Inertia::render('GalleryPage', [
+                'media' => $media,
+                'initialId' => (int)$id
+            ]);
+        }
+    }
+    
+    // Fallback: If no ID or not found, just return empty for now, or maybe redirect to home?
+    // Let's return empty to avoid errors
+    return Inertia::render('GalleryPage', [
+        'media' => [], 
+        'initialId' => null
+    ]);
 })->name('gallery');
 
 Route::get('/contact', function () {
