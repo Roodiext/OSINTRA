@@ -4,7 +4,7 @@ import FooterSection from '@/components/public/FooterSection';
 
 const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
-    <div className="min-h-screen bg-bg text-text">
+    <div className="min-h-screen bg-bg text-text w-full overflow-x-hidden">
       <Navbar />
       <main>{children}</main>
       <FooterSection />
