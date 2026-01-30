@@ -4,6 +4,7 @@ import { ArrowLeft, X, Expand } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { router } from '@inertiajs/react'
 import { Head, Link } from '@inertiajs/react';
+import PublicLayout from '@/components/public/PublicLayout';
 import type { ProkerMedia } from "@/types"
 
 interface GalleryPageProps {
@@ -33,11 +34,29 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
     const currentImage = sortedMedia[0];
     const otherImages = sortedMedia.slice(1);
 
-    // Prevent body scroll and enable horizontal scroll
+    // Prevent body scroll and enable horizontal scroll - DESKTOP ONLY
     useEffect(() => {
-        document.body.style.overflow = "hidden"
+        // Only trigger this special horizontal scroll behavior if we are in "Detail Mode"
+        // i.e., an initialId was provided and we are showing the slider view.
+        if (!initialId) return;
+
+        // Check if we're on desktop (md breakpoint = 768px)
+        const isDesktop = () => window.innerWidth >= 768;
+
+        const applyDesktopBehavior = () => {
+            if (isDesktop()) {
+                document.body.style.overflow = "hidden";
+            } else {
+                document.body.style.overflow = "unset";
+            }
+        };
+
+        applyDesktopBehavior();
 
         const handleWheel = (e: WheelEvent) => {
+            // Only apply horizontal scroll on desktop
+            if (!isDesktop()) return;
+
             if (containerRef.current) {
                 // Only scroll horizontally if we aren't at the edges or if the delta is primarily vertical
                 // This simple implementation maps vertical scroll to horizontal
@@ -46,18 +65,24 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
             }
         }
 
+        const handleResize = () => {
+            applyDesktopBehavior();
+        };
+
         const container = containerRef.current
         if (container) {
             container.addEventListener("wheel", handleWheel, { passive: false })
         }
+        window.addEventListener("resize", handleResize);
 
         return () => {
             document.body.style.overflow = "unset"
             if (container) {
                 container.removeEventListener("wheel", handleWheel)
             }
+            window.removeEventListener("resize", handleResize);
         }
-    }, [])
+    }, [initialId])
 
     // Handle ESC key
     useEffect(() => {
@@ -104,6 +129,139 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
         router.visit('/')
     }
 
+    const formatDateRange = (dateStr: string, endDateStr?: string) => {
+        if (!dateStr) return '-';
+
+        const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+        const locale = 'id-ID';
+
+        const startDate = new Date(dateStr);
+        const startFormatted = startDate.toLocaleDateString(locale, options);
+
+        if (!endDateStr) {
+            return startFormatted;
+        }
+
+        const endDate = new Date(endDateStr);
+        const endFormatted = endDate.toLocaleDateString(locale, options);
+
+        if (startFormatted === endFormatted) {
+            return startFormatted;
+        }
+
+        return `${startFormatted} - ${endFormatted}`;
+    };
+
+    // If no initialId is provided, we should probably render a GRID VIEW of all media
+    // instead of defaulting to the first item as a 'detail' view.
+    // The user wants a gallery index page.
+    if (!initialId) {
+        return (
+            <>
+                <Head title="Galeri Kegiatan" />
+                <PublicLayout>
+                    <div className="bg-gray-50 pt-32 pb-12 min-h-[60vh]">
+                        <div className="max-w-7xl mx-auto px-6">
+                            <div className="text-center mb-12">
+                                <h1 className="text-4xl font-bold text-[#3B4D3A] mb-4">Galeri Kegiatan</h1>
+                                <p className="text-lg text-slate-600">Dokumentasi momen-momen berharga kegiatan kami</p>
+                            </div>
+                            <div>
+                                {/* Masonry or Grid Layout */}
+                                <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+                                    {sortedMedia.map((item, index) => (
+                                        <motion.div
+                                            key={item.id}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: index * 0.05 }}
+                                            className="break-inside-avoid relative group cursor-pointer overflow-hidden rounded-xl bg-slate-100 shadow-sm border border-slate-200 hover:shadow-lg transition-all duration-300"
+                                            onClick={() => handleFullscreen(item)}
+                                        >
+                                            <img
+                                                src={item.media_url}
+                                                alt={item.caption || 'Gallery'}
+                                                className="w-full h-auto object-cover transform group-hover:scale-105 transition-transform duration-500"
+                                                loading="lazy"
+                                            />
+
+                                            {/* Overlay on hover */}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                                                <div>
+                                                    <span className="inline-block px-2 py-0.5 bg-amber-500/80 text-white text-[10px] font-bold rounded mb-1">
+                                                        {item.proker?.title || 'Kegiatan'}
+                                                    </span>
+                                                    {item.caption && (
+                                                        <p className="text-white text-xs line-clamp-2 font-medium">
+                                                            {item.caption}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div className="absolute top-2 right-2 p-1.5 bg-black/40 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                <Expand className="w-3 h-3 text-white" />
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </div>
+
+                                {sortedMedia.length === 0 && (
+                                    <div className="text-center py-20 text-slate-500">
+                                        <p>Belum ada dokumentasi yang tersedia.</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </PublicLayout>
+
+                {/* Re-use the existing Fullscreen Modal logic, but ensure it works here too */}
+                <AnimatePresence>
+                    {isFullscreen && fullscreenImage && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 bg-white/95 z-[10000] flex items-center justify-center backdrop-blur-md"
+                        >
+                            <button
+                                onClick={closeFullscreen}
+                                className="absolute top-6 right-6 w-12 h-12 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-800 transition-colors duration-200 z-10 shadow-lg"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+
+                            <motion.div
+                                initial={{ scale: 0.8, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0.8, opacity: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className="relative max-w-[90vw] max-h-[90vh] flex flex-col items-center"
+                            >
+                                <div className="relative rounded-lg shadow-2xl overflow-hidden bg-white p-2 border border-slate-200">
+                                    <img
+                                        src={fullscreenImage.media_url || "/placeholder.svg"}
+                                        alt={fullscreenImage.caption}
+                                        className="max-w-full max-h-[80vh] object-contain rounded"
+                                    />
+                                </div>
+
+                                <div className="mt-6 text-center max-w-2xl">
+                                    <h3 className="text-2xl font-bold text-slate-900 mb-2">{fullscreenImage.proker?.title || 'Kegiatan'}</h3>
+                                    <p className="text-slate-600 font-medium">{fullscreenImage.caption}</p>
+                                    <p className="text-sm text-slate-500 mt-2">
+                                        {fullscreenImage.proker?.location || 'Lokasi'} • {formatDateRange(fullscreenImage.proker?.date || '', fullscreenImage.proker?.end_date)}
+                                    </p>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </>
+        )
+    }
+
     if (!currentImage) {
         return (
             <div className="w-screen h-screen flex items-center justify-center bg-gray-900 text-white">
@@ -121,7 +279,7 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
             <Head title={`Galeri - ${currentImage.proker?.title || 'Detail'}`} />
             <div
                 ref={containerRef}
-                className="fixed inset-0 z-[9999] bg-gradient-to-br from-gray-800 via-slate-800 to-gray-900 overflow-x-auto overflow-y-hidden hide-scrollbar"
+                className="fixed inset-0 z-[9999] bg-white overflow-y-auto md:overflow-x-auto md:overflow-y-hidden hide-scrollbar"
                 style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
                 {/* Hide scrollbar */}
@@ -150,26 +308,119 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                 <motion.button
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="fixed top-6 right-6 z-50 w-12 h-12 bg-red-900/30 hover:bg-red-800/40 backdrop-blur-sm border border-red-700/30 text-red-200 hover:text-white rounded-full flex items-center justify-center transition-all duration-300 shadow-lg"
+                    className="fixed top-4 right-4 md:top-6 md:right-6 z-50 w-10 h-10 md:w-12 md:h-12 bg-white hover:bg-red-50 border border-slate-200 text-slate-500 hover:text-red-500 rounded-full flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-lg"
                     onClick={handleBack}
                 >
-                    <X className="w-5 h-5" />
+                    <X className="w-4 h-4 md:w-5 md:h-5" />
                 </motion.button>
 
                 {/* Back Button */}
-                <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="fixed top-6 left-6 z-50">
+                <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="fixed top-4 left-4 md:top-6 md:left-6 z-50">
                     <Button
                         onClick={handleBack}
                         variant="outline"
-                        className="bg-slate-800/40 backdrop-blur-sm border-slate-600/30 text-slate-200 hover:bg-slate-700/50 hover:text-white rounded-full px-6 shadow-lg"
+                        className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-full px-4 md:px-6 text-sm md:text-base shadow-md hover:shadow-lg"
                     >
-                        <ArrowLeft className="w-4 h-4 mr-2" />
-                        Back
+                        <ArrowLeft className="w-4 h-4 mr-1 md:mr-2" />
+                        <span className="hidden sm:inline">Back</span>
                     </Button>
                 </motion.div>
 
-                {/* Horizontal Container */}
-                <div className="font-google-sans flex h-full min-w-[200vw]">
+                {/* MOBILE LAYOUT: Vertical Scroll */}
+                <div className="block md:hidden pt-20 pb-8 px-4">
+                    {/* Featured Image */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="mb-6"
+                    >
+                        <div className="relative group cursor-pointer" onClick={() => handleFullscreen(currentImage)}>
+                            <div className="relative bg-white p-3 rounded-xl border border-slate-200 shadow-lg">
+                                <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden bg-slate-100">
+                                    <img
+                                        src={currentImage.media_url || "/placeholder.svg"}
+                                        alt={currentImage.caption || 'Gallery Image'}
+                                        className="w-full h-full object-cover"
+                                    />
+                                    {/* Expand icon */}
+                                    <div className="absolute top-2 right-2 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm">
+                                        <Expand className="w-4 h-4 text-slate-700" />
+                                    </div>
+                                </div>
+
+                                {/* Image info */}
+                                <div className="mt-3 text-center">
+                                    <span className="inline-block px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold mb-2 border border-amber-200">
+                                        {currentImage.proker?.title || 'Kegiatan OSIS'}
+                                    </span>
+                                    <h2 className="text-base font-bold text-slate-900">{currentImage.caption || 'Dokumentasi Kegiatan'}</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+
+                    {/* Description */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.1 }}
+                        className="mb-6 text-slate-800"
+                    >
+                        <h1 className="text-2xl font-bold mb-2 text-slate-900">{currentImage.proker?.title || 'Kegiatan OSIS'}</h1>
+                        <h2 className="text-lg text-slate-700 font-medium mb-4">{currentImage.caption || 'Dokumentasi'}</h2>
+
+                        <p className="text-slate-600 leading-relaxed mb-4 text-sm">
+                            {currentImage.proker?.description || 'Tidak ada deskripsi untuk kegiatan ini.'}
+                        </p>
+
+                        <div className="space-y-2 text-slate-700 mb-4 text-sm">
+                            <div className="flex items-center gap-2">
+                                <span className="font-bold text-slate-900 w-20">Lokasi:</span>
+                                <span className="text-slate-700">{currentImage.proker?.location || '-'}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="font-bold text-slate-900 w-20">Tanggal:</span>
+                                <span className="text-slate-700">
+                                    {formatDateRange(currentImage.proker?.date || '', currentImage.proker?.end_date)}
+                                </span>
+                            </div>
+                        </div>
+                    </motion.div>
+
+                    {/* Other Images Grid - Mobile */}
+                    {otherImages.length > 0 && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.2 }}
+                        >
+                            <h3 className="text-lg font-bold text-slate-900 mb-4">Galeri Lainnya</h3>
+                            <div className="grid grid-cols-2 gap-3">
+                                {otherImages.map((img, idx) => (
+                                    <motion.div
+                                        key={img.id}
+                                        initial={{ opacity: 0, scale: 0.9 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ delay: 0.3 + (idx * 0.05) }}
+                                        className="bg-white p-2 shadow-md border border-slate-200 rounded-xl cursor-pointer active:scale-95 transition-transform"
+                                        onClick={() => handleImageClick(img.id)}
+                                    >
+                                        <div className="w-full aspect-square rounded-lg overflow-hidden bg-slate-100">
+                                            <img src={img.media_url} alt={img.caption || ''} className="w-full h-full object-cover" />
+                                        </div>
+                                        {img.caption && (
+                                            <p className="mt-2 text-xs text-slate-600 line-clamp-1">{img.caption}</p>
+                                        )}
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </motion.div>
+                    )}
+                </div>
+
+                {/* DESKTOP LAYOUT: Horizontal Scroll */}
+                <div className="hidden md:flex font-google-sans h-full min-w-[200vw]">
                     {/* Section 1: Main Content (Photo + Description) */}
                     <motion.div
                         initial={{ opacity: 0, x: -50 }}
@@ -181,64 +432,54 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                             {/* Featured Image */}
                             <div className="flex-shrink-0">
                                 <div className="relative group cursor-pointer" onClick={() => handleFullscreen(currentImage)}>
-                                    {/* Museum spotlight effect */}
-                                    <div className="absolute -inset-8 bg-gradient-radial from-amber-200/20 via-amber-100/10 to-transparent rounded-full blur-xl" />
-                                    <div className="absolute -inset-4 bg-gradient-radial from-white/10 via-white/5 to-transparent rounded-xl" />
-
-                                    <div className="relative bg-slate-800/20 p-4 rounded-lg backdrop-blur-sm border border-slate-700/30 shadow-2xl group-hover:shadow-amber-500/20 transition-all duration-500">
-                                        <div className="relative w-[500px] h-[375px] rounded-lg overflow-hidden">
+                                    <div className="relative bg-white p-4 rounded-xl border border-slate-200 shadow-2xl transition-all duration-500">
+                                        <div className="relative w-[500px] h-[375px] rounded-lg overflow-hidden bg-slate-100">
                                             <img
                                                 src={currentImage.media_url || "/placeholder.svg"}
                                                 alt={currentImage.caption || 'Gallery Image'}
                                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                                             />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-
                                             {/* Expand icon */}
-                                            <div className="absolute top-3 right-3 w-8 h-8 bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                <Expand className="w-4 h-4 text-white" />
+                                            <div className="absolute top-3 right-3 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-sm">
+                                                <Expand className="w-4 h-4 text-slate-700" />
                                             </div>
                                         </div>
 
                                         {/* Image info */}
                                         <div className="mt-4 text-center">
-                                            <span className="inline-block px-3 py-1 bg-amber-500/40 text-white rounded-full text-xs font-bold mb-2 border border-amber-400/50">
+                                            <span className="inline-block px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold mb-2 border border-amber-200">
                                                 {currentImage.proker?.title || 'Kegiatan OSIS'}
                                             </span>
-                                            <h2 className="text-xl font-bold text-white mb-1 drop-shadow-md">{currentImage.caption || 'Dokumentasi Kegiatan'}</h2>
-                                            {/* <p className="text-white text-sm font-semibold drop-shadow-sm">Subtitle if needed</p> */}
+                                            <h2 className="text-xl font-bold text-slate-900 mb-1">{currentImage.caption || 'Dokumentasi Kegiatan'}</h2>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Description */}
-                            <div className="flex-1 text-white">
-                                <h1 className="text-5xl font-bold mb-4 text-white drop-shadow-lg">{currentImage.proker?.title || 'Kegiatan OSIS'}</h1>
-                                <h2 className="text-2xl text-white font-medium mb-6 drop-shadow-md">{currentImage.caption || 'Dokumentasi'}</h2>
+                            <div className="flex-1 text-slate-800">
+                                <h1 className="text-5xl font-bold mb-4 text-slate-900">{currentImage.proker?.title || 'Kegiatan OSIS'}</h1>
+                                <h2 className="text-2xl text-slate-700 font-medium mb-6">{currentImage.caption || 'Dokumentasi'}</h2>
 
-                                <p className="text-white leading-relaxed mb-8 text-lg font-medium drop-shadow-sm">
+                                <p className="text-slate-600 leading-relaxed mb-8 text-lg font-medium">
                                     {currentImage.proker?.description || 'Tidak ada deskripsi untuk kegiatan ini.'}
                                 </p>
 
-                                <div className="space-y-3 text-white mb-8">
+                                <div className="space-y-3 text-slate-700 mb-8">
                                     <div className="flex items-center gap-3">
-                                        <span className="font-bold text-white w-24">Lokasi:</span>
-                                        <span className="text-white">{currentImage.proker?.location || '-'}</span>
+                                        <span className="font-bold text-slate-900 w-24">Lokasi:</span>
+                                        <span className="text-slate-700">{currentImage.proker?.location || '-'}</span>
                                     </div>
-                                    {/* Photographer field if available in DB, else omit or mock */}
-                                    {/* <div className="flex items-center gap-3">
-                  <span className="font-bold text-white w-24">Fotografer:</span>
-                  <span className="text-white">Team Gema Aksi</span>
-                </div> */}
                                     <div className="flex items-center gap-3">
-                                        <span className="font-bold text-white w-24">Tanggal:</span>
-                                        <span className="text-white">{currentImage.proker?.date || '-'}</span>
+                                        <span className="font-bold text-slate-900 w-24">Tanggal:</span>
+                                        <span className="text-slate-700">
+                                            {formatDateRange(currentImage.proker?.date || '', currentImage.proker?.end_date)}
+                                        </span>
                                     </div>
                                 </div>
 
                                 {/* Scroll hint */}
-                                <div className="flex items-center gap-3 text-white">
+                                <div className="flex items-center gap-3 text-slate-500">
                                     <span className="text-sm font-semibold">Scroll ke kanan untuk melihat galeri lainnya</span>
                                     <motion.div
                                         animate={{ x: [0, 10, 0] }}
@@ -262,9 +503,6 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                         {/* Optimized Grid Layout */}
                         <div className="relative w-full h-[calc(100vh-180px)] max-w-7xl">
                             {/* Manually creating the grid items based on index */}
-                            {/* Note: This layout is very specific to 6 items. If dynamic, we might need a more flexible grid.
-                The requesting user asked for THIS specific layout. So I will try to map the first 6 "other" items to these positions.
-             */}
 
                             {/* Photo 1 - Top Left (Vertical Rectangle) */}
                             {otherImages[0] && (
@@ -276,25 +514,22 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                     onClick={() => handleImageClick(otherImages[0].id)}
                                 >
                                     <div className="relative h-full">
-                                        <div className="absolute -inset-4 bg-gradient-radial from-amber-200/10 via-amber-100/5 to-transparent blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                        <div className="relative h-full bg-white p-3 shadow-2xl group-hover:shadow-amber-500/30 transition-all duration-500 group-hover:scale-105">
-                                            <div className="absolute inset-3 shadow-inner shadow-black/20"></div>
-                                            <div className="h-full overflow-hidden">
+                                        <div className="relative h-full bg-white p-3 shadow-lg border border-slate-100 group-hover:shadow-xl transition-all duration-500 group-hover:scale-105 rounded-xl">
+                                            <div className="h-full overflow-hidden rounded-lg bg-slate-100">
                                                 <img
                                                     src={otherImages[0].media_url || "/placeholder.svg"}
                                                     alt={otherImages[0].caption || 'Gallery'}
                                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                                 />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                                             </div>
-                                            <div className="absolute bottom-3 left-3 right-3 p-3 bg-gradient-to-t from-black/90 to-transparent">
-                                                <span className="inline-block px-2 py-1 bg-amber-500/20 text-amber-200 rounded-full text-xs font-medium mb-2">
+                                            <div className="absolute bottom-3 left-3 right-3 p-3 bg-white/95 backdrop-blur-sm rounded-lg shadow-sm border border-slate-100">
+                                                <span className="inline-block px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium mb-1">
                                                     {otherImages[0].proker?.title || 'Kegiatan'}
                                                 </span>
-                                                <h3 className="text-white font-semibold text-sm mb-1 line-clamp-2">{otherImages[0].caption}</h3>
+                                                <h3 className="text-slate-800 font-semibold text-sm line-clamp-2">{otherImages[0].caption}</h3>
                                             </div>
-                                            <div className="absolute top-6 right-6 w-8 h-8 bg-black/60 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                <Expand className="w-4 h-4 text-white" />
+                                            <div className="absolute top-6 right-6 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-sm">
+                                                <Expand className="w-4 h-4 text-slate-700" />
                                             </div>
                                         </div>
                                     </div>
@@ -311,25 +546,19 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                     onClick={() => handleImageClick(otherImages[1].id)}
                                 >
                                     <div className="relative h-full">
-                                        <div className="absolute -inset-4 bg-gradient-radial from-amber-200/10 via-amber-100/5 to-transparent blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                        <div className="relative h-full bg-white p-3 shadow-2xl group-hover:shadow-amber-500/30 transition-all duration-500 group-hover:scale-105">
-                                            <div className="absolute inset-3 shadow-inner shadow-black/20"></div>
-                                            <div className="h-full overflow-hidden">
+                                        <div className="relative h-full bg-white p-3 shadow-lg border border-slate-100 group-hover:shadow-xl transition-all duration-500 group-hover:scale-105 rounded-xl">
+                                            <div className="h-full overflow-hidden rounded-lg bg-slate-100">
                                                 <img
                                                     src={otherImages[1].media_url || "/placeholder.svg"}
                                                     alt={otherImages[1].caption}
                                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                                 />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                                             </div>
-                                            <div className="absolute bottom-3 left-3 right-3 p-3 bg-gradient-to-t from-black/90 to-transparent">
-                                                <span className="inline-block px-2 py-1 bg-amber-500/20 text-amber-200 rounded-full text-xs font-medium mb-2">
+                                            <div className="absolute bottom-3 left-3 right-3 p-3 bg-white/95 backdrop-blur-sm rounded-lg shadow-sm border border-slate-100">
+                                                <span className="inline-block px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium mb-1">
                                                     {otherImages[1].proker?.title || 'Kegiatan'}
                                                 </span>
-                                                <h3 className="text-white font-semibold text-sm mb-1 line-clamp-2">{otherImages[1].caption}</h3>
-                                            </div>
-                                            <div className="absolute top-6 right-6 w-8 h-8 bg-black/60 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                <Expand className="w-4 h-4 text-white" />
+                                                <h3 className="text-slate-800 font-semibold text-sm line-clamp-1">{otherImages[1].caption}</h3>
                                             </div>
                                         </div>
                                     </div>
@@ -346,25 +575,19 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                     onClick={() => handleImageClick(otherImages[2].id)}
                                 >
                                     <div className="relative h-full">
-                                        <div className="absolute -inset-1 bg-gradient-radial from-amber-200/10 via-amber-100/5 to-transparent blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                        <div className="relative h-full bg-white p-3 shadow-2xl group-hover:shadow-amber-500/30 transition-all duration-500 group-hover:scale-105">
-                                            <div className="absolute inset-3 shadow-inner shadow-black/20"></div>
-                                            <div className="h-full overflow-hidden">
+                                        <div className="relative h-full bg-white p-3 shadow-lg border border-slate-100 group-hover:shadow-xl transition-all duration-500 group-hover:scale-105 rounded-xl">
+                                            <div className="h-full overflow-hidden rounded-lg bg-slate-100">
                                                 <img
                                                     src={otherImages[2].media_url || "/placeholder.svg"}
                                                     alt={otherImages[2].caption}
                                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                                 />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                                             </div>
-                                            <div className="absolute bottom-3 left-2 right-3 p-3 bg-gradient-to-t from-black/90 to-transparent">
-                                                <span className="inline-block px-2 py-1 bg-amber-500/20 text-amber-200 rounded-full text-xs font-medium mb-2">
+                                            <div className="absolute bottom-3 left-3 right-3 p-3 bg-white/95 backdrop-blur-sm rounded-lg shadow-sm border border-slate-100">
+                                                <span className="inline-block px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium mb-1">
                                                     {otherImages[2].proker?.title || 'Kegiatan'}
                                                 </span>
-                                                <h3 className="text-white font-semibold text-sm mb-1 line-clamp-2">{otherImages[2].caption}</h3>
-                                            </div>
-                                            <div className="absolute top-6 right-6 w-8 h-8 bg-black/60 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                <Expand className="w-4 h-4 text-white" />
+                                                <h3 className="text-slate-800 font-semibold text-sm line-clamp-2">{otherImages[2].caption}</h3>
                                             </div>
                                         </div>
                                     </div>
@@ -381,25 +604,19 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                     onClick={() => handleImageClick(otherImages[3].id)}
                                 >
                                     <div className="relative h-full">
-                                        <div className="absolute -inset-4 bg-gradient-radial from-amber-200/10 via-amber-100/5 to-transparent blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                        <div className="relative h-full bg-white p-3 shadow-2xl group-hover:shadow-amber-500/30 transition-all duration-500 group-hover:scale-105">
-                                            <div className="absolute inset-3 shadow-inner shadow-black/20"></div>
-                                            <div className="h-full overflow-hidden">
+                                        <div className="relative h-full bg-white p-3 shadow-lg border border-slate-100 group-hover:shadow-xl transition-all duration-500 group-hover:scale-105 rounded-xl">
+                                            <div className="h-full overflow-hidden rounded-lg bg-slate-100">
                                                 <img
                                                     src={otherImages[3].media_url || "/placeholder.svg"}
                                                     alt={otherImages[3].caption}
                                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                                 />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                                             </div>
-                                            <div className="absolute bottom-3 left-3 right-3 p-3 bg-gradient-to-t from-black/90 to-transparent">
-                                                <span className="inline-block px-2 py-1 bg-amber-500/20 text-amber-200 rounded-full text-xs font-medium mb-2">
+                                            <div className="absolute bottom-3 left-3 right-3 p-3 bg-white/95 backdrop-blur-sm rounded-lg shadow-sm border border-slate-100">
+                                                <span className="inline-block px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium mb-1">
                                                     {otherImages[3].proker?.title || 'Kegiatan'}
                                                 </span>
-                                                <h3 className="text-white font-semibold text-sm mb-1 line-clamp-2">{otherImages[3].caption}</h3>
-                                            </div>
-                                            <div className="absolute top-6 right-6 w-8 h-8 bg-black/60 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                <Expand className="w-4 h-4 text-white" />
+                                                <h3 className="text-slate-800 font-semibold text-sm line-clamp-1">{otherImages[3].caption}</h3>
                                             </div>
                                         </div>
                                     </div>
@@ -416,25 +633,19 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                     onClick={() => handleImageClick(otherImages[4].id)}
                                 >
                                     <div className="relative h-full">
-                                        <div className="absolute -inset-4 bg-gradient-radial from-amber-200/10 via-amber-100/5 to-transparent blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                        <div className="relative h-full bg-white p-3 shadow-2xl group-hover:shadow-amber-500/30 transition-all duration-500 group-hover:scale-105">
-                                            <div className="absolute inset-3 shadow-inner shadow-black/20"></div>
-                                            <div className="h-full overflow-hidden">
+                                        <div className="relative h-full bg-white p-3 shadow-lg border border-slate-100 group-hover:shadow-xl transition-all duration-500 group-hover:scale-105 rounded-xl">
+                                            <div className="h-full overflow-hidden rounded-lg bg-slate-100">
                                                 <img
                                                     src={otherImages[4].media_url || "/placeholder.svg"}
                                                     alt={otherImages[4].caption}
                                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                                 />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                                             </div>
-                                            <div className="absolute bottom-3 left-3 right-3 p-3 bg-gradient-to-t from-black/90 to-transparent">
-                                                <span className="inline-block px-2 py-1 bg-amber-500/20 text-amber-200 rounded-full text-xs font-medium mb-2">
+                                            <div className="absolute bottom-3 left-3 right-3 p-3 bg-white/95 backdrop-blur-sm rounded-lg shadow-sm border border-slate-100">
+                                                <span className="inline-block px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium mb-1">
                                                     {otherImages[4].proker?.title || 'Kegiatan'}
                                                 </span>
-                                                <h3 className="text-white font-semibold text-sm mb-1 line-clamp-2">{otherImages[4].caption}</h3>
-                                            </div>
-                                            <div className="absolute top-6 right-6 w-8 h-8 bg-black/60 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                <Expand className="w-4 h-4 text-white" />
+                                                <h3 className="text-slate-800 font-semibold text-sm line-clamp-2">{otherImages[4].caption}</h3>
                                             </div>
                                         </div>
                                     </div>
@@ -451,36 +662,25 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                     onClick={() => handleImageClick(otherImages[5].id)}
                                 >
                                     <div className="relative h-full">
-                                        <div className="absolute -inset-4 bg-gradient-radial from-amber-200/15 via-amber-100/8 to-transparent blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                        <div className="relative h-full bg-white p-4 shadow-2xl group-hover:shadow-amber-500/40 transition-all duration-500 group-hover:scale-105">
-                                            <div className="absolute inset-4 shadow-inner shadow-black/20"></div>
-                                            <div className="h-full overflow-hidden">
+                                        <div className="relative h-full bg-white p-3 shadow-lg border border-slate-100 group-hover:shadow-xl transition-all duration-500 group-hover:scale-105 rounded-xl">
+                                            <div className="h-full overflow-hidden rounded-lg bg-slate-100">
                                                 <img
                                                     src={otherImages[5].media_url || "/placeholder.svg"}
                                                     alt={otherImages[5].caption}
                                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                                 />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                                             </div>
-                                            <div className="absolute bottom-4 left-4 right-4 p-4 bg-gradient-to-t from-black/90 to-transparent">
-                                                <span className="inline-block px-3 py-1 bg-amber-500/20 text-amber-200 rounded-full text-sm font-medium mb-3">
+                                            <div className="absolute bottom-3 left-3 right-3 p-3 bg-white/95 backdrop-blur-sm rounded-lg shadow-sm border border-slate-100">
+                                                <span className="inline-block px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium mb-1">
                                                     {otherImages[5].proker?.title || 'Kegiatan'}
                                                 </span>
-                                                <h3 className="text-white font-bold text-lg mb-2 line-clamp-2">{otherImages[5].caption}</h3>
-                                            </div>
-                                            <div className="absolute top-7 right-7 w-10 h-10 bg-black/60 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                <Expand className="w-5 h-5 text-white" />
+                                                <h3 className="text-slate-800 font-semibold text-sm line-clamp-1">{otherImages[5].caption}</h3>
                                             </div>
                                         </div>
                                     </div>
                                 </motion.div>
                             )}
 
-                            {/* If there are more images, we should probably output them in a more standard grid further to the right, or just stop here?
-                The user's code just had these fixed positions.
-                Let's add a "More" section if needed or just let them overflow?
-                Ideally we'd map the rest in a loop.
-             */}
                             {otherImages.length > 6 && (
                                 <div className="absolute top-0 left-[800px] h-full flex flex-wrap content-start gap-4 w-[1000px]">
                                     {otherImages.slice(6).map((img, idx) => (
@@ -489,10 +689,12 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                             initial={{ opacity: 0, scale: 0.9 }}
                                             animate={{ opacity: 1, scale: 1 }}
                                             transition={{ delay: 1.5 + (idx * 0.1) }}
-                                            className="bg-white p-2 w-64 h-64 shadow-xl cursor-pointer hover:scale-105 transition-transform"
+                                            className="bg-white p-2 w-64 h-64 shadow-xl border border-slate-200 rounded-xl cursor-pointer hover:scale-105 transition-transform"
                                             onClick={() => handleImageClick(img.id)}
                                         >
-                                            <img src={img.media_url} className="w-full h-full object-cover" />
+                                            <div className="w-full h-full rounded-lg overflow-hidden bg-slate-100">
+                                                <img src={img.media_url} className="w-full h-full object-cover" />
+                                            </div>
                                         </motion.div>
                                     ))}
                                 </div>
@@ -509,13 +711,13 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="fixed inset-0 bg-black/95 z-[10000] flex items-center justify-center"
+                            className="fixed inset-0 bg-white/95 z-[10000] flex items-center justify-center backdrop-blur-md p-4"
                         >
                             <button
                                 onClick={closeFullscreen}
-                                className="absolute top-6 right-6 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors duration-200 z-10"
+                                className="absolute top-4 right-4 md:top-6 md:right-6 w-10 h-10 md:w-12 md:h-12 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-800 transition-colors duration-200 z-10 shadow-lg"
                             >
-                                <X className="w-6 h-6" />
+                                <X className="w-5 h-5 md:w-6 md:h-6" />
                             </button>
 
                             <motion.div
@@ -523,19 +725,21 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                 animate={{ scale: 1, opacity: 1 }}
                                 exit={{ scale: 0.8, opacity: 0 }}
                                 transition={{ duration: 0.3 }}
-                                className="relative max-w-[90vw] max-h-[90vh]"
+                                className="relative max-w-[95vw] md:max-w-[90vw] max-h-[90vh] flex flex-col items-center"
                             >
-                                <img
-                                    src={fullscreenImage.media_url || "/placeholder.svg"}
-                                    alt={fullscreenImage.caption}
-                                    className="w-full h-full object-contain rounded-lg shadow-2xl"
-                                />
+                                <div className="relative rounded-lg shadow-2xl overflow-hidden bg-white p-1 md:p-2 border border-slate-200">
+                                    <img
+                                        src={fullscreenImage.media_url || "/placeholder.svg"}
+                                        alt={fullscreenImage.caption}
+                                        className="max-w-full max-h-[70vh] md:max-h-[80vh] object-contain rounded"
+                                    />
+                                </div>
 
-                                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-6 rounded-b-lg">
-                                    <h3 className="text-2xl font-bold text-white mb-2">{fullscreenImage.proker?.title || 'Kegiatan'}</h3>
-                                    <p className="text-slate-300">{fullscreenImage.caption}</p>
-                                    <p className="text-sm text-slate-400 mt-2">
-                                        {fullscreenImage.proker?.location || 'Lokasi'} • {fullscreenImage.proker?.date || 'Tanggal'}
+                                <div className="mt-4 md:mt-6 text-center max-w-2xl px-4">
+                                    <h3 className="text-lg md:text-2xl font-bold text-slate-900 mb-1 md:mb-2">{fullscreenImage.proker?.title || 'Kegiatan'}</h3>
+                                    <p className="text-slate-600 font-medium text-sm md:text-base">{fullscreenImage.caption}</p>
+                                    <p className="text-xs md:text-sm text-slate-500 mt-1 md:mt-2">
+                                        {fullscreenImage.proker?.location || 'Lokasi'} • {formatDateRange(fullscreenImage.proker?.date || '', fullscreenImage.proker?.end_date)}
                                     </p>
                                 </div>
                             </motion.div>

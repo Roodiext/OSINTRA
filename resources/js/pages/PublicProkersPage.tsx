@@ -59,10 +59,10 @@ const PublicProkersPage: React.FC = () => {
             <Head title="Program Kerja - OSINTRA" />
             <PublicLayout>
                 <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-                    <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
+                    <div className="max-w-7xl mx-auto px-4 md:px-6 pt-26 pb-12 md:pt-25">
                         {/* Header */}
                         <div className="text-center mb-12">
-                            <h1 className="text-4xl font-bold text-[#3B4D3A] mb-4">Program Kerja OSIS</h1>
+                            <h1 className="text-4xl font-bold text-[#3B4D3A] mb-4 mt-3">Program Kerja OSIS</h1>
                             <p className="text-lg text-gray-600">Dokumentasi kegiatan dan program kerja OSIS SMK Negeri 6 Surakarta</p>
                         </div>
 

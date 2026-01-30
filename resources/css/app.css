@@ -224,4 +224,38 @@
     .custom-scrollbar::-webkit-scrollbar-thumb:hover {
         background: #d5c9b0;
     }
+
+}
+
+/* Global Scrollbar Styling - Applied outside layer base for maximum priority */
+html,
+body {
+    scrollbar-color: #E8DCC3 transparent;
+    /* Firefox */
+    scrollbar-width: thin;
+    /* Firefox */
+}
+
+/* Chrome, Edge, Safari */
+::-webkit-scrollbar {
+    width: 12px;
+    /* Slightly wider to be more visible */
+    height: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #E8DCC3 !important;
+    border-radius: 10px;
+    border: 3px solid transparent;
+    /* Creates padding effect if background-clip is used */
+    background-clip: content-box;
+    /* Makes the scrollbar look 'floating' */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #d5c9b0 !important;
 }

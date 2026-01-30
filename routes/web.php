@@ -46,10 +46,17 @@ Route::get('/gallery/{id?}', function ($id = null) {
         }
     }
     
-    // Fallback: If no ID or not found, just return empty for now, or maybe redirect to home?
-    // Let's return empty to avoid errors
+    // Fallback: If no ID or not found, show recent/all media gallery
+    $allMedia = \App\Models\ProkerMedia::with('proker')
+        ->where(function($q) {
+            $q->where('is_thumbnail', true)
+              ->orWhere('is_highlight', true);
+        })
+        ->orderBy('created_at', 'desc')
+        ->get();
+
     return Inertia::render('GalleryPage', [
-        'media' => [], 
+        'media' => $allMedia, 
         'initialId' => null
     ]);
 })->name('gallery');
