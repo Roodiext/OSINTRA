@@ -210,7 +210,7 @@ const DivisionsSection: React.FC = () => {
     const structure = organizePositions();
 
     return (
-        <section id="divisions" className="py-20 px-4 bg-gradient-to-b from-white to-gray-50 relative overflow-hidden">
+        <section id="divisions" className="pt-26 pb-20 md:pt-25 px-4 bg-gradient-to-b from-white to-gray-50 relative overflow-hidden">
             {/* Inject Styles */}
             <style>{`
                 /* Removed custom keyframes as we are using Reveal component */
@@ -228,7 +228,7 @@ const DivisionsSection: React.FC = () => {
                             Organisasi Siswa Intra Sekolah
                         </span>
                     </div>
-                    <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: '#3B4D3A' }}>
+                    <h2 className="text-4xl md:text-5xl font-bold mb-4 mt-3" style={{ color: '#3B4D3A' }}>
                         Struktur Organisasi OSIS
                     </h2>
                     <div className="flex items-center justify-center gap-3 mb-6">

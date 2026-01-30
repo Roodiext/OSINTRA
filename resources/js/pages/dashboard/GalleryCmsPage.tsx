@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Head } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
-import { Image as ImageIcon, Upload, Trash2, Search, Filter, X, Eye } from 'lucide-react';
+import { Image as ImageIcon, Upload, Trash2, Search, Filter, X, Eye, Bookmark, Star } from 'lucide-react';
 import api from '@/lib/axios';
 import Swal from 'sweetalert2';
 import type { ProkerMedia, Proker } from '@/types';
@@ -240,17 +240,17 @@ const GalleryCmsPage: React.FC = () => {
                                     className="group relative aspect-square rounded-lg overflow-hidden bg-gray-100 cursor-pointer"
                                     onClick={() => setSelectedMedia(item)}
                                 >
-                                    {item.media_type === 'image' ? (
-                                        <img
-                                            src={item.media_url}
-                                            alt={item.caption || ''}
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                        />
-                                    ) : (
+                                    {item.media_type === 'video' && !/\.(jpg|jpeg|png|webp|gif|svg)$/i.test(item.media_url) ? (
                                         <video
                                             src={item.media_url}
                                             className="w-full h-full object-cover"
                                             muted
+                                        />
+                                    ) : (
+                                        <img
+                                            src={item.media_url}
+                                            alt={item.caption || ''}
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                         />
                                     )}
                                     <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
@@ -265,8 +265,44 @@ const GalleryCmsPage: React.FC = () => {
                                             >
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
+                                            {item.media_type !== 'video' && (
+                                                <button
+                                                    onClick={async (e) => {
+                                                        e.stopPropagation();
+                                                        try {
+                                                            await api.put(`/prokers/${item.proker_id}/media/${item.id}/highlight`);
+                                                            fetchData();
+                                                            Swal.fire({
+                                                                icon: 'success',
+                                                                title: 'Berhasil',
+                                                                text: 'Status highlight diperbarui',
+                                                                timer: 1000,
+                                                                showConfirmButton: false,
+                                                                toast: true,
+                                                                position: 'top-end'
+                                                            });
+                                                        } catch (error: any) {
+                                                            Swal.fire('Error', error.response?.data?.message || 'Gagal update highlight', 'error');
+                                                        }
+                                                    }}
+                                                    className={`p-2 rounded-lg transition ${item.is_highlight ? 'bg-blue-500 text-white' : 'bg-white text-gray-600 hover:bg-blue-100'}`}
+                                                    title={item.is_highlight ? "Highlight Aktif" : "Jadikan Highlight"}
+                                                >
+                                                    <Bookmark className={`w-4 h-4 ${item.is_highlight ? 'fill-current' : ''}`} />
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
+                                    {item.is_thumbnail && (
+                                        <div className="absolute top-2 left-2 bg-yellow-400 text-white text-xs font-bold px-2 py-1 rounded shadow-md z-10 flex items-center gap-1">
+                                            <Star className="w-3 h-3 fill-current" /> Thumbnail
+                                        </div>
+                                    )}
+                                    {item.is_highlight && !item.is_thumbnail && (
+                                        <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded shadow-md z-10 flex items-center gap-1">
+                                            <Bookmark className="w-3 h-3 fill-current" /> Highlight
+                                        </div>
+                                    )}
                                     {item.caption && (
                                         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
                                             <p className="text-white text-sm truncate">{item.caption}</p>
@@ -295,17 +331,17 @@ const GalleryCmsPage: React.FC = () => {
                                 >
                                     <X className="w-6 h-6" />
                                 </button>
-                                {selectedMedia.media_type === 'image' ? (
-                                    <img
-                                        src={selectedMedia.media_url}
-                                        alt={selectedMedia.caption || ''}
-                                        className="w-full h-auto max-h-[90vh] object-contain rounded-lg"
-                                    />
-                                ) : (
+                                {selectedMedia.media_type === 'video' && !/\.(jpg|jpeg|png|webp|gif|svg)$/i.test(selectedMedia.media_url) ? (
                                     <video
                                         src={selectedMedia.media_url}
                                         controls
                                         className="w-full h-auto max-h-[90vh] rounded-lg"
+                                    />
+                                ) : (
+                                    <img
+                                        src={selectedMedia.media_url}
+                                        alt={selectedMedia.caption || ''}
+                                        className="w-full h-auto max-h-[90vh] object-contain rounded-lg"
                                     />
                                 )}
                                 <div className="mt-4 bg-white p-4 rounded-lg">

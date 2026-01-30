@@ -45,7 +45,7 @@ const AboutSection: React.FC = () => {
 
     return (
 
-        <section id="about" className="relative py-16 md:py-28 px-6 bg-gradient-to-br from-white via-gray-50 to-white overflow-hidden">
+        <section id="about" className="relative pt-26 pb-16 md:pt-25 md:pb-28 px-6 bg-gradient-to-br from-white via-gray-50 to-white overflow-hidden">
             {/* Enhanced Background Pattern */}
             <div className="absolute inset-0 opacity-[0.03]" style={{
                 backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(59,77,58,0.4) 1px, transparent 0)',
@@ -68,7 +68,7 @@ const AboutSection: React.FC = () => {
                         <Sparkles className="w-4 h-4" />
                         Tentang Kami
                     </div>
-                    <h2 className="text-3xl md:text-5xl lg:text-6xl font-extrabold mb-4 md:mb-6 leading-tight"
+                    <h2 className="text-3xl md:text-5xl lg:text-6xl font-extrabold mb-4 md:mb-6 leading-tight mt-3"
                         style={{
                             background: 'linear-gradient(135deg, #3B4D3A 0%, #2d3a2c 50%, #1f2820 100%)',
                             WebkitBackgroundClip: 'text',

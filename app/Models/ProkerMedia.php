@@ -18,6 +18,7 @@ class ProkerMedia extends Model
         'media_url',
         'caption',
         'is_thumbnail',
+        'is_highlight',
     ];
 
     /**

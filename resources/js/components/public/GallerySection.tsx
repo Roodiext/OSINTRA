@@ -3,17 +3,29 @@ import { Image as ImageIcon, Video } from 'lucide-react';
 import api from '@/lib/axios';
 import type { ProkerMedia } from '@/types';
 import Reveal from './Reveal';
+import { router } from '@inertiajs/react';
+
+// Declare route function for TypeScript
+declare global {
+    function route(name: string, params?: any, absolute?: boolean): string;
+}
 
 const GallerySection: React.FC = () => {
     const [media, setMedia] = useState<ProkerMedia[]>([]);
     const [loading, setLoading] = useState(true);
-    const [selectedMedia, setSelectedMedia] = useState<ProkerMedia | null>(null);
 
     useEffect(() => {
         const fetchMedia = async () => {
             try {
+                // Fetch all media, but we will filter for thumbnails only
                 const response = await api.get('/proker-media');
-                setMedia(response.data);
+                // Filter to show only thumbnail/highlight images
+                const highlights = response.data.filter((item: ProkerMedia) => item.is_thumbnail);
+
+                // If no highlights found (fallback), maybe show the first few? 
+                // But user requested "Only 1 photo per proker / highlight".
+                // Let's stick to highlights. If empty, it's empty.
+                setMedia(highlights.length > 0 ? highlights : response.data.slice(0, 3));
             } catch (error) {
                 console.error('Failed to fetch media:', error);
             } finally {
@@ -23,6 +35,10 @@ const GallerySection: React.FC = () => {
 
         fetchMedia();
     }, []);
+
+    const handleItemClick = (item: ProkerMedia) => {
+        router.visit(`/gallery/${item.id}`);
+    };
 
     if (loading) {
         return (
@@ -54,7 +70,7 @@ const GallerySection: React.FC = () => {
                             delay={index * 100}
                             className="relative group cursor-pointer overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
                         >
-                            <div onClick={() => setSelectedMedia(item)}>
+                            <div onClick={() => handleItemClick(item)}>
                                 {item.media_type === 'image' ? (
                                     <img
                                         src={item.media_url}
@@ -93,39 +109,10 @@ const GallerySection: React.FC = () => {
 
                 {media.length === 0 && (
                     <div className="text-center py-12">
-                        <p style={{ color: '#6E8BA3' }}>Belum ada media yang tersedia. Coming Soon</p>
+                        <p style={{ color: '#6E8BA3' }}>Belum ada media yang tersedia.</p>
                     </div>
                 )}
             </div>
-
-            {/* Modal for viewing media */}
-            {selectedMedia && (
-                <div
-                    className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
-                    onClick={() => setSelectedMedia(null)}
-                >
-                    <div className="max-w-4xl w-full" onClick={(e) => e.stopPropagation()}>
-                        {selectedMedia.media_type === 'image' ? (
-                            <img
-                                src={selectedMedia.media_url}
-                                alt={selectedMedia.caption || 'Gallery image'}
-                                className="w-full h-auto rounded-2xl"
-                            />
-                        ) : (
-                            <video
-                                src={selectedMedia.media_url}
-                                controls
-                                className="w-full h-auto rounded-2xl"
-                            />
-                        )}
-                        {selectedMedia.caption && (
-                            <div className="mt-4 text-white text-center">
-                                <p className="text-lg">{selectedMedia.caption}</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            )}
         </section>
     );
 };

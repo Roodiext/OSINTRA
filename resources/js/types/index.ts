@@ -106,6 +106,7 @@ export interface ProkerMedia {
     media_url: string;
     caption?: string;
     is_thumbnail?: boolean;
+    is_highlight?: boolean;
     proker?: Proker;
 }
 

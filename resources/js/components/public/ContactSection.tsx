@@ -38,10 +38,10 @@ const ContactSection: React.FC = () => {
     };
 
     return (
-        <section id="contact" className="py-20 px-4 bg-white">
+        <section id="contact" className="pt-26 pb-20 md:pt-25 px-4 bg-white">
             <div className="max-w-6xl mx-auto">
                 <Reveal direction="down" className="text-center mb-16">
-                    <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: '#3B4D3A' }}>
+                    <h2 className="text-4xl md:text-5xl font-bold mb-4 mt-3" style={{ color: '#3B4D3A' }}>
                         Hubungi Kami
                     </h2>
                     <div className="w-24 h-1 mx-auto rounded-full mb-4" style={{ backgroundColor: '#E8DCC3' }} />
