@@ -26,7 +26,7 @@ Dalam membangun website ini, kami menggunakan teknologi modern untuk memastikan 
 **OSINTRA** dikembangkan dengan fokus pada pengalaman pengguna dan efisiensi manajemen. Berikut adalah beberapa keunggulan utama:
 
 - 📱 **Fully Responsive Design**: Tampilan yang optimal dan adaptif di berbagai perangkat, mulai dari smartphone (mobile), tablet, hingga komputer desktop.
-- 🔐 **Role-Based Access Control (RBAC)**: Sistem hak akses yang ketat sesuai dengan jabatan (Admin, Pembina, Pengurus OSIS) untuk menjaga keamanan data.
+- 🔐 **Role-Based Access Control (RBAC)**: Sistem hak akses yang ketat sesuai dengan jabatan (Admin, Pengurus OSIS) untuk menjaga keamanan data.
 - 📊 **Interactive Dashboard**: Ringkasan data statistik organisasi dalam bentuk grafik dan metrik yang mudah dipahami.
 - 💸 **Manajemen Keuangan**: Pencatatan pemasukan dan pengeluaran secara transparan dan terorganisir.
 - 📅 **Dokumentasi Proker**: Pengelolaan program kerja yang dilengkapi dengan fitur unggah media (foto/video) sebagai bukti kegiatan.
@@ -38,10 +38,10 @@ Dalam membangun website ini, kami menggunakan teknologi modern untuk memastikan 
 
 ## 📁 Susunan Folder Project
 
-Berikut adalah struktur folder utama dari proyek **WEB-OSINTRA**:
+Berikut adalah struktur folder utama dari proyek **OSINTRA**:
 
 ```text
-WEB-OSINTRA/
+OSINTRA/
 ├── app/                      # Logika Backend (Controllers, Models, Middleware)
 ├── bootstrap/                # Konfigurasi booting Laravel
 ├── config/                   # File konfigurasi aplikasi
