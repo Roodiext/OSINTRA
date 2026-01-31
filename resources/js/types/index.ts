@@ -104,9 +104,10 @@ export interface ProkerMedia {
     proker_id: number;
     media_type: 'image' | 'video';
     media_url: string;
-    caption?: string;
-    is_thumbnail?: boolean;
-    is_highlight?: boolean;
+    caption: string | null;
+    is_thumbnail: boolean;
+    is_highlight: boolean;
+    thumbnail_url?: string;
     proker?: Proker;
 }
 

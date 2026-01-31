@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html lang="en" class="">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        
+        <script>
+            (function() {
+                const appearance = 'system';
+
+                if (appearance === 'system') {
+                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+                    if (prefersDark) {
+                        document.documentElement.classList.add('dark');
+                    }
+                }
+            })();
+        </script>
+
+        
+        <style>
+            html {
+                background-color: oklch(1 0 0);
+            }
+
+            html.dark {
+                background-color: oklch(0.145 0 0);
+            }
+        </style>
+
+        <title inertia>OSIS-VISKA</title>
+
+        <link rel="icon" href="/osis-favicon.png" type="image/png">
+        <link rel="apple-touch-icon" href="/osis-favicon.png">
+
+        <link rel="preconnect" href="https://fonts.bunny.net">
+        <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+
+        <script type="module" >
+    import RefreshRuntime from 'http://[::1]:5173/@react-refresh'
+    RefreshRuntime.injectIntoGlobalHook(window)
+    window.$RefreshReg$ = () => {}
+    window.$RefreshSig$ = () => (type) => type
+    window.__vite_plugin_react_preamble_installed__ = true
+</script>        <script type="module" src="http://[::1]:5173/@vite/client"></script><script type="module" src="http://[::1]:5173/resources/js/app.tsx"></script><script type="module" src="http://[::1]:5173/resources/js/pages/LoginPage.tsx"></script>            </head>
+    <body class="font-sans antialiased">
+        <div id="app" data-page="{&quot;component&quot;:&quot;LoginPage&quot;,&quot;props&quot;:{&quot;errors&quot;:{},&quot;name&quot;:&quot;OSIS-VISKA&quot;,&quot;quote&quot;:{&quot;message&quot;:&quot;Happiness is not something readymade. It comes from your own actions.&quot;,&quot;author&quot;:&quot;Dalai Lama&quot;},&quot;auth&quot;:{&quot;user&quot;:null},&quot;sidebarOpen&quot;:true,&quot;flash&quot;:{&quot;permission_denied&quot;:null,&quot;permission_message&quot;:null,&quot;success&quot;:null,&quot;error&quot;:null}},&quot;url&quot;:&quot;\/login&quot;,&quot;version&quot;:&quot;&quot;,&quot;clearHistory&quot;:false,&quot;encryptHistory&quot;:false}"></div>    </body>
+</html>
+
