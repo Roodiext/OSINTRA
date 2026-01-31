@@ -21,6 +21,21 @@ Dalam membangun website ini, kami menggunakan teknologi modern untuk memastikan 
 
 ---
 
+## ✨ Keunggulan & Fitur Utama
+
+**OSINTRA** dikembangkan dengan fokus pada pengalaman pengguna dan efisiensi manajemen. Berikut adalah beberapa keunggulan utama:
+
+- 📱 **Fully Responsive Design**: Tampilan yang optimal dan adaptif di berbagai perangkat, mulai dari smartphone (mobile), tablet, hingga komputer desktop.
+- 🔐 **Role-Based Access Control (RBAC)**: Sistem hak akses yang ketat sesuai dengan jabatan (Admin, Pembina, Pengurus OSIS) untuk menjaga keamanan data.
+- 📊 **Interactive Dashboard**: Ringkasan data statistik organisasi dalam bentuk grafik dan metrik yang mudah dipahami.
+- 💸 **Manajemen Keuangan**: Pencatatan pemasukan dan pengeluaran secara transparan dan terorganisir.
+- 📅 **Dokumentasi Proker**: Pengelolaan program kerja yang dilengkapi dengan fitur unggah media (foto/video) sebagai bukti kegiatan.
+- ⚡ **Performa Tinggi**: Dibangun dengan Laravel 12 dan Vite untuk memastikan kecepatan akses dan pengolahan data yang efisien.
+- 🎭 **Modern UI/UX**: Antarmuka pengguna yang elegan dengan animasi halus menggunakan GSAP dan Framer Motion.
+- 📝 **Audit Log System**: Melacak setiap perubahan dan aktivitas yang dilakukan oleh pengguna untuk transparansi manajemen.
+
+---
+
 ## 📁 Susunan Folder Project
 
 Berikut adalah struktur folder utama dari proyek **WEB-OSINTRA**:
