@@ -55,6 +55,9 @@ WEB-OSINTRA/
 
 ## 📸 Tampilan Website
 
+> [!NOTE]  
+> Screenshots di bawah ini **tidak menampilkan seluruh antarmuka (UI) dan fitur** yang ada. Masih terdapat berbagai fungsionalitas dan detail halaman lainnya yang belum didokumentasikan dalam bentuk gambar di bawah ini.
+
 ### 🌐 Tampilan Public
 <p align="left">
   <strong>1. Homepage</strong><br>
@@ -152,7 +155,7 @@ Website sudah **FINAL**. Saat ini hanya tinggal menunggu perbaikan bug minor (ji
 ---
 
 ## 👨‍💻 Developer
-Dikembangkan dengan ❤️ oleh:
+Dikembangkan oleh:
 - **Roodiext Production**
 - **ClaveoraDev**
 
