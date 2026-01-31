@@ -55,14 +55,14 @@ const GalleryCmsPage: React.FC = () => {
         }
 
         const isImage = file.type.startsWith('image/');
-        const isVideo = file.type.startsWith('video/');
-        if (!isImage && !isVideo) {
-            Swal.fire('Error', 'File harus berupa gambar atau video', 'error');
+        if (!isImage) {
+            Swal.fire('Error', 'File harus berupa gambar (JPG, PNG, WEBP, dll)', 'error');
             return;
         }
 
-        if (file.size > 10 * 1024 * 1024) {
-            Swal.fire('Error', 'Ukuran file maksimal 10MB', 'error');
+        // 20MB limit
+        if (file.size > 20 * 1024 * 1024) {
+            Swal.fire('Error', 'Ukuran file maksimal 20MB', 'error');
             return;
         }
 
@@ -156,7 +156,7 @@ const GalleryCmsPage: React.FC = () => {
                             <input
                                 ref={fileInputRef}
                                 type="file"
-                                accept="image/*,video/*"
+                                accept="image/*"
                                 onChange={handleFileSelect}
                                 className="hidden"
                             />
@@ -179,7 +179,7 @@ const GalleryCmsPage: React.FC = () => {
                                 ) : (
                                     <>
                                         <Upload className="w-4 h-4" />
-                                        <span className="hidden sm:inline">Upload Media</span>
+                                        <span className="hidden sm:inline">Upload Foto</span>
                                         <span className="sm:hidden">Upload</span>
                                     </>
                                 )}
@@ -217,7 +217,6 @@ const GalleryCmsPage: React.FC = () => {
                             >
                                 <option value="">Semua Tipe</option>
                                 <option value="image">Gambar</option>
-                                <option value="video">Video</option>
                             </select>
                         </div>
                     </div>
@@ -248,9 +247,17 @@ const GalleryCmsPage: React.FC = () => {
                                         />
                                     ) : (
                                         <img
-                                            src={item.media_url}
+                                            src={item.thumbnail_url || item.media_url}
                                             alt={item.caption || ''}
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                            className="w-full h-full object-cover"
+                                            loading="lazy"
+                                            decoding="async"
+                                            onError={(e) => {
+                                                const target = e.target as HTMLImageElement;
+                                                if (target.src !== item.media_url) {
+                                                    target.src = item.media_url;
+                                                }
+                                            }}
                                         />
                                     )}
                                     <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">

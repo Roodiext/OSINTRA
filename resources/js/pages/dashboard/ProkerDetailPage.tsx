@@ -150,17 +150,16 @@ const ProkerDetailPage: React.FC = () => {
         const file = e.target.files?.[0];
         if (!file || !proker) return;
 
-        // Validate file type
+        // Validate file type (Images only)
         const isImage = file.type.startsWith('image/');
-        const isVideo = file.type.startsWith('video/');
-        if (!isImage && !isVideo) {
-            Swal.fire('Error', 'File harus berupa gambar atau video', 'error');
+        if (!isImage) {
+            Swal.fire('Error', 'File harus berupa gambar (JPG, PNG, WEBP, dll)', 'error');
             return;
         }
 
-        // Validate file size (10MB)
-        if (file.size > 10 * 1024 * 1024) {
-            Swal.fire('Error', 'Ukuran file maksimal 10MB', 'error');
+        // Validate file size (20MB)
+        if (file.size > 20 * 1024 * 1024) {
+            Swal.fire('Error', 'Ukuran file maksimal 20MB', 'error');
             return;
         }
 
@@ -643,7 +642,7 @@ const ProkerDetailPage: React.FC = () => {
                                 <input
                                     ref={fileInputRef}
                                     type="file"
-                                    accept="image/*,video/*"
+                                    accept="image/*"
                                     onChange={handleFileSelect}
                                     className="hidden"
                                 />
@@ -661,7 +660,7 @@ const ProkerDetailPage: React.FC = () => {
                                         ) : (
                                             <>
                                                 <Upload className="w-4 h-4" />
-                                                Tambah Media
+                                                Tambah Foto
                                             </>
                                         )}
                                     </button>
@@ -685,9 +684,18 @@ const ProkerDetailPage: React.FC = () => {
                                             />
                                         ) : (
                                             <img
-                                                src={media.media_url}
+                                                src={media.thumbnail_url || media.media_url}
                                                 alt={media.caption || ''}
-                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                                className="w-full h-full object-cover"
+                                                loading="lazy"
+                                                decoding="async"
+                                                onError={(e) => {
+                                                    // Fallback to original if thumbnail fails
+                                                    const target = e.target as HTMLImageElement;
+                                                    if (target.src !== media.media_url) {
+                                                        target.src = media.media_url;
+                                                    }
+                                                }}
                                             />
                                         )}
                                         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">

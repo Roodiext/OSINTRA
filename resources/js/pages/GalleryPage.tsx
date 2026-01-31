@@ -179,9 +179,9 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                             onClick={() => handleFullscreen(item)}
                                         >
                                             <img
-                                                src={item.media_url}
-                                                alt={item.caption || 'Gallery'}
-                                                className="w-full h-auto object-cover transform group-hover:scale-105 transition-transform duration-500"
+                                                src={item.thumbnail_url || item.media_url}
+                                                alt={item.caption || ''}
+                                                className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105"
                                                 loading="lazy"
                                             />
 
@@ -279,7 +279,7 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
             <Head title={`Galeri - ${currentImage.proker?.title || 'Detail'}`} />
             <div
                 ref={containerRef}
-                className="fixed inset-0 z-[9999] bg-white overflow-y-auto md:overflow-x-auto md:overflow-y-hidden hide-scrollbar"
+                className="fixed inset-0 z-[9999] bg-[#0f0f0f] text-slate-300 overflow-y-auto md:overflow-x-auto md:overflow-y-hidden hide-scrollbar"
                 style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
                 {/* Hide scrollbar */}
@@ -308,7 +308,7 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                 <motion.button
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="fixed top-4 right-4 md:top-6 md:right-6 z-50 w-10 h-10 md:w-12 md:h-12 bg-white hover:bg-red-50 border border-slate-200 text-slate-500 hover:text-red-500 rounded-full flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-lg"
+                    className="fixed top-4 right-4 md:top-6 md:right-6 z-50 w-10 h-10 md:w-12 md:h-12 bg-black/40 hover:bg-red-900/40 border border-white/10 text-white/70 hover:text-red-400 rounded-full flex items-center justify-center transition-all duration-300 backdrop-blur-md"
                     onClick={handleBack}
                 >
                     <X className="w-4 h-4 md:w-5 md:h-5" />
@@ -319,7 +319,7 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                     <Button
                         onClick={handleBack}
                         variant="outline"
-                        className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-full px-4 md:px-6 text-sm md:text-base shadow-md hover:shadow-lg"
+                        className="bg-black/40 border-white/10 text-white/80 hover:bg-white/10 hover:text-white rounded-full px-4 md:px-6 text-sm md:text-base backdrop-blur-md"
                     >
                         <ArrowLeft className="w-4 h-4 mr-1 md:mr-2" />
                         <span className="hidden sm:inline">Back</span>
@@ -336,7 +336,7 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                         className="mb-6"
                     >
                         <div className="relative group cursor-pointer" onClick={() => handleFullscreen(currentImage)}>
-                            <div className="relative bg-white p-3 rounded-xl border border-slate-200 shadow-lg">
+                            <div className="relative bg-white p-3 rounded-xl shadow-2xl transition-transform duration-300">
                                 <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden bg-slate-100">
                                     <img
                                         src={currentImage.media_url || "/placeholder.svg"}
@@ -354,7 +354,7 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                     <span className="inline-block px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold mb-2 border border-amber-200">
                                         {currentImage.proker?.title || 'Kegiatan OSIS'}
                                     </span>
-                                    <h2 className="text-base font-bold text-slate-900">{currentImage.caption || 'Dokumentasi Kegiatan'}</h2>
+                                    <h2 className="text-xl font-bold text-slate-900 font-serif tracking-wide">{currentImage.caption || 'Dokumentasi Kegiatan'}</h2>
                                 </div>
                             </div>
                         </div>
@@ -365,23 +365,23 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.1 }}
-                        className="mb-6 text-slate-800"
+                        className="mb-6 text-slate-300"
                     >
-                        <h1 className="text-2xl font-bold mb-2 text-slate-900">{currentImage.proker?.title || 'Kegiatan OSIS'}</h1>
-                        <h2 className="text-lg text-slate-700 font-medium mb-4">{currentImage.caption || 'Dokumentasi'}</h2>
+                        <h1 className="text-2xl font-bold mb-2 text-white font-serif">{currentImage.proker?.title || 'Kegiatan OSIS'}</h1>
+                        <h2 className="text-lg text-slate-400 font-medium mb-4 italic">{currentImage.caption || 'Dokumentasi'}</h2>
 
-                        <p className="text-slate-600 leading-relaxed mb-4 text-sm">
+                        <p className="text-slate-400 leading-relaxed mb-4 text-sm font-light tracking-wide">
                             {currentImage.proker?.description || 'Tidak ada deskripsi untuk kegiatan ini.'}
                         </p>
 
-                        <div className="space-y-2 text-slate-700 mb-4 text-sm">
+                        <div className="space-y-2 text-slate-400 mb-4 text-sm">
                             <div className="flex items-center gap-2">
-                                <span className="font-bold text-slate-900 w-20">Lokasi:</span>
-                                <span className="text-slate-700">{currentImage.proker?.location || '-'}</span>
+                                <span className="font-bold text-slate-300 w-20">Lokasi:</span>
+                                <span className="text-slate-400">{currentImage.proker?.location || '-'}</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <span className="font-bold text-slate-900 w-20">Tanggal:</span>
-                                <span className="text-slate-700">
+                                <span className="font-bold text-slate-300 w-20">Tanggal:</span>
+                                <span className="text-slate-400">
                                     {formatDateRange(currentImage.proker?.date || '', currentImage.proker?.end_date)}
                                 </span>
                             </div>
@@ -395,7 +395,7 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: 0.2 }}
                         >
-                            <h3 className="text-lg font-bold text-slate-900 mb-4">Galeri Lainnya</h3>
+                            <h3 className="text-lg font-bold text-white mb-4 font-serif">Galeri Lainnya</h3>
                             <div className="grid grid-cols-2 gap-3">
                                 {otherImages.map((img, idx) => (
                                     <motion.div
@@ -403,7 +403,7 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                         initial={{ opacity: 0, scale: 0.9 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         transition={{ delay: 0.3 + (idx * 0.05) }}
-                                        className="bg-white p-2 shadow-md border border-slate-200 rounded-xl cursor-pointer active:scale-95 transition-transform"
+                                        className="bg-white p-2 shadow-md rounded-xl cursor-pointer active:scale-95 transition-transform"
                                         onClick={() => handleImageClick(img.id)}
                                     >
                                         <div className="w-full aspect-square rounded-lg overflow-hidden bg-slate-100">
@@ -429,10 +429,9 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                         className="w-screen h-full flex items-center justify-center p-12 flex-shrink-0"
                     >
                         <div className="flex items-center gap-16 max-w-7xl w-full">
-                            {/* Featured Image */}
                             <div className="flex-shrink-0">
                                 <div className="relative group cursor-pointer" onClick={() => handleFullscreen(currentImage)}>
-                                    <div className="relative bg-white p-4 rounded-xl border border-slate-200 shadow-2xl transition-all duration-500">
+                                    <div className="relative bg-white p-4 rounded-xl shadow-2xl transition-all duration-500 transform hover:rotate-1">
                                         <div className="relative w-[500px] h-[375px] rounded-lg overflow-hidden bg-slate-100">
                                             <img
                                                 src={currentImage.media_url || "/placeholder.svg"}
@@ -450,29 +449,29 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                             <span className="inline-block px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold mb-2 border border-amber-200">
                                                 {currentImage.proker?.title || 'Kegiatan OSIS'}
                                             </span>
-                                            <h2 className="text-xl font-bold text-slate-900 mb-1">{currentImage.caption || 'Dokumentasi Kegiatan'}</h2>
+                                            <h2 className="text-xl font-bold text-slate-900 mb-1 font-serif tracking-wide">{currentImage.caption || 'Dokumentasi Kegiatan'}</h2>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Description */}
-                            <div className="flex-1 text-slate-800">
-                                <h1 className="text-5xl font-bold mb-4 text-slate-900">{currentImage.proker?.title || 'Kegiatan OSIS'}</h1>
-                                <h2 className="text-2xl text-slate-700 font-medium mb-6">{currentImage.caption || 'Dokumentasi'}</h2>
+                            <div className="flex-1 text-slate-300">
+                                <h1 className="text-5xl font-bold mb-4 text-white font-serif">{currentImage.proker?.title || 'Kegiatan OSIS'}</h1>
+                                <h2 className="text-2xl text-slate-400 font-medium mb-6 italic">{currentImage.caption || 'Dokumentasi'}</h2>
 
-                                <p className="text-slate-600 leading-relaxed mb-8 text-lg font-medium">
+                                <p className="text-slate-400 leading-relaxed mb-8 text-lg font-light tracking-wide">
                                     {currentImage.proker?.description || 'Tidak ada deskripsi untuk kegiatan ini.'}
                                 </p>
 
-                                <div className="space-y-3 text-slate-700 mb-8">
+                                <div className="space-y-3 text-slate-400 mb-8">
                                     <div className="flex items-center gap-3">
-                                        <span className="font-bold text-slate-900 w-24">Lokasi:</span>
-                                        <span className="text-slate-700">{currentImage.proker?.location || '-'}</span>
+                                        <span className="font-bold text-slate-300 w-24">Lokasi:</span>
+                                        <span className="text-slate-400">{currentImage.proker?.location || '-'}</span>
                                     </div>
                                     <div className="flex items-center gap-3">
-                                        <span className="font-bold text-slate-900 w-24">Tanggal:</span>
-                                        <span className="text-slate-700">
+                                        <span className="font-bold text-slate-300 w-24">Tanggal:</span>
+                                        <span className="text-slate-400">
                                             {formatDateRange(currentImage.proker?.date || '', currentImage.proker?.end_date)}
                                         </span>
                                     </div>
@@ -484,7 +483,7 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                     <motion.div
                                         animate={{ x: [0, 10, 0] }}
                                         transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
-                                        className="w-6 h-0.5 bg-amber-400 rounded-full"
+                                        className="w-6 h-0.5 bg-amber-500/50 rounded-full"
                                     />
                                 </div>
                             </div>
@@ -514,7 +513,7 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                     onClick={() => handleImageClick(otherImages[0].id)}
                                 >
                                     <div className="relative h-full">
-                                        <div className="relative h-full bg-white p-3 shadow-lg border border-slate-100 group-hover:shadow-xl transition-all duration-500 group-hover:scale-105 rounded-xl">
+                                        <div className="relative h-full bg-white p-3 shadow-lg group-hover:shadow-2xl transition-all duration-500 group-hover:scale-105 group-hover:-rotate-1 rounded-xl">
                                             <div className="h-full overflow-hidden rounded-lg bg-slate-100">
                                                 <img
                                                     src={otherImages[0].media_url || "/placeholder.svg"}
@@ -522,11 +521,11 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                                 />
                                             </div>
-                                            <div className="absolute bottom-3 left-3 right-3 p-3 bg-white/95 backdrop-blur-sm rounded-lg shadow-sm border border-slate-100">
-                                                <span className="inline-block px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium mb-1">
+                                            <div className="absolute bottom-3 left-3 right-3 p-3 bg-white/90 backdrop-blur-sm rounded-lg shadow-sm">
+                                                <span className="inline-block px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium mb-1 border border-amber-200">
                                                     {otherImages[0].proker?.title || 'Kegiatan'}
                                                 </span>
-                                                <h3 className="text-slate-800 font-semibold text-sm line-clamp-2">{otherImages[0].caption}</h3>
+                                                <h3 className="text-slate-800 font-semibold text-sm line-clamp-2 font-serif">{otherImages[0].caption}</h3>
                                             </div>
                                             <div className="absolute top-6 right-6 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-sm">
                                                 <Expand className="w-4 h-4 text-slate-700" />
@@ -546,7 +545,7 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                     onClick={() => handleImageClick(otherImages[1].id)}
                                 >
                                     <div className="relative h-full">
-                                        <div className="relative h-full bg-white p-3 shadow-lg border border-slate-100 group-hover:shadow-xl transition-all duration-500 group-hover:scale-105 rounded-xl">
+                                        <div className="relative h-full bg-white p-3 shadow-lg group-hover:shadow-2xl transition-all duration-500 group-hover:scale-105 group-hover:rotate-1 rounded-xl">
                                             <div className="h-full overflow-hidden rounded-lg bg-slate-100">
                                                 <img
                                                     src={otherImages[1].media_url || "/placeholder.svg"}
@@ -554,11 +553,11 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                                 />
                                             </div>
-                                            <div className="absolute bottom-3 left-3 right-3 p-3 bg-white/95 backdrop-blur-sm rounded-lg shadow-sm border border-slate-100">
-                                                <span className="inline-block px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium mb-1">
+                                            <div className="absolute bottom-3 left-3 right-3 p-3 bg-white/90 backdrop-blur-sm rounded-lg shadow-sm">
+                                                <span className="inline-block px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium mb-1 border border-amber-200">
                                                     {otherImages[1].proker?.title || 'Kegiatan'}
                                                 </span>
-                                                <h3 className="text-slate-800 font-semibold text-sm line-clamp-1">{otherImages[1].caption}</h3>
+                                                <h3 className="text-slate-800 font-semibold text-sm line-clamp-1 font-serif">{otherImages[1].caption}</h3>
                                             </div>
                                         </div>
                                     </div>
@@ -575,7 +574,7 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                     onClick={() => handleImageClick(otherImages[2].id)}
                                 >
                                     <div className="relative h-full">
-                                        <div className="relative h-full bg-white p-3 shadow-lg border border-slate-100 group-hover:shadow-xl transition-all duration-500 group-hover:scale-105 rounded-xl">
+                                        <div className="relative h-full bg-white p-3 shadow-lg group-hover:shadow-2xl transition-all duration-500 group-hover:scale-105 group-hover:-rotate-1 rounded-xl">
                                             <div className="h-full overflow-hidden rounded-lg bg-slate-100">
                                                 <img
                                                     src={otherImages[2].media_url || "/placeholder.svg"}
@@ -583,11 +582,11 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                                 />
                                             </div>
-                                            <div className="absolute bottom-3 left-3 right-3 p-3 bg-white/95 backdrop-blur-sm rounded-lg shadow-sm border border-slate-100">
-                                                <span className="inline-block px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium mb-1">
+                                            <div className="absolute bottom-3 left-3 right-3 p-3 bg-white/90 backdrop-blur-sm rounded-lg shadow-sm">
+                                                <span className="inline-block px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium mb-1 border border-amber-200">
                                                     {otherImages[2].proker?.title || 'Kegiatan'}
                                                 </span>
-                                                <h3 className="text-slate-800 font-semibold text-sm line-clamp-2">{otherImages[2].caption}</h3>
+                                                <h3 className="text-slate-800 font-semibold text-sm line-clamp-2 font-serif">{otherImages[2].caption}</h3>
                                             </div>
                                         </div>
                                     </div>
@@ -604,7 +603,7 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                     onClick={() => handleImageClick(otherImages[3].id)}
                                 >
                                     <div className="relative h-full">
-                                        <div className="relative h-full bg-white p-3 shadow-lg border border-slate-100 group-hover:shadow-xl transition-all duration-500 group-hover:scale-105 rounded-xl">
+                                        <div className="relative h-full bg-white p-3 shadow-lg group-hover:shadow-2xl transition-all duration-500 group-hover:scale-105 group-hover:rotate-1 rounded-xl">
                                             <div className="h-full overflow-hidden rounded-lg bg-slate-100">
                                                 <img
                                                     src={otherImages[3].media_url || "/placeholder.svg"}
@@ -612,11 +611,11 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                                 />
                                             </div>
-                                            <div className="absolute bottom-3 left-3 right-3 p-3 bg-white/95 backdrop-blur-sm rounded-lg shadow-sm border border-slate-100">
-                                                <span className="inline-block px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium mb-1">
+                                            <div className="absolute bottom-3 left-3 right-3 p-3 bg-white/90 backdrop-blur-sm rounded-lg shadow-sm">
+                                                <span className="inline-block px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium mb-1 border border-amber-200">
                                                     {otherImages[3].proker?.title || 'Kegiatan'}
                                                 </span>
-                                                <h3 className="text-slate-800 font-semibold text-sm line-clamp-1">{otherImages[3].caption}</h3>
+                                                <h3 className="text-slate-800 font-semibold text-sm line-clamp-1 font-serif">{otherImages[3].caption}</h3>
                                             </div>
                                         </div>
                                     </div>
@@ -633,7 +632,7 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                     onClick={() => handleImageClick(otherImages[4].id)}
                                 >
                                     <div className="relative h-full">
-                                        <div className="relative h-full bg-white p-3 shadow-lg border border-slate-100 group-hover:shadow-xl transition-all duration-500 group-hover:scale-105 rounded-xl">
+                                        <div className="relative h-full bg-white p-3 shadow-lg group-hover:shadow-2xl transition-all duration-500 group-hover:scale-105 group-hover:-rotate-1 rounded-xl">
                                             <div className="h-full overflow-hidden rounded-lg bg-slate-100">
                                                 <img
                                                     src={otherImages[4].media_url || "/placeholder.svg"}
@@ -641,11 +640,11 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                                 />
                                             </div>
-                                            <div className="absolute bottom-3 left-3 right-3 p-3 bg-white/95 backdrop-blur-sm rounded-lg shadow-sm border border-slate-100">
-                                                <span className="inline-block px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium mb-1">
+                                            <div className="absolute bottom-3 left-3 right-3 p-3 bg-white/90 backdrop-blur-sm rounded-lg shadow-sm">
+                                                <span className="inline-block px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium mb-1 border border-amber-200">
                                                     {otherImages[4].proker?.title || 'Kegiatan'}
                                                 </span>
-                                                <h3 className="text-slate-800 font-semibold text-sm line-clamp-2">{otherImages[4].caption}</h3>
+                                                <h3 className="text-slate-800 font-semibold text-sm line-clamp-2 font-serif">{otherImages[4].caption}</h3>
                                             </div>
                                         </div>
                                     </div>
@@ -662,7 +661,7 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                     onClick={() => handleImageClick(otherImages[5].id)}
                                 >
                                     <div className="relative h-full">
-                                        <div className="relative h-full bg-white p-3 shadow-lg border border-slate-100 group-hover:shadow-xl transition-all duration-500 group-hover:scale-105 rounded-xl">
+                                        <div className="relative h-full bg-white p-3 shadow-lg group-hover:shadow-2xl transition-all duration-500 group-hover:scale-105 group-hover:rotate-1 rounded-xl">
                                             <div className="h-full overflow-hidden rounded-lg bg-slate-100">
                                                 <img
                                                     src={otherImages[5].media_url || "/placeholder.svg"}
@@ -670,11 +669,11 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                                 />
                                             </div>
-                                            <div className="absolute bottom-3 left-3 right-3 p-3 bg-white/95 backdrop-blur-sm rounded-lg shadow-sm border border-slate-100">
-                                                <span className="inline-block px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium mb-1">
+                                            <div className="absolute bottom-3 left-3 right-3 p-3 bg-white/90 backdrop-blur-sm rounded-lg shadow-sm">
+                                                <span className="inline-block px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium mb-1 border border-amber-200">
                                                     {otherImages[5].proker?.title || 'Kegiatan'}
                                                 </span>
-                                                <h3 className="text-slate-800 font-semibold text-sm line-clamp-1">{otherImages[5].caption}</h3>
+                                                <h3 className="text-slate-800 font-semibold text-sm line-clamp-1 font-serif">{otherImages[5].caption}</h3>
                                             </div>
                                         </div>
                                     </div>
@@ -689,7 +688,7 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                             initial={{ opacity: 0, scale: 0.9 }}
                                             animate={{ opacity: 1, scale: 1 }}
                                             transition={{ delay: 1.5 + (idx * 0.1) }}
-                                            className="bg-white p-2 w-64 h-64 shadow-xl border border-slate-200 rounded-xl cursor-pointer hover:scale-105 transition-transform"
+                                            className="bg-white p-2 w-64 h-64 shadow-xl rounded-xl cursor-pointer hover:scale-105 transition-transform"
                                             onClick={() => handleImageClick(img.id)}
                                         >
                                             <div className="w-full h-full rounded-lg overflow-hidden bg-slate-100">
@@ -711,11 +710,11 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="fixed inset-0 bg-white/95 z-[10000] flex items-center justify-center backdrop-blur-md p-4"
+                            className="fixed inset-0 bg-black/95 z-[10000] flex items-center justify-center backdrop-blur-md p-4"
                         >
                             <button
                                 onClick={closeFullscreen}
-                                className="absolute top-4 right-4 md:top-6 md:right-6 w-10 h-10 md:w-12 md:h-12 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-800 transition-colors duration-200 z-10 shadow-lg"
+                                className="absolute top-4 right-4 md:top-6 md:right-6 w-10 h-10 md:w-12 md:h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors duration-200 z-10 shadow-lg border border-white/10"
                             >
                                 <X className="w-5 h-5 md:w-6 md:h-6" />
                             </button>
@@ -727,7 +726,7 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                 transition={{ duration: 0.3 }}
                                 className="relative max-w-[95vw] md:max-w-[90vw] max-h-[90vh] flex flex-col items-center"
                             >
-                                <div className="relative rounded-lg shadow-2xl overflow-hidden bg-white p-1 md:p-2 border border-slate-200">
+                                <div className="relative rounded-lg shadow-2xl overflow-hidden bg-[#1a1a1a] p-1 md:p-2 border border-white/10">
                                     <img
                                         src={fullscreenImage.media_url || "/placeholder.svg"}
                                         alt={fullscreenImage.caption}
@@ -736,8 +735,8 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                 </div>
 
                                 <div className="mt-4 md:mt-6 text-center max-w-2xl px-4">
-                                    <h3 className="text-lg md:text-2xl font-bold text-slate-900 mb-1 md:mb-2">{fullscreenImage.proker?.title || 'Kegiatan'}</h3>
-                                    <p className="text-slate-600 font-medium text-sm md:text-base">{fullscreenImage.caption}</p>
+                                    <h3 className="text-lg md:text-2xl font-bold text-white mb-1 md:mb-2 font-serif tracking-wide center">{fullscreenImage.proker?.title || 'Kegiatan'}</h3>
+                                    <p className="text-slate-300 font-medium text-sm md:text-base italic">{fullscreenImage.caption}</p>
                                     <p className="text-xs md:text-sm text-slate-500 mt-1 md:mt-2">
                                         {fullscreenImage.proker?.location || 'Lokasi'} • {formatDateRange(fullscreenImage.proker?.date || '', fullscreenImage.proker?.end_date)}
                                     </p>
