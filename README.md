@@ -180,4 +180,4 @@ Dikembangkan oleh:
 Proyek ini dilindungi di bawah lisensi custom. Penggunaan untuk tujuan komersial atau pendistribusian ulang tanpa izin tertulis dari pengembang tidak diperbolehkan. Lihat file [LICENSE](./LICENSE) untuk detail lebih lanjut.
 
 ---
-© 2026 WEB-OSINTRA. All rights reserved.
+© 2026 OSINTRA. All rights reserved.
