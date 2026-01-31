@@ -1,7 +1,7 @@
-# WEB-OSINTRA 🏫  
+# OSINTRA 🏫  
 ### OSIS Integrated Administration System
 
-**WEB-OSINTRA** adalah sistem manajemen organisasi berbasis web yang dirancang untuk mendigitalisasi seluruh aktivitas OSIS, mulai dari manajemen anggota, program kerja, jabatan, divisi, transaksi keuangan, hingga audit aktivitas pengguna secara terintegrasi.
+**OSINTRA** adalah sistem manajemen organisasi berbasis web yang dirancang untuk mendigitalisasi seluruh aktivitas OSIS, mulai dari manajemen anggota, program kerja, jabatan, divisi, transaksi keuangan, hingga audit aktivitas pengguna secara terintegrasi.
 
 ---
 
@@ -155,6 +155,11 @@ Website sudah **FINAL**. Saat ini hanya tinggal menunggu perbaikan bug minor (ji
 Dikembangkan dengan ❤️ oleh:
 - **Roodiext Production**
 - **ClaveoraDev**
+
+---
+
+## 📄 License
+Proyek ini dilindungi di bawah lisensi custom. Penggunaan untuk tujuan komersial atau pendistribusian ulang tanpa izin tertulis dari pengembang tidak diperbolehkan. Lihat file [LICENSE](./LICENSE) untuk detail lebih lanjut.
 
 ---
 © 2026 WEB-OSINTRA. All rights reserved.
