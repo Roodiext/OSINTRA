@@ -9,13 +9,15 @@
 
 Dalam membangun website ini, kami menggunakan teknologi modern untuk memastikan performa dan keamanan:
 
-- **Frontend Framework**: [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
-- **Backend Framework**: [Laravel 12](https://laravel.com/)
-- **CMS & Bridge**: [Inertia.js](https://inertiajs.com/) (Menghubungkan Laravel & React dengan mulus tanpa API tradisional)
-- **Database**: MySQL / MariaDB
-- **Styling**: [Tailwind CSS 4.0](https://tailwindcss.com/)
-- **Animations**: [GSAP](https://greensock.com/gsap/), [Framer Motion](https://www.framer.com/motion/), [ScrollReveal](https://scrollrevealjs.org/)
-- **Build Tool**: [Vite](https://vitejs.dev/)
+| Komponen | Teknologi | Logo |
+| :--- | :--- | :--- |
+| **Frontend Framework** | React 19 + TypeScript | ![React](https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB) ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white) |
+| **Backend Framework** | Laravel 12 | ![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=flat-square&logo=laravel&logoColor=white) |
+| **CMS & Bridge** | Inertia.js | ![Inertia.js](https://img.shields.io/badge/Inertia.js-9553E9?style=flat-square&logo=inertia&logoColor=white) |
+| **Database** | MySQL | ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white) |
+| **Styling** | Tailwind CSS 4.0 | ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white) |
+| **Animations** | GSAP & Framer Motion | ![GSAP](https://img.shields.io/badge/GSAP-88CE02?style=flat-square&logo=greensock&logoColor=white) ![Framer](https://img.shields.io/badge/Framer_Motion-0055FF?style=flat-square&logo=framer&logoColor=white) |
+| **Build Tool** | Vite | ![Vite](https://img.shields.io/badge/Vite-B73BFE?style=flat-square&logo=vite&logoColor=FFD62E) |
 
 ---
 
@@ -54,63 +56,93 @@ WEB-OSINTRA/
 ## 📸 Tampilan Website
 
 ### 🌐 Tampilan Public
-Berikut adalah tampilan untuk pengunjung umum:
+<p align="left">
+  <strong>1. Homepage</strong><br>
+  <img src="screenshot/public/homepage.jpg" width="700" alt="Homepage">
+</p>
 
-#### 1. Homepage
-![Homepage](screenshot/public/homepage.jpg)
+<p align="left">
+  <strong>2. About</strong><br>
+  <img src="screenshot/public/about.jpg" width="700" alt="About">
+</p>
 
-#### 2. About
-![About](screenshot/public/about.jpg)
+<p align="left">
+  <strong>3. Sambutan</strong><br>
+  <img src="screenshot/public/sambutan.jpg" width="700" alt="Sambutan">
+</p>
 
-#### 3. Sambutan
-![Sambutan](screenshot/public/sambutan.jpg)
+<p align="left">
+  <strong>4. Struktur Organisasi</strong><br>
+  <img src="screenshot/public/struktur.jpg" width="700" alt="Struktur">
+</p>
 
-#### 4. Struktur Organisasi
-![Struktur](screenshot/public/struktur.jpg)
+<p align="left">
+  <strong>5. Galeri Kegiatan</strong><br>
+  <img src="screenshot/public/galeri.jpg" width="700" alt="Galeri">
+</p>
 
-#### 5. Galeri Kegiatan
-![Galeri](screenshot/public/galeri.jpg)
-
-#### 6. Contact
-![Contact](screenshot/public/contact.jpg)
+<p align="left">
+  <strong>6. Contact</strong><br>
+  <img src="screenshot/public/contact.jpg" width="700" alt="Contact">
+</p>
 
 ---
 
 ### 📊 Dashboard Internal
-Tampilan dashboard untuk pengelola OSIS (Login Required):
+<p align="left">
+  <strong>1. Login</strong><br>
+  <img src="screenshot/login/login.jpg" width="700" alt="Login">
+</p>
 
-#### 1. Login
-![Login](screenshot/login/login.jpg)
+<p align="left">
+  <strong>2. Dashboard Utama</strong><br>
+  <img src="screenshot/internal/dashboard.jpg" width="700" alt="Dashboard">
+</p>
 
-#### 2. Dashboard Utama
-![Dashboard](screenshot/internal/dashboard.jpg)
+<p align="left">
+  <strong>3. Manajemen Divisi</strong><br>
+  <img src="screenshot/internal/divisi.jpg" width="700" alt="Divisi">
+</p>
 
-#### 3. Manajemen Divisi
-![Divisi](screenshot/internal/divisi.jpg)
+<p align="left">
+  <strong>4. Manajemen Posisi/Jabatan</strong><br>
+  <img src="screenshot/internal/posisi.jpg" width="700" alt="Posisi">
+</p>
 
-#### 4. Manajemen Posisi/Jabatan
-![Posisi](screenshot/internal/posisi.jpg)
+<p align="left">
+  <strong>5. Manajemen Pengguna</strong><br>
+  <img src="screenshot/internal/pengguna.jpg" width="700" alt="Pengguna">
+</p>
 
-#### 5. Manajemen Pengguna
-![Pengguna](screenshot/internal/pengguna.jpg)
+<p align="left">
+  <strong>6. Program Kerja</strong><br>
+  <img src="screenshot/internal/proker.jpg" width="700" alt="Program Kerja">
+</p>
 
-#### 6. Program Kerja
-![Program Kerja](screenshot/internal/proker.jpg)
+<p align="left">
+  <strong>7. Pesan Masuk</strong><br>
+  <img src="screenshot/internal/pesan.jpg" width="700" alt="Pesan">
+</p>
 
-#### 7. Pesan Masuk
-![Pesan](screenshot/internal/pesan.jpg)
+<p align="left">
+  <strong>8. Laporan Keuangan</strong><br>
+  <img src="screenshot/internal/keuangan.jpg" width="700" alt="Keuangan">
+</p>
 
-#### 8. Laporan Keuangan
-![Keuangan](screenshot/internal/keuangan.jpg)
+<p align="left">
+  <strong>9. Log Aktivitas</strong><br>
+  <img src="screenshot/internal/aktivitas.jpg" width="700" alt="Log Aktivitas">
+</p>
 
-#### 9. Log Aktivitas
-![Log Aktivitas](screenshot/internal/aktivitas.jpg)
+<p align="left">
+  <strong>10. Pengaturan Aplikasi</strong><br>
+  <img src="screenshot/internal/pengaturan.jpg" width="700" alt="Pengaturan">
+</p>
 
-#### 10. Pengaturan Aplikasi
-![Pengaturan](screenshot/internal/pengaturan.jpg)
-
-#### 11. Profil Pengguna
-![Profil](screenshot/internal/profil.jpg)
+<p align="left">
+  <strong>11. Profil Pengguna</strong><br>
+  <img src="screenshot/internal/profil.jpg" width="700" alt="Profil">
+</p>
 
 ---
 
