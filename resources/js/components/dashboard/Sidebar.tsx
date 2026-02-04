@@ -20,9 +20,10 @@ import logo from '../../../asset/icon/osis-logo.png';
 interface SidebarProps {
     isOpen: boolean;
     onClose: () => void;
+    logoUrl?: string;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, logoUrl }) => {
     // Try to fetch user from localStorage (set on login) or fallback
     const stored = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
     const user = stored ? JSON.parse(stored) : { name: 'Admin', role: { name: 'Admin' } };
@@ -81,7 +82,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                     <div className="p-4 border-b border-[#4A5F49] flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-[#E8DCC3] rounded-full flex items-center justify-center p-1.5 shadow-lg overflow-hidden">
-                                <img src={logo} alt="OSIS Logo" className="w-full h-full object-contain" />
+                                <img src={logoUrl || logo} alt="OSIS Logo" className="w-full h-full object-contain" />
                             </div>
                             <div>
                                 <p className="text-sm text-[#E8DCC3]/90 font-semibold">OSVIS</p>

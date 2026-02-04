@@ -29,20 +29,27 @@ api.interceptors.response.use(
     (error) => {
         const status = error.response?.status;
         const message = error.response?.data?.message;
-        
+
         if (status === 401) {
-            console.warn('❌ Unauthorized (401) - Clearing auth and redirecting to login');
-            console.warn('   Message:', message);
-            localStorage.removeItem('auth_token');
-            localStorage.removeItem('user');
-            localStorage.removeItem('auth_verified');
-            window.location.href = '/login';
+            // Only redirect if user is on a protected route (dashboard)
+            const currentPath = window.location.pathname;
+            const isProtectedRoute = currentPath.startsWith('/dashboard');
+
+            if (isProtectedRoute) {
+                console.warn('❌ Unauthorized (401) on protected route - Redirecting to login');
+                localStorage.removeItem('auth_token');
+                localStorage.removeItem('user');
+                localStorage.removeItem('auth_verified');
+                window.location.href = '/login';
+            } else {
+                console.warn('⚠️ Unauthorized (401) on public route - Ignoring redirect');
+            }
         } else if (status === 403) {
             console.warn('❌ Forbidden (403) - Access denied');
         } else if (status === 500) {
             console.error('❌ Server error (500)', message);
         }
-        
+
         return Promise.reject(error);
     }
 );

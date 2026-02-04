@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\SettingController;
 
 // Public routes
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/public-settings', [SettingController::class, 'getPublicSettings']); // Public config
 Route::post('/messages', [MessageController::class, 'store']); // Public contact form
 
 // Public data endpoints
@@ -26,6 +27,7 @@ Route::get('/divisions', [DivisionController::class, 'index']);
 Route::get('/proker-media', [ProkerController::class, 'getAllMedia']);
 Route::get('/prokers/{proker}', [ProkerController::class, 'show']);
 Route::get('/prokers', [ProkerController::class, 'index']);
+Route::get('/positions', [\App\Http\Controllers\Api\PositionController::class, 'index']);
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -39,7 +41,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index']);
 
     // Divisions
-    Route::get('divisions', [DivisionController::class, 'index']); // Public read
     Route::post('divisions', [DivisionController::class, 'store'])
         ->middleware('permission:Divisions,create');
     Route::get('divisions/{division}', [DivisionController::class, 'show']);
@@ -60,7 +61,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users/search', [UserController::class, 'search']);
 
     // Prokers (protected routes)
-    Route::get('/prokers', [ProkerController::class, 'index']);
     Route::post('/prokers', [ProkerController::class, 'store'])
         ->middleware('permission:Prokers,create');
     Route::get('/prokers/{proker}', [ProkerController::class, 'show']);
@@ -113,6 +113,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Settings
     Route::get('/settings', [SettingController::class, 'index']);
     Route::put('/settings', [SettingController::class, 'update']);
+    Route::post('/settings/logo', [SettingController::class, 'uploadLogo']);
+    Route::post('/settings/ketos-image', [SettingController::class, 'uploadKetosImage']);
     Route::put('/settings/roles/{role}', [\App\Http\Controllers\Settings\RolePermissionController::class, 'update'])
         ->middleware(\App\Http\Middleware\EnsureUserIsAdmin::class);
     Route::get('/roles', [SettingController::class, 'getRoles']);
@@ -120,7 +122,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/audit-logs', [SettingController::class, 'getAuditLogs']);
     
     // Positions
-    Route::get('positions', [\App\Http\Controllers\Api\PositionController::class, 'index']);
     Route::post('positions', [\App\Http\Controllers\Api\PositionController::class, 'store'])
         ->middleware('permission:Positions,create');
     Route::put('positions/{position}', [\App\Http\Controllers\Api\PositionController::class, 'update'])

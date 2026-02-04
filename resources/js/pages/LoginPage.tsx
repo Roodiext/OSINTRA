@@ -9,6 +9,21 @@ const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const [logoUrl, setLogoUrl] = useState<string | null>(null);
+
+    React.useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const response = await api.get('/public-settings');
+                if (response.data.site_logo) {
+                    setLogoUrl(response.data.site_logo);
+                }
+            } catch (error) {
+                console.error('Failed to fetch logo:', error);
+            }
+        };
+        fetchSettings();
+    }, []);
 
     const handleSubmit = async (e?: React.FormEvent | React.MouseEvent) => {
         e?.preventDefault();
@@ -120,7 +135,7 @@ const LoginPage = () => {
                 <div className="text-center mb-8">
                     <div className="inline-block mb-4">
                         <div className="w-20 h-25 flex items-center justify-center">
-                            <img src={logo} alt="OSINTRA" className="w-full h-full object-contain" />
+                            <img src={logoUrl || logo} alt="OSINTRA" className="w-full h-full object-contain" />
                         </div>
                     </div>
                     <h1 className="text-4xl font-bold text-[#3B4D3A] mb-2 tracking-tight">OSVIS</h1>
