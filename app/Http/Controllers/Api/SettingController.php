@@ -25,7 +25,7 @@ class SettingController extends Controller
      */
     public function getPublicSettings()
     {
-        $keys = ['site_name', 'academic_period', 'osis_vision', 'osis_mission', 'maintenance_mode', 'site_logo'];
+        $keys = ['site_name', 'academic_period', 'osis_vision', 'osis_mission', 'maintenance_mode', 'site_logo', 'ketos_name', 'ketos_periode', 'ketos_sambutan', 'ketos_image'];
         $settings = AppSetting::whereIn('key', $keys)->pluck('value', 'key');
         return response()->json($settings);
     }
@@ -40,8 +40,25 @@ class SettingController extends Controller
         ]);
 
         if ($request->file('logo')) {
-            $path = $request->file('logo')->store('uploads', 'public');
-            $url = '/storage/' . $path;
+            $file = $request->file('logo');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $destinationPath = public_path('uploads/logo');
+            
+            // Ensure directory exists
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+
+            // Clean up old logos: User requested "maximum 1 photo", so we delete all existing files in this folder
+            $files = glob($destinationPath . '/*'); 
+            foreach($files as $existingFile){ 
+                if(is_file($existingFile)) {
+                    unlink($existingFile);
+                }
+            }
+
+            $file->move($destinationPath, $fileName);
+            $url = '/uploads/logo/' . $fileName;
             
             AppSetting::set('site_logo', $url);
 
@@ -50,6 +67,49 @@ class SettingController extends Controller
             return response()->json([
                 'url' => $url,
                 'message' => 'Logo uploaded successfully'
+            ]);
+        }
+
+        return response()->json(['message' => 'No file uploaded'], 400);
+    }
+
+    /**
+     * Upload Ketos Image.
+     */
+    public function uploadKetosImage(Request $request)
+    {
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,svg|max:5048',
+        ]);
+
+        if ($request->file('image')) {
+            $file = $request->file('image');
+            $fileName = time() . '_ketos_' . $file->getClientOriginalName();
+            $destinationPath = public_path('uploads/ketos');
+            
+            // Ensure directory exists
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+
+            // Clean up old images
+            $files = glob($destinationPath . '/*'); 
+            foreach($files as $existingFile){ 
+                if(is_file($existingFile)) {
+                    unlink($existingFile);
+                }
+            }
+
+            $file->move($destinationPath, $fileName);
+            $url = '/uploads/ketos/' . $fileName;
+            
+            AppSetting::set('ketos_image', $url);
+
+            AuditLog::log('update_settings', 'Updated ketos image');
+
+            return response()->json([
+                'url' => $url,
+                'message' => 'Ketos image uploaded successfully'
             ]);
         }
 

@@ -37,8 +37,8 @@ router.on('before', (event) => {
 // Handle 401/403 responses - redirect to login
 router.on('error', (event) => {
     console.error('❌ Inertia error:', event.detail.errors);
-    
-    if (event.detail.errors?.message === 'Unauthenticated.' || event.detail.status === 401) {
+
+    if (event.detail.errors?.message === 'Unauthenticated.' || (event.detail as any).status === 401) {
         console.log('🚀 Redirecting to login due to 401...');
         localStorage.removeItem('auth_token');
         localStorage.removeItem('user');
@@ -49,7 +49,7 @@ router.on('error', (event) => {
 // Verify token validity on app load
 const verifyToken = async () => {
     const storedToken = localStorage.getItem('auth_token');
-    
+
     // If no token, skip verification
     if (!storedToken) {
         console.log('🔓 No auth token found, skipping verification');
@@ -74,18 +74,18 @@ const verifyToken = async () => {
         const response = await verifyAxios.get('/me', {
             timeout: 10000, // 10 second timeout
         });
-        
+
         // Token is valid
         if (response.data?.user) {
             console.log('✅ Token verified successfully, user:', response.data.user.name);
-            
+
             // Store user and token
             localStorage.setItem('user', JSON.stringify(response.data.user));
             localStorage.setItem('auth_token', storedToken);
-            
+
             // Ensure token is in default axios headers
             axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
-            
+
             console.log('✅ Auth state restored');
             return true;
         }
@@ -94,12 +94,12 @@ const verifyToken = async () => {
         // Token is invalid or expired
         const status = error.response?.status;
         console.warn(`❌ Token verification failed (${status})`);
-        
+
         // Clear invalid token
         localStorage.removeItem('auth_token');
         localStorage.removeItem('user');
         axios.defaults.headers.common['Authorization'] = '';
-        
+
         return false;
     }
 };
@@ -133,6 +133,26 @@ const initializeApp = async () => {
 
     // Set light / dark mode on load
     initializeTheme();
+
+    // Update Favicon based on settings
+    const updateFavicon = async () => {
+        try {
+            const response = await axios.get('/api/public-settings');
+            const logoUrl = response.data?.site_logo;
+
+            if (logoUrl) {
+                const linkIcon = document.querySelector("link[rel*='icon']") as HTMLLinkElement;
+                const linkApple = document.querySelector("link[rel*='apple-touch-icon']") as HTMLLinkElement;
+
+                if (linkIcon) linkIcon.href = logoUrl;
+                if (linkApple) linkApple.href = logoUrl;
+            }
+        } catch (error) {
+            console.error('Failed to update favicon:', error);
+        }
+    };
+
+    updateFavicon();
 };
 
 // Start app initialization

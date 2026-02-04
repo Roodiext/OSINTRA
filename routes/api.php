@@ -114,6 +114,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/settings', [SettingController::class, 'index']);
     Route::put('/settings', [SettingController::class, 'update']);
     Route::post('/settings/logo', [SettingController::class, 'uploadLogo']);
+    Route::post('/settings/ketos-image', [SettingController::class, 'uploadKetosImage']);
     Route::put('/settings/roles/{role}', [\App\Http\Controllers\Settings\RolePermissionController::class, 'update'])
         ->middleware(\App\Http\Middleware\EnsureUserIsAdmin::class);
     Route::get('/roles', [SettingController::class, 'getRoles']);

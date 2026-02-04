@@ -13,7 +13,8 @@ import {
     RefreshCw,
     AlertTriangle,
     CheckCircle2,
-    FileText
+    FileText,
+    Users
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import api from '@/lib/axios';
@@ -38,6 +39,15 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
     const [publicAccess, setPublicAccess] = useState(true);
     const [vision, setVision] = useState('');
     const [mission, setMission] = useState('');
+
+    // Ketos State
+    const [ketosName, setKetosName] = useState('');
+    const [ketosPeriode, setKetosPeriode] = useState('');
+    const [ketosSambutan, setKetosSambutan] = useState('');
+    const [ketosImagePreview, setKetosImagePreview] = useState<string | null>(null);
+    const [ketosImageFile, setKetosImageFile] = useState<File | null>(null);
+    const ketosFileInputRef = useRef<HTMLInputElement>(null);
+
     const [loading, setLoading] = useState(false);
 
     // Fetch settings on mount
@@ -53,6 +63,10 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
                     if (settings.osis_vision) setVision(settings.osis_vision);
                     if (settings.osis_mission) setMission(settings.osis_mission);
                     if (settings.site_logo) setLogoPreview(settings.site_logo);
+                    if (settings.ketos_name) setKetosName(settings.ketos_name);
+                    if (settings.ketos_periode) setKetosPeriode(settings.ketos_periode);
+                    if (settings.ketos_sambutan) setKetosSambutan(settings.ketos_sambutan);
+                    if (settings.ketos_image) setKetosImagePreview(settings.ketos_image);
                 }
             } catch (error) {
                 console.error('Failed to fetch settings:', error);
@@ -132,6 +146,22 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
         }
     };
 
+    // Handle Ketos Image Selection
+    const handleKetosFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            // Check size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                Swal.fire('Error', 'Ukuran file maksimal 5MB', 'error');
+                return;
+            }
+            setKetosImageFile(file);
+            // Create preview
+            const objectUrl = URL.createObjectURL(file);
+            setKetosImagePreview(objectUrl);
+        }
+    };
+
     // Save Logic
     const handleSave = async () => {
         setLoading(true);
@@ -141,6 +171,15 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
                 const formData = new FormData();
                 formData.append('logo', logoFile);
                 await api.post('/settings/logo', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+            }
+
+            // 1b. Upload Ketos Image if exists
+            if (ketosImageFile) {
+                const formData = new FormData();
+                formData.append('image', ketosImageFile);
+                await api.post('/settings/ketos-image', formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
             }
@@ -155,6 +194,9 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
                     { key: 'maintenance_mode', value: maintenanceMode ? '1' : '0' },
                     { key: 'osis_vision', value: vision },
                     { key: 'osis_mission', value: mission },
+                    { key: 'ketos_name', value: ketosName },
+                    { key: 'ketos_periode', value: ketosPeriode },
+                    { key: 'ketos_sambutan', value: ketosSambutan },
                 ]
             });
 
@@ -163,6 +205,8 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
                 text: 'Konfigurasi sistem telah diperbarui.',
                 icon: 'success',
                 confirmButtonColor: '#3B4D3A'
+            }).then(() => {
+                window.location.reload();
             });
         } catch (error) {
             console.error('Failed to save settings:', error);
@@ -217,7 +261,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
                             Pengaturan Sistem
                         </h1>
                         <p className="text-gray-500 mt-1">
-                            Kelola konfigurasi dasar dan tampilan aplikasi
+                            Kelola konfigurasi dasar dan tampilan website
                         </p>                    </div>
 
                     {/* Save button removed from header as per request */}
@@ -339,6 +383,116 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
                                     >
                                         {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                                         Simpan Visi & Misi
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* CARD: Sambutan Ketua OSIS */}
+                        <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
+                            <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
+                                <div className="p-2.5 bg-[#E8DCC3]/30 rounded-xl text-[#3B4D3A]">
+                                    <Users className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-bold text-[#3B4D3A]">Sambutan Ketua OSIS</h2>
+                                    <p className="text-sm text-gray-400">Profil dan kata sambutan Ketua OSIS</p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="block text-sm font-semibold text-[#3B4D3A] mb-2">Nama Ketua OSIS</label>
+                                        <input
+                                            type="text"
+                                            value={ketosName}
+                                            onChange={(e) => setKetosName(e.target.value)}
+                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#3B4D3A]/20 focus:border-[#3B4D3A] transition-all bg-gray-50 focus:bg-white"
+                                            placeholder="Nama lengkap..."
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-[#3B4D3A] mb-2">Periode Menjabat</label>
+                                        <input
+                                            type="text"
+                                            value={ketosPeriode}
+                                            onChange={(e) => setKetosPeriode(e.target.value)}
+                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#3B4D3A]/20 focus:border-[#3B4D3A] transition-all bg-gray-50 focus:bg-white"
+                                            placeholder="Contoh: 2025/2026"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-[#3B4D3A] mb-2">Kata Sambutan</label>
+                                    <textarea
+                                        value={ketosSambutan}
+                                        onChange={(e) => setKetosSambutan(e.target.value)}
+                                        rows={5}
+                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#3B4D3A]/20 focus:border-[#3B4D3A] transition-all bg-gray-50 focus:bg-white resize-y"
+                                        placeholder="Tuliskan kata sambutan..."
+                                    />
+                                </div>
+
+                                {/* Foto Upload Section */}
+                                <div className="space-y-4">
+                                    <label className="block text-sm font-semibold text-[#3B4D3A]">Foto Ketua OSIS</label>
+                                    <div className="flex flex-col sm:flex-row items-center gap-6 p-4 border border-gray-100 rounded-2xl bg-gray-50/50">
+                                        <div className="relative w-24 h-32 flex-shrink-0 rounded-xl bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden">
+                                            {ketosImagePreview ? (
+                                                <img src={ketosImagePreview} alt="Ketos Preview" className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="text-center p-2">
+                                                    <Users className="w-8 h-8 text-gray-300 mx-auto mb-1" />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="flex-1 w-full">
+                                            <div className="flex gap-3">
+                                                <input
+                                                    ref={ketosFileInputRef}
+                                                    type="file"
+                                                    className="hidden"
+                                                    accept="image/*"
+                                                    onChange={handleKetosFileSelect}
+                                                />
+                                                <button
+                                                    onClick={() => ketosFileInputRef.current?.click()}
+                                                    className="px-4 py-2 bg-white border border-gray-200 text-[#3B4D3A] font-semibold rounded-xl hover:bg-gray-50 transition-all shadow-sm flex items-center gap-2 text-sm"
+                                                >
+                                                    <Upload className="w-4 h-4" />
+                                                    Pilih Foto
+                                                </button>
+
+                                                {(ketosImageFile || ketosImagePreview) && (
+                                                    <button
+                                                        onClick={() => {
+                                                            setKetosImagePreview(null);
+                                                            setKetosImageFile(null);
+                                                        }}
+                                                        className="px-4 py-2 border border-red-200 text-red-600 font-semibold rounded-xl hover:bg-red-50 transition-all text-sm"
+                                                    >
+                                                        Hapus
+                                                    </button>
+                                                )}
+                                            </div>
+                                            <p className="text-xs text-gray-500 mt-2">
+                                                Format: JPG, PNG. Max 5MB. Disarankan rasio potret (4:5).
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-end pt-2">
+                                    <button
+                                        onClick={handleSave}
+                                        disabled={loading}
+                                        className="px-6 py-2.5 bg-[#3B4D3A] text-white font-semibold rounded-xl hover:bg-[#2d3a2d] transition-all shadow-sm flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                                    >
+                                        {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                                        Simpan Sambutan
                                     </button>
                                 </div>
                             </div>
