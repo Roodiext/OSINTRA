@@ -21,11 +21,19 @@ const AboutSection: React.FC = () => {
     useEffect(() => {
         const fetchSettings = async () => {
             try {
-                const response = await api.get('/settings');
-                setVision(response.data.osis_vision || 'Mewujudkan OSIS sebagai wadah aspirasi siswa yang inklusif, adaptif terhadap teknologi, dan berintegritas tinggi.');
-                setMission(response.data.osis_mission || 'Mengembangkan potensi kepemimpinan siswa melalui kolaborasi program kerja yang inovatif dan berdampak nyata bagi lingkungan sekolah.');
+                // Fetch from PUBLIC endpoint (no auth required)
+                const response = await api.get('/public-settings');
+                const data = response.data;
+
+                if (data.osis_vision) {
+                    setVision(data.osis_vision);
+                }
+                if (data.osis_mission) {
+                    setMission(data.osis_mission);
+                }
             } catch (error) {
                 console.error('Failed to fetch settings:', error);
+                // Keep default values if fetch fails
             }
         };
         fetchSettings();

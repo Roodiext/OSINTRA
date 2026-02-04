@@ -21,6 +21,42 @@ class SettingController extends Controller
     }
 
     /**
+     * Get public app settings (safe for guests).
+     */
+    public function getPublicSettings()
+    {
+        $keys = ['site_name', 'academic_period', 'osis_vision', 'osis_mission', 'maintenance_mode', 'site_logo'];
+        $settings = AppSetting::whereIn('key', $keys)->pluck('value', 'key');
+        return response()->json($settings);
+    }
+
+    /**
+     * Upload logo.
+     */
+    public function uploadLogo(Request $request)
+    {
+        $request->validate([
+            'logo' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
+        ]);
+
+        if ($request->file('logo')) {
+            $path = $request->file('logo')->store('uploads', 'public');
+            $url = '/storage/' . $path;
+            
+            AppSetting::set('site_logo', $url);
+
+            AuditLog::log('update_settings', 'Updated site logo');
+
+            return response()->json([
+                'url' => $url,
+                'message' => 'Logo uploaded successfully'
+            ]);
+        }
+
+        return response()->json(['message' => 'No file uploaded'], 400);
+    }
+
+    /**
      * Update app settings.
      */
     public function update(Request $request)

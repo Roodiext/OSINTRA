@@ -10,7 +10,11 @@ const links = [
   { label: 'Kontak', href: '/contact' },
 ];
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+  logoUrl?: string;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ logoUrl = '/build/assets/osis-logo-mBAtwUV-.png' }) => {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeLink, setActiveLink] = useState('/');
@@ -105,7 +109,7 @@ const Navbar: React.FC = () => {
             >
               <div className="relative">
                 <div className={`absolute inset-0 bg-gradient-to-tr ${showScrolledState ? 'from-[#3B4D3A] to-[#E8DCC3]' : 'from-[#E8DCC3] to-white'} opacity-20 blur-lg rounded-full group-hover:opacity-40 transition-all`} />
-                <img src="/build/assets/osis-logo-mBAtwUV-.png" alt="OSIS" className="relative w-9 h-9 object-contain group-hover:scale-110 transition-transform duration-300 drop-shadow-sm" />
+                <img src={logoUrl} alt="OSIS" className="relative w-9 h-9 object-contain group-hover:scale-110 transition-transform duration-300 drop-shadow-sm" />
               </div>
               <span className={`font-bold text-lg tracking-tight transition-colors duration-300 ${logoText}`}>OSVIS</span>
             </a>
