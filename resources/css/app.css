@@ -156,10 +156,14 @@
 
     html {
         scroll-behavior: smooth;
+        /* Reduce overall size to 90% for better viewing at 100% zoom */
+        font-size: 90%;
     }
 
     body {
         @apply bg-background text-foreground;
+        /* Apply global scaling to make everything appear 10% smaller */
+        transform-origin: top center;
     }
 
     /* Force a readable dark text color for form controls (no light/dark mode)
