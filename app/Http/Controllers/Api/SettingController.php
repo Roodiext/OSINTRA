@@ -25,7 +25,7 @@ class SettingController extends Controller
      */
     public function getPublicSettings()
     {
-        $keys = ['site_name', 'academic_period', 'osis_vision', 'osis_mission', 'maintenance_mode', 'site_logo', 'ketos_name', 'ketos_periode', 'ketos_sambutan', 'ketos_image'];
+        $keys = ['site_name', 'academic_period', 'osis_vision', 'osis_mission', 'maintenance_mode', 'site_logo', 'ketos_name', 'ketos_periode', 'ketos_sambutan', 'ketos_image', 'hero_image'];
         $settings = AppSetting::whereIn('key', $keys)->pluck('value', 'key');
         return response()->json($settings);
     }
@@ -110,6 +110,50 @@ class SettingController extends Controller
             return response()->json([
                 'url' => $url,
                 'message' => 'Ketos image uploaded successfully'
+            ]);
+        }
+
+        return response()->json(['message' => 'No file uploaded'], 400);
+    }
+
+    /**
+     * Upload Hero Image.
+     */
+    public function uploadHeroImage(Request $request)
+    {
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120', // Support WebP, max 5MB
+        ]);
+
+        if ($request->file('image')) {
+            $file = $request->file('image');
+            $cleanName = preg_replace('/[^a-zA-Z0-9._-]/', '_', $file->getClientOriginalName());
+            $fileName = time() . '_hero_' . $cleanName;
+            $destinationPath = public_path('uploads/hero');
+            
+            // Ensure directory exists
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+
+            // Clean up old images (Single Image Policy)
+            $files = glob($destinationPath . '/*'); 
+            foreach($files as $existingFile){ 
+                if(is_file($existingFile)) {
+                    unlink($existingFile);
+                }
+            }
+
+            $file->move($destinationPath, $fileName);
+            $url = '/uploads/hero/' . $fileName;
+            
+            AppSetting::set('hero_image', $url);
+
+            AuditLog::log('update_settings', 'Updated hero image');
+
+            return response()->json([
+                'url' => $url,
+                'message' => 'Hero image uploaded successfully'
             ]);
         }
 

@@ -224,17 +224,9 @@ class ProkerController extends Controller
         
         // Move directly to public/assets
         $file->move(public_path('assets'), $filename);
-        $fullPath = public_path('assets/' . $filename);
-
-        // Generate Thumbnail (Max 800px)
-        try {
-            if ($mediaType === 'image') {
-                $this->generateThumbnail($fullPath);
-            }
-        } catch (\Exception $e) {
-            // Log error but continue (thumbnail is optional)
-            \Log::error('Thumbnail generation failed: ' . $e->getMessage());
-        }
+        
+        // Removed Thumbnail Generation per user request to avoid file duplication
+        // $this->generateThumbnail($fullPath);
         
         // URL is now direct
         $mediaUrl = '/assets/' . $filename;
@@ -293,8 +285,17 @@ class ProkerController extends Controller
         if (str_starts_with($media->media_url, '/assets/')) {
             $filename = basename($media->media_url);
             $filePath = public_path('assets/' . $filename);
+            
+            // Delete main file
             if (file_exists($filePath)) {
                 unlink($filePath);
+            }
+
+            // Delete thumbnail file if exists (cleanup old files)
+            $pathInfo = pathinfo($filePath);
+            $thumbPath = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '_thumb.' . $pathInfo['extension'];
+            if (file_exists($thumbPath)) {
+                unlink($thumbPath);
             }
         }
         
@@ -393,63 +394,5 @@ class ProkerController extends Controller
         return response()->json($media);
     }
 
-    /**
-     * Generate a thumbnail for the given image path.
-     */
-    private function generateThumbnail($sourcePath)
-    {
-        list($width, $height, $type) = getimagesize($sourcePath);
-        
-        // Target size
-        $maxSize = 800;
-        if ($width <= $maxSize && $height <= $maxSize) {
-            return; // No need to resize
-        }
 
-        $ratio = $width / $height;
-        if ($ratio > 1) {
-            $newWidth = $maxSize;
-            $newHeight = $maxSize / $ratio;
-        } else {
-            $newHeight = $maxSize;
-            $newWidth = $maxSize * $ratio;
-        }
-
-        // Create image resource
-        $src = null;
-        switch ($type) {
-            case IMAGETYPE_JPEG: $src = imagecreatefromjpeg($sourcePath); break;
-            case IMAGETYPE_PNG:  $src = imagecreatefrompng($sourcePath); break;
-            case IMAGETYPE_WEBP: $src = imagecreatefromwebp($sourcePath); break;
-            case IMAGETYPE_GIF:  $src = imagecreatefromgif($sourcePath); break;
-        }
-
-        if (!$src) return;
-
-        $dst = imagecreatetruecolor($newWidth, $newHeight);
-
-        // Handle transparency
-        if ($type == IMAGETYPE_PNG || $type == IMAGETYPE_WEBP || $type == IMAGETYPE_GIF) {
-            imagecolortransparent($dst, imagecolorallocatealpha($dst, 0, 0, 0, 127));
-            imagealphablending($dst, false);
-            imagesavealpha($dst, true);
-        }
-
-        // Resize
-        imagecopyresampled($dst, $src, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
-
-        // Save thumbnail
-        $pathInfo = pathinfo($sourcePath);
-        $thumbPath = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '_thumb.' . $pathInfo['extension'];
-
-        switch ($type) {
-            case IMAGETYPE_JPEG: imagejpeg($dst, $thumbPath, 80); break;
-            case IMAGETYPE_PNG:  imagepng($dst, $thumbPath, 8); break;
-            case IMAGETYPE_WEBP: imagewebp($dst, $thumbPath, 80); break;
-            case IMAGETYPE_GIF:  imagegif($dst, $thumbPath); break;
-        }
-
-        imagedestroy($src);
-        imagedestroy($dst);
-    }
 }

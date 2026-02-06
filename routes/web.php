@@ -11,7 +11,10 @@ use Inertia\Inertia;
 
 // Public Page - OSINTRA (Accessible without login)
 Route::get('/', function () {
-    return Inertia::render('PublicPage');
+    $heroImage = \App\Models\AppSetting::where('key', 'hero_image')->value('value');
+    return Inertia::render('PublicPage', [
+        'heroImage' => $heroImage
+    ]);
 })->name('home');
 
 // Simple public routes for individual sections/pages
