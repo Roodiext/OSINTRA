@@ -1,7 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 
-const HeroSection: React.FC = () => {
+interface HeroSectionProps {
+    initialImage?: string;
+}
+
+const HeroSection: React.FC<HeroSectionProps> = ({ initialImage }) => {
+    const [bgImage] = useState(initialImage || '/osvis-team.jpg');
+
     const scrollToAbout = () => {
         document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
     };
@@ -13,7 +19,7 @@ const HeroSection: React.FC = () => {
             <div
                 className="absolute inset-0 z-0"
                 style={{
-                    backgroundImage: 'url(/osvis-team.jpg)',
+                    backgroundImage: `url('${bgImage}')`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat',

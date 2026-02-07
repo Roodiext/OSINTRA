@@ -48,6 +48,11 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
     const [ketosImageFile, setKetosImageFile] = useState<File | null>(null);
     const ketosFileInputRef = useRef<HTMLInputElement>(null);
 
+    // Hero Image State
+    const [heroImagePreview, setHeroImagePreview] = useState<string | null>(null);
+    const [heroImageFile, setHeroImageFile] = useState<File | null>(null);
+    const heroFileInputRef = useRef<HTMLInputElement>(null);
+
     const [loading, setLoading] = useState(false);
 
     // Fetch settings on mount
@@ -67,6 +72,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
                     if (settings.ketos_periode) setKetosPeriode(settings.ketos_periode);
                     if (settings.ketos_sambutan) setKetosSambutan(settings.ketos_sambutan);
                     if (settings.ketos_image) setKetosImagePreview(settings.ketos_image);
+                    if (settings.hero_image) setHeroImagePreview(settings.hero_image);
                 }
             } catch (error) {
                 console.error('Failed to fetch settings:', error);
@@ -162,6 +168,29 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
         }
     };
 
+    // Handle Hero Image Selection
+    const handleHeroFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            // Check size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                Swal.fire('Error', 'Ukuran file maksimal 5MB', 'error');
+                return;
+            }
+            // Check format
+            const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+            if (!validTypes.includes(file.type)) {
+                Swal.fire('Error', 'Format file tidak didukung. Gunakan JPG, PNG, atau WEBP.', 'error');
+                return;
+            }
+
+            setHeroImageFile(file);
+            // Create preview
+            const objectUrl = URL.createObjectURL(file);
+            setHeroImagePreview(objectUrl);
+        }
+    };
+
     // Save Logic
     const handleSave = async () => {
         setLoading(true);
@@ -180,6 +209,15 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
                 const formData = new FormData();
                 formData.append('image', ketosImageFile);
                 await api.post('/settings/ketos-image', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+            }
+
+            // 1c. Upload Hero Image if exists
+            if (heroImageFile) {
+                const formData = new FormData();
+                formData.append('image', heroImageFile);
+                await api.post('/settings/hero-image', formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
             }
@@ -494,6 +532,77 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
                                         {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                                         Simpan Sambutan
                                     </button>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        {/* CARD: Hero Section Image */}
+                        <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
+                            <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
+                                <div className="p-2.5 bg-[#E8DCC3]/30 rounded-xl text-[#3B4D3A]">
+                                    <ImageIcon className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-bold text-[#3B4D3A]">Gambar Hero Section</h2>
+                                    <p className="text-sm text-gray-400">Gambar utama pada halaman depan (Landing Page)</p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-6">
+                                <div className="space-y-4">
+                                    <div className="w-full aspect-video rounded-2xl bg-gray-50 border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden relative group">
+                                        {heroImagePreview ? (
+                                            <img src={heroImagePreview} alt="Hero Preview" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <div className="text-center p-4">
+                                                <ImageIcon className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+                                                <span className="text-sm text-gray-400">Belum ada gambar hero</span>
+                                            </div>
+                                        )}
+
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-4">
+                                            <button
+                                                onClick={() => heroFileInputRef.current?.click()}
+                                                className="px-4 py-2 bg-white text-[#3B4D3A] font-semibold rounded-lg hover:bg-gray-100 transition-colors shadow-lg text-sm flex items-center gap-2"
+                                            >
+                                                <Upload className="w-4 h-4" />
+                                                Ganti Gambar
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center justify-between">
+                                        <div className="text-sm text-gray-500">
+                                            <p className="font-medium text-gray-700">Ketentuan:</p>
+                                            <ul className="list-disc list-inside mt-1 space-y-0.5">
+                                                <li>Format: JPG, PNG, WEBP</li>
+                                                <li>Orientasi: Landscape (Disarankan 16:9)</li>
+                                                <li>Maksimal 1 Gambar saja (Otomatis replace)</li>
+                                                <li>Ukuran Max: 5MB</li>
+                                            </ul>
+                                        </div>
+
+                                        <div className="flex gap-3">
+                                            <input
+                                                ref={heroFileInputRef}
+                                                type="file"
+                                                className="hidden"
+                                                accept="image/*"
+                                                onChange={handleHeroFileSelect}
+                                            />
+                                            {heroImageFile && (
+                                                <button
+                                                    onClick={handleSave}
+                                                    disabled={loading}
+                                                    className="px-6 py-2.5 bg-[#3B4D3A] text-white font-semibold rounded-xl hover:bg-[#2d3a2d] transition-all shadow-sm flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                                                >
+                                                    {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                                                    Upload & Simpan
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

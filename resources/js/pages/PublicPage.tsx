@@ -8,12 +8,19 @@ import GallerySection from '@/components/public/GallerySection';
 import ContactSection from '@/components/public/ContactSection';
 import FooterSection from '@/components/public/FooterSection';
 
-const PublicPage: React.FC = () => {
+interface PublicPageProps {
+    heroImage?: string;
+}
+
+const PublicPage: React.FC<PublicPageProps> = ({ heroImage }) => {
     return (
         <>
-            <Head title="OSINTRA - OSIS SMKN 6 Surakarta" />
+            <Head>
+                <title>OSINTRA - OSIS SMKN 6 Surakarta</title>
+                {heroImage && <link rel="preload" as="image" href={heroImage} />}
+            </Head>
             <PublicLayout>
-                <HeroSection />
+                <HeroSection initialImage={heroImage} />
                 <AboutSection />
                 <DivisionsSection />
                 <GallerySection />
