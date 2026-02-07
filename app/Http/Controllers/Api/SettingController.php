@@ -36,12 +36,13 @@ class SettingController extends Controller
     public function uploadLogo(Request $request)
     {
         $request->validate([
-            'logo' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
+            'logo' => 'required|image|mimes:jpeg,png,jpg,svg,webp|max:5120', // Allow bigger upload
         ]);
 
         if ($request->file('logo')) {
             $file = $request->file('logo');
-            $fileName = time() . '_' . $file->getClientOriginalName();
+            $originalName = $file->getClientOriginalName();
+            $extension = $file->getClientOriginalExtension();
             $destinationPath = public_path('uploads/logo');
             
             // Ensure directory exists
@@ -49,7 +50,7 @@ class SettingController extends Controller
                 mkdir($destinationPath, 0755, true);
             }
 
-            // Clean up old logos: User requested "maximum 1 photo", so we delete all existing files in this folder
+            // Clean up old logos
             $files = glob($destinationPath . '/*'); 
             foreach($files as $existingFile){ 
                 if(is_file($existingFile)) {
@@ -57,7 +58,28 @@ class SettingController extends Controller
                 }
             }
 
-            $file->move($destinationPath, $fileName);
+            // Check if SVG, if so, just move it without processing
+            if (strtolower($extension) === 'svg') {
+                $fileName = time() . '_' . $originalName;
+                $file->move($destinationPath, $fileName);
+            } else {
+                // Process image with Intervention Image
+                // Strategy: Convert to WebP (superior compression) with HIGH quality
+                // We do NOT resize unless absurdly large (> 4K)
+                $fileName = time() . '_logo.webp';
+                $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+                $image = $manager->read($file);
+                
+                // Only scale down if width > 2000px (logo generally doesn't need 4K)
+                // Otherwise keep original size
+                if ($image->width() > 2000) {
+                    $image->scale(width: 2000);
+                }
+                
+                // Quality 100 means almost lossless but still smaller because of WebP format
+                $image->toWebp(quality: 100)->save($destinationPath . '/' . $fileName);
+            }
+
             $url = '/uploads/logo/' . $fileName;
             
             AppSetting::set('site_logo', $url);
@@ -79,12 +101,11 @@ class SettingController extends Controller
     public function uploadKetosImage(Request $request)
     {
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,svg|max:5048',
+            'image' => 'required|image|mimes:jpeg,png,jpg,svg,webp|max:10240', // 10MB max
         ]);
 
         if ($request->file('image')) {
             $file = $request->file('image');
-            $fileName = time() . '_ketos_' . $file->getClientOriginalName();
             $destinationPath = public_path('uploads/ketos');
             
             // Ensure directory exists
@@ -100,7 +121,19 @@ class SettingController extends Controller
                 }
             }
 
-            $file->move($destinationPath, $fileName);
+            // Process image with Intervention Image
+            $fileName = time() . '_ketos.webp';
+            $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+            $image = $manager->read($file);
+            
+            // Limit to 4K width (plenty for any screen) to prevent server overload
+            if ($image->width() > 3840) {
+                $image->scale(width: 3840);
+            }
+            
+            // Quality 95: Virtually indistinguishable from original, but much smaller file size
+            $image->toWebp(quality: 95)->save($destinationPath . '/' . $fileName);
+
             $url = '/uploads/ketos/' . $fileName;
             
             AppSetting::set('ketos_image', $url);
@@ -122,13 +155,11 @@ class SettingController extends Controller
     public function uploadHeroImage(Request $request)
     {
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120', // Support WebP, max 5MB
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:20480', // 20MB max
         ]);
 
         if ($request->file('image')) {
             $file = $request->file('image');
-            $cleanName = preg_replace('/[^a-zA-Z0-9._-]/', '_', $file->getClientOriginalName());
-            $fileName = time() . '_hero_' . $cleanName;
             $destinationPath = public_path('uploads/hero');
             
             // Ensure directory exists
@@ -136,7 +167,7 @@ class SettingController extends Controller
                 mkdir($destinationPath, 0755, true);
             }
 
-            // Clean up old images (Single Image Policy)
+            // Clean up old images
             $files = glob($destinationPath . '/*'); 
             foreach($files as $existingFile){ 
                 if(is_file($existingFile)) {
@@ -144,7 +175,19 @@ class SettingController extends Controller
                 }
             }
 
-            $file->move($destinationPath, $fileName);
+            // Process image with Intervention Image
+            $fileName = time() . '_hero.webp';
+            $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+            $image = $manager->read($file);
+            
+            // Keep original resolution unless it's absurdly huge (> 4K)
+            if ($image->width() > 3840) {
+                $image->scale(width: 3840);
+            }
+            
+            // Quality 95 for Hero to look crisp on big screens
+            $image->toWebp(quality: 95)->save($destinationPath . '/' . $fileName);
+
             $url = '/uploads/hero/' . $fileName;
             
             AppSetting::set('hero_image', $url);

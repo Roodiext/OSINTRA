@@ -151,6 +151,32 @@ class ProkerController extends Controller
     public function destroy(Proker $proker)
     {
         $title = $proker->title;
+
+        // 1. Get all media associated with this proker
+        $medias = $proker->media;
+
+        // 2. Loop through and delete physical files
+        foreach ($medias as $media) {
+            // Check if file is in public/assets (New way)
+            if (str_starts_with($media->media_url, '/assets/')) {
+                $filename = basename($media->media_url);
+                $filePath = public_path('assets/' . $filename);
+                
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
+            // Check if file is in storage (Old way / Backup)
+            elseif (str_starts_with($media->media_url, '/storage/')) {
+                $filePath = str_replace('/storage/', '', $media->media_url);
+                if (Storage::disk('public')->exists($filePath)) {
+                    Storage::disk('public')->delete($filePath);
+                }
+            }
+        }
+
+        // 3. Delete proker (Cascading delete in DB will handle media records, but we double check)
+        $proker->media()->delete(); // Delete media records explicitly first
         $proker->delete();
 
         AuditLog::log('delete_proker', "Deleted proker: {$title}");
@@ -209,6 +235,9 @@ class ProkerController extends Controller
     /**
      * Add media to proker (with file upload).
      */
+    /**
+     * Add media to proker (with file upload).
+     */
     public function uploadMedia(Request $request, Proker $proker)
     {
         $validated = $request->validate([
@@ -219,14 +248,27 @@ class ProkerController extends Controller
         $file = $request->file('file');
         $mediaType = 'image'; // Enforce image type
         
-        // Generate a unique filename
-        $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9.]+/', '_', $file->getClientOriginalName());
+        // Generate a unique filename with webp extension
+        $cleanName = preg_replace('/[^a-zA-Z0-9]+/', '_', pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+        $filename = time() . '_' . $cleanName . '.webp';
+        $destinationPath = public_path('assets');
         
-        // Move directly to public/assets
-        $file->move(public_path('assets'), $filename);
+        // Ensure directory exists
+        if (!file_exists($destinationPath)) {
+            mkdir($destinationPath, 0755, true);
+        }
+
+        // Process image with Intervention Image
+        $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+        $image = $manager->read($file);
         
-        // Removed Thumbnail Generation per user request to avoid file duplication
-        // $this->generateThumbnail($fullPath);
+        // Resize only if > 4K (Ultra HD) - keeps detail for zoom interactions
+        if ($image->width() > 3840) {
+            $image->scale(width: 3840);
+        }
+        
+        // Quality 95: High quality, decent compression via WebP
+        $image->toWebp(quality: 95)->save($destinationPath . '/' . $filename);
         
         // URL is now direct
         $mediaUrl = '/assets/' . $filename;
