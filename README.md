@@ -18,6 +18,7 @@ Dalam membangun website ini, kami menggunakan teknologi modern untuk memastikan 
 | **Styling** | Tailwind CSS 4.0 | ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white) |
 | **Animations** | GSAP & Framer Motion | ![GSAP](https://img.shields.io/badge/GSAP-88CE02?style=flat-square&logo=greensock&logoColor=white) ![Framer](https://img.shields.io/badge/Framer_Motion-0055FF?style=flat-square&logo=framer&logoColor=white) |
 | **Build Tool** | Vite | ![Vite](https://img.shields.io/badge/Vite-B73BFE?style=flat-square&logo=vite&logoColor=FFD62E) |
+| **Image Processing** | Intervention Image | ![Intervention Image](https://img.shields.io/badge/Intervention_Image-F8F9FA?style=flat-square&logo=php&logoColor=black) |
 
 ---
 
