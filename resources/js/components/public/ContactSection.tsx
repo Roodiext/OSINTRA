@@ -61,7 +61,7 @@ const ContactSection: React.FC = () => {
                                     </div>
                                     <div>
                                         <h3 className="font-bold mb-1" style={{ color: '#3B4D3A' }}>Email</h3>
-                                        <p style={{ color: '#6E8BA3' }}>osis@smkn6solo.sch.id</p>
+                                        <p style={{ color: '#6E8BA3' }}>osisviskaa@gmail.com</p>
                                     </div>
                                 </div>
                             </div>
@@ -89,7 +89,7 @@ const ContactSection: React.FC = () => {
                                     </div>
                                     <div>
                                         <h3 className="font-bold mb-1" style={{ color: '#3B4D3A' }}>Alamat</h3>
-                                        <p style={{ color: '#6E8BA3' }}>Jl. LU Adisucipto No. 42, Surakarta</p>
+                                        <p style={{ color: '#6E8BA3' }}>Jl. Adi Sucipto No. 38, Kerten, Kec. Laweyan, Kota Surakarta.</p>
                                     </div>
                                 </div>
                             </div>

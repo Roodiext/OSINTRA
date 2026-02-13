@@ -18,7 +18,7 @@ use App\Http\Controllers\Api\SettingController;
 */
 
 // Public routes
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
 Route::get('/public-settings', [SettingController::class, 'getPublicSettings']); // Public config
 Route::post('/messages', [MessageController::class, 'store']); // Public contact form
 

@@ -66,7 +66,7 @@ const FooterSection: React.FC<FooterProps> = ({ logoUrl = '/build/assets/osis-lo
                             </li>
                             <li className="flex items-start gap-3">
                                 <MapPin className="w-5 h-5 mt-0.5" style={{ color: '#E8DCC3' }} />
-                                <span style={{ color: '#D0C5B9' }}>Jl. Adi Sucipto No.38, Kerten, Kec. Laweyan, Kota Surakarta, Jawa Tengah 57143</span>
+                                <span style={{ color: '#D0C5B9' }}>Jl. Adi Sucipto No. 38, Kerten, Kec. Laweyan, Kota Surakarta, Jawa Tengah 57143</span>
                             </li>
                         </ul>
                     </div>
@@ -80,7 +80,7 @@ const FooterSection: React.FC<FooterProps> = ({ logoUrl = '/build/assets/osis-lo
                                 © {currentYear} OSIS SMKN 6 Surakarta. All rights reserved.
                             </p>
                             <p className="text-xs mt-2" style={{ color: 'rgba(208, 197, 185, 0.7)' }}>
-                                Developed by <a href="https://github.com/Roodiext" className="font-semibold hover:text-white transition-colors">RoodiextProduction</a> & <a href="https://github.com/claveora" className="font-semibold hover:text-white transition-colors">ClaveoraDev</a>
+                                Developed by <a href="https://github.com/Roodiext" className="font-semibold hover:text-white transition-colors">RoodiextProduction</a> & <a href="https://github.com/claveora" className="font-semibold hover:text-white transition-colors">Byataradev</a>
                             </p>
                         </div>
                         <div className="flex gap-4">

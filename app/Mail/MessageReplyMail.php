@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Models\Message;
+use App\Models\AppSetting;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
@@ -50,6 +51,8 @@ class MessageReplyMail extends Mailable
                 'senderName' => $this->senderName,
                 'senderEmail' => $this->senderEmail,
                 'recipientName' => $this->recipientName,
+                'siteLogo' => AppSetting::get('site_logo'),
+                'siteName' => AppSetting::get('site_name', 'OSIS SMKN 6 Surakarta'),
             ]);
     }
 }

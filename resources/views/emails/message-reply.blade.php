@@ -1,60 +1,101 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Balasan Pesan - OSIS SMKN 6 Surakarta</title>
+    <title>Tanggapan Aspirasi - {{ $siteName }}</title>
 </head>
-<body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+<body style="margin: 0; padding: 0; background-color: #f0f2f5; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f0f2f5; padding: 40px 0;">
         <tr>
-            <td align="center" style="padding: 20px;">
-                <table width="600" border="0" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    <!-- Header -->
+            <td align="center">
+                <!-- Document Container -->
+                <table width="600" border="0" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+                    
+                    <!-- Header with Logo and Title Inline -->
                     <tr>
-                        <td style="background-color: #3B4D3A; padding: 30px; text-align: center;">
-                            <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: bold; letter-spacing: 1px;">OSIS SMKN 6 SURAKARTA</h1>
-                            <p style="color: #E8DCC3; margin: 10px 0 0; font-size: 14px;">Integrated Administration System</p>
+                        <td style="background: linear-gradient(135deg, #3B4D3A 0%, #1e261d 100%); padding: 40px 30px;">
+                            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                    <td align="center">
+                                        <table border="0" cellspacing="0" cellpadding="0">
+                                            <tr>
+                                                <td style="padding-right: 15px;">
+                                                    <img src="{{ $siteLogo ? url($siteLogo) : url('/assets/icon/osis-logo.png') }}" alt="Logo" style="width: 50px; height: 50px; object-fit: contain; border-radius: 8px; background: white; padding: 4px; display: block;">
+                                                </td>
+                                                <td style="vertical-align: middle; text-align: left;">
+                                                    <h1 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; line-height: 1.2;">
+                                                        OSIS SMKN 6 SURAKARTA
+                                                    </h1>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <div style="width: 100%; height: 1px; background-color: rgba(232, 220, 195, 0.3); margin: 20px 0;"></div>
+                                        <p style="color: #E8DCC3; margin: 0; font-size: 13px; font-weight: 500; opacity: 0.9; text-transform: uppercase; letter-spacing: 2px;">
+                                            RESPON ASPIRASI TERVERIFIKASI
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
 
-                    <!-- Body -->
+                    <!-- Body Content -->
                     <tr>
                         <td style="padding: 40px;">
-                            <p style="color: #333333; font-size: 16px; margin-bottom: 25px;">
-                                Yth. <strong>{{ $recipientName }}</strong>,
+                            <p style="color: #1a1a1a; font-size: 16px; margin: 0 0 15px 0;">
+                                Halo <strong>{{ $recipientName }}</strong>,
                             </p>
                             
-                            <p style="color: #555555; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">
-                                Terima kasih telah menghubungi kami. Pesan Anda telah kami terima dan berikut adalah tanggapan resmi dari tim kami:
+                            <p style="color: #4a4a4a; font-size: 15px; line-height: 1.6; margin: 0 0 30px 0;">
+                                Aspirasi/pertanyaan yang Anda sampaikan melalui sistem website kami telah diterima. Berikut adalah tanggapan resmi dari pihak pengurus:
                             </p>
 
-                            <!-- Original Message Summary (Optional/Collapsed look) -->
-                            <div style="background-color: #f9f9f9; border-left: 4px solid #E8DCC3; padding: 15px; margin-bottom: 25px; border-radius: 4px;">
-                                <p style="margin: 0 0 10px 0; font-size: 12px; color: #888888; font-weight: bold; text-transform: uppercase;">Topik: {{ $subject }}</p>
-                                <p style="margin: 0; font-size: 14px; color: #555555; white-space: pre-wrap; font-style: italic;">"{{ $originalMessage }}"</p>
+                            <!-- Original Message Box -->
+                            <div style="background-color: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 30px; border: 1px dashed #dee2e6;">
+                                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                                    <span style="font-size: 11px; font-weight: 700; color: #adb5bd; text-transform: uppercase; letter-spacing: 1px;">ASPIRASI ANDA</span>
+                                </div>
+                                <p style="margin: 0; font-size: 14px; color: #6c757d; font-style: italic; line-height: 1.5;">"{{ $originalMessage }}"</p>
                             </div>
 
-                            <!-- Reply Content -->
-                            <div style="margin-bottom: 30px;">
-                                <h3 style="color: #3B4D3A; font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #E8DCC3; padding-bottom: 10px; display: inline-block;">Balasan Kami</h3>
-                                <div style="color: #333333; font-size: 15px; line-height: 1.6; white-space: pre-wrap;">{{ $replyMessage }}</div>
+                            <!-- Official Response -->
+                            <div style="background-color: #ffffff; border-radius: 12px; padding: 0; margin-bottom: 30px;">
+                                <div style="border-left: 4px solid #3B4D3A; padding: 5px 0 5px 20px;">
+                                    <h3 style="color: #3B4D3A; font-size: 18px; font-weight: 700; margin: 0 0 15px 0;">Tanggapan Resmi</h3>
+                                    <div style="color: #2d3436; font-size: 15px; line-height: 1.8; white-space: pre-wrap;">{{ $replyMessage }}</div>
+                                </div>
                             </div>
 
-                            <p style="color: #555555; font-size: 15px; line-height: 1.6;">
-                                Jika ada hal lain yang ingin ditanyakan, jangan ragu untuk membalas email ini atau mengunjungi sekretariat kami.
-                            </p>
+                            <!-- Closing -->
+                            <div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid #f1f1f1;">
+                                <p style="color: #4a4a4a; font-size: 14px; margin: 0 0 5px 0;">Tertanda,</p>
+                                <p style="color: #3B4D3A; font-size: 16px; font-weight: 700; margin: 0;">Pengurus OSIS SMKN 6 Surakarta</p>
+                            </div>
                         </td>
                     </tr>
 
-                    <!-- Footer -->
+                    <!-- Footer Info -->
                     <tr>
-                        <td style="background-color: #f4f4f4; padding: 20px; text-align: center; border-top: 1px solid #eeeeee;">
-                            <p style="color: #888888; font-size: 12px; margin: 0;">&copy; {{ date('Y') }} OSIS SMKN 6 Surakarta. All rights reserved.</p>
-                            <p style="color: #888888; font-size: 12px; margin: 5px 0 0;">Jl. LU Adisucipto No. 42, Surakarta</p>
+                        <td style="background-color: #f8f9fa; padding: 30px 40px; text-align: center;">
+                            <div style="margin: 10px 0;">
+                                <a href="{{ config('app.url') }}" style="color: #3B4D3A; text-decoration: none; font-size: 12px; font-weight: 600;">Website Utama</a>
+                                <span style="color: #dee2e6; margin: 0 10px;">|</span>
+                                <a href="{{ config('app.url') }}/contact" style="color: #3B4D3A; text-decoration: none; font-size: 12px; font-weight: 600;">Hubungi Kami</a>
+                            </div>
+                            <p style="color: #95a5a6; font-size: 12px; line-height: 1.5; margin: 0 0 10px 0;">
+                                Email ini dikirim secara otomatis melalui Sistem OSINTRA.
+                            </p>
+                            <p style="color: #adb5bd; font-size: 11px; margin: 0;">
+                                &copy; {{ date('Y') }} OSIS SMKN 6 Surakarta. All rights reserved.
+                            </p>
                         </td>
                     </tr>
                 </table>
+                
+                <p style="color: #adb5bd; font-size: 11px; margin-top: 20px; text-align: center;">
+                    Jl. LU Adisucipto No. 42, Surakarta, Jawa Tengah
+                </p>
             </td>
         </tr>
     </table>

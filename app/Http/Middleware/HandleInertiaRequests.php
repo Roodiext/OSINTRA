@@ -43,7 +43,33 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
-                'user' => $request->user()?->load('role') ?? auth('sanctum')->user()?->load('role'),
+                'user' => $request->user() 
+                    ? [
+                        'id' => $request->user()->id,
+                        'name' => $request->user()->name,
+                        'username' => $request->user()->username,
+                        'email' => $request->user()->email,
+                        'profile_picture' => $request->user()->profile_picture,
+                        'role' => $request->user()->role ? [
+                            'id' => $request->user()->role->id,
+                            'name' => $request->user()->role->name,
+                            'permissions' => $request->user()->role->permissions,
+                        ] : null,
+                    ]
+                    : (auth('sanctum')->user() 
+                        ? [
+                            'id' => auth('sanctum')->user()->id,
+                            'name' => auth('sanctum')->user()->name,
+                            'username' => auth('sanctum')->user()->username,
+                            'email' => auth('sanctum')->user()->email,
+                            'profile_picture' => auth('sanctum')->user()->profile_picture,
+                            'role' => auth('sanctum')->user()->role ? [
+                                'id' => auth('sanctum')->user()->role->id,
+                                'name' => auth('sanctum')->user()->role->name,
+                                'permissions' => auth('sanctum')->user()->role->permissions,
+                            ] : null,
+                        ]
+                        : null),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'flash' => [
