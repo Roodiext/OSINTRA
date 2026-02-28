@@ -250,7 +250,7 @@ const DivisionsSection: React.FC = () => {
                                     {structure.top.map((position, index) => {
                                         const IconComponent = getIconForPosition(position.name);
                                         return (
-                                            <Reveal key={position.id} delay={index * 100}>
+                                            <Reveal key={position.id} delay={index * 50}>
                                                 <div
                                                     className="w-64 p-6 rounded-2xl transition-all duration-300 relative z-20 hover:-translate-y-1"
                                                     style={{
@@ -290,7 +290,7 @@ const DivisionsSection: React.FC = () => {
                             <div className="flex flex-col items-center relative">
                                 {/* Horizontal Line Spanning Tier 2 */}
                                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[90%] max-w-6xl hidden md:block" style={{ zIndex: 0 }}>
-                                    <Reveal delay={200} duration={1000} direction="left" className="w-full">
+                                    <Reveal delay={50} duration={500} direction="left" className="w-full">
                                         <div className="h-0.5 w-full" style={{ backgroundColor: '#E8DCC3' }} />
                                     </Reveal>
                                 </div>
@@ -306,7 +306,7 @@ const DivisionsSection: React.FC = () => {
 
                                             {/* Card */}
                                             <Reveal
-                                                delay={300 + (index * 100)}
+                                                delay={100 + (index * 50)}
                                                 className="w-48 md:w-56 h-full"
                                             >
                                                 <div
@@ -342,13 +342,13 @@ const DivisionsSection: React.FC = () => {
                         {/* === TIER 3: Sie Bidang === */}
                         {structure.divisions.length > 0 && (
                             <div className="flex flex-col items-center pt-8">
-                                <Reveal delay={600} className="text-center mb-8">
+                                <Reveal delay={150} className="text-center mb-8">
                                     <h3 className="text-xl md:text-2xl font-bold mb-2" style={{ color: '#3B4D3A' }}>Sie Bidang</h3>
                                     <p className="text-sm" style={{ color: '#6E8BA3' }}>Divisi pelaksana program kerja</p>
                                 </Reveal>
 
                                 {/* MOBILE VIEW: Button Trigger Modal */}
-                                <Reveal delay={800} className="block md:hidden w-full max-w-xs">
+                                <Reveal delay={200} className="block md:hidden w-full max-w-xs">
                                     <button
                                         onClick={() => setIsModalOpen(true)}
                                         className="w-full flex items-center justify-between p-4 rounded-xl shadow-lg transition-transform active:scale-95"
@@ -379,7 +379,7 @@ const DivisionsSection: React.FC = () => {
                                         {structure.divisions.map((position, index) => {
                                             const IconComponent = getIconForPosition(position.name);
                                             return (
-                                                <Reveal key={position.id} delay={800 + (index * 50)} className="relative flex flex-col items-center w-full">
+                                                <Reveal key={position.id} delay={200 + (index * 30)} className="relative flex flex-col items-center w-full">
 
                                                     {/* Garis Vertikal Kecil ke Kartu */}
                                                     <div className="absolute -top-8 left-1/2 -translate-x-1/2">

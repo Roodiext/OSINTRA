@@ -13,10 +13,10 @@ interface RevealProps {
 const Reveal: React.FC<RevealProps> = ({
     children,
     className = "",
-    threshold = 0.1,
+    threshold = 0.05,
     delay = 0,
     direction = 'up',
-    duration = 800,
+    duration = 400,
     style
 }) => {
     const ref = useRef<HTMLDivElement>(null);
@@ -32,7 +32,7 @@ const Reveal: React.FC<RevealProps> = ({
             },
             {
                 threshold: threshold,
-                rootMargin: '0px 0px -50px 0px' // offset sedikit agar tidak terlalu mepet bawah
+                rootMargin: '0px 0px -20px 0px' // trigger earlier for faster reveal
             }
         );
 
@@ -51,10 +51,10 @@ const Reveal: React.FC<RevealProps> = ({
     const getTransform = () => {
         if (!isVisible) {
             switch (direction) {
-                case 'up': return 'translateY(40px)';
-                case 'down': return 'translateY(-40px)';
-                case 'left': return 'translateX(40px)';
-                case 'right': return 'translateX(-40px)';
+                case 'up': return 'translateY(20px)';
+                case 'down': return 'translateY(-20px)';
+                case 'left': return 'translateX(20px)';
+                case 'right': return 'translateX(-20px)';
                 default: return 'none';
             }
         }

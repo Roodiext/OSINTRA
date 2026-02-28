@@ -21,7 +21,7 @@
                                         <table border="0" cellspacing="0" cellpadding="0">
                                             <tr>
                                                 <td style="padding-right: 15px;">
-                                                    <img src="{{ $siteLogo ? url($siteLogo) : url('/assets/icon/osis-logo.png') }}" alt="Logo" style="width: 50px; height: 50px; object-fit: contain; border-radius: 8px; background: white; padding: 4px; display: block;">
+                                                    <img src="{{ $message->embed(public_path(ltrim($siteLogo, '/'))) }}" alt="Logo" style="width: 50px; height: 50px; object-fit: contain; display: block;">
                                                 </td>
                                                 <td style="vertical-align: middle; text-align: left;">
                                                     <h1 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; line-height: 1.2;">

@@ -172,9 +172,9 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
     const handleHeroFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            // Check size (max 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                Swal.fire('Error', 'Ukuran file maksimal 5MB', 'error');
+            // Check size (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                Swal.fire('Error', 'Ukuran file maksimal 10MB', 'error');
                 return;
             }
             // Check format
@@ -579,7 +579,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
                                                 <li>Format: JPG, PNG, WEBP</li>
                                                 <li>Orientasi: Landscape (Disarankan 16:9)</li>
                                                 <li>Maksimal 1 Gambar saja (Otomatis replace)</li>
-                                                <li>Ukuran Max: 5MB</li>
+                                                <li>Ukuran Max: 10MB</li>
                                             </ul>
                                         </div>
 

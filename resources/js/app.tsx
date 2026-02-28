@@ -28,9 +28,6 @@ router.on('before', (event) => {
             ...event.detail.visit.headers,
             'Authorization': `Bearer ${token}`,
         };
-        console.log('📤 Inertia request with token:', event.detail.visit.url);
-    } else {
-        console.log('⚠️ Inertia request without token:', event.detail.visit.url);
     }
 });
 
@@ -52,11 +49,8 @@ const verifyToken = async () => {
 
     // If no token, skip verification
     if (!storedToken) {
-        console.log('🔓 No auth token found, skipping verification');
         return false;
     }
-
-    console.log('🔐 Token found, verifying with backend...');
 
     try {
         // Create temporary axios instance with token for verification
@@ -77,23 +71,16 @@ const verifyToken = async () => {
 
         // Token is valid
         if (response.data?.user) {
-            console.log('✅ Token verified successfully, user:', response.data.user.name);
-
-            // Store user and token
             localStorage.setItem('user', JSON.stringify(response.data.user));
             localStorage.setItem('auth_token', storedToken);
 
             // Ensure token is in default axios headers
             axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
-
-            console.log('✅ Auth state restored');
             return true;
         }
         return false;
     } catch (error: any) {
-        // Token is invalid or expired
         const status = error.response?.status;
-        console.warn(`❌ Token verification failed (${status})`);
 
         // Clear invalid token
         localStorage.removeItem('auth_token');
@@ -127,7 +114,10 @@ const initializeApp = async () => {
             );
         },
         progress: {
-            color: '#4B5563',
+            color: '#3B4D3A',
+            delay: 0,
+            includeCSS: true,
+            showSpinner: false,
         },
     });
 

@@ -15,7 +15,6 @@ api.interceptors.request.use((config) => {
     const token = localStorage.getItem('auth_token');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
-        console.log('🔐 Token added to request:', config.url);
     }
     return config;
 });
@@ -23,7 +22,6 @@ api.interceptors.request.use((config) => {
 // Handle auth errors and token issues
 api.interceptors.response.use(
     (response) => {
-        console.log('✅ Request successful:', response.config.url);
         return response;
     },
     (error) => {

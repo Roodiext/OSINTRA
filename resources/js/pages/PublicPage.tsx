@@ -17,7 +17,7 @@ const PublicPage: React.FC<PublicPageProps> = ({ heroImage }) => {
         <>
             <Head>
                 <title>OSINTRA - OSIS SMKN 6 Surakarta</title>
-                {heroImage && <link rel="preload" as="image" href={heroImage} />}
+                <link rel="preload" as="image" href={heroImage || '/osvis-team.jpg'} fetchPriority="high" />
             </Head>
             <PublicLayout>
                 <HeroSection initialImage={heroImage} />
