@@ -67,7 +67,7 @@ const GallerySection: React.FC = () => {
                     {media.slice(0, 9).map((item, index) => (
                         <Reveal
                             key={item.id}
-                            delay={index * 100}
+                            delay={index * 50}
                             className="relative group cursor-pointer overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
                         >
                             <div onClick={() => handleItemClick(item)}>
@@ -75,6 +75,7 @@ const GallerySection: React.FC = () => {
                                     <img
                                         src={item.media_url}
                                         alt={item.caption || 'Gallery image'}
+                                        loading="lazy"
                                         className="w-full h-64 object-cover transform group-hover:scale-110 transition-transform duration-300"
                                     />
                                 ) : (

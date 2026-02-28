@@ -346,17 +346,17 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
                                             </td>
                                             <td className="px-6 py-4 text-[#6E8BA3]">{message.email}</td>
                                             <td className="px-6 py-4">
-                                                <span className={`px-3 py-1 rounded-lg text-xs font-bold ${getCategoryColor((message as any).category)}`}>
+                                                <span className={`px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap ${getCategoryColor((message as any).category)}`}>
                                                     {getCategoryLabel((message as any).category)}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4">
-                                                <span className={`px-3 py-1 rounded-lg text-xs font-bold ${getPriorityColor((message as any).priority)}`}>
+                                                <span className={`px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap ${getPriorityColor((message as any).priority)}`}>
                                                     {getPriorityLabel((message as any).priority)}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4">
-                                                <span className={`px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wide border ${getStatusBadge(message.status)}`}>
+                                                <span className={`px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap uppercase tracking-wide border ${getStatusBadge(message.status)}`}>
                                                     {getStatusLabel(message.status)}
                                                 </span>
                                             </td>
@@ -514,7 +514,9 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
                             <div className="space-y-4">
                                 <div className="p-4 bg-[#F5F5F5] rounded-xl border-l-4 border-[#3B4D3A]">
                                     <p className="text-sm font-semibold text-[#6E8BA3] mb-2">Pesan Original:</p>
-                                    <p className="text-[#1E1E1E] text-sm whitespace-pre-wrap">{viewingMessage.message}</p>
+                                    <div className="max-h-40 overflow-y-auto">
+                                        <p className="text-[#1E1E1E] text-sm whitespace-pre-wrap break-words break-all">{viewingMessage.message}</p>
+                                    </div>
                                 </div>
 
                                 <div>

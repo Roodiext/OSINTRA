@@ -15,16 +15,17 @@ const HeroSection: React.FC<HeroSectionProps> = ({ initialImage }) => {
     return (
         <section className="relative h-screen flex flex-col justify-end items-center bg-[#050505] overflow-hidden">
 
-            {/* 1. LAYER FOTO - Full & Jernih */}
-            <div
-                className="absolute inset-0 z-0"
-                style={{
-                    backgroundImage: `url('${bgImage}')`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
-                }}
-            />
+            {/* 1. LAYER FOTO - Full & Teroptimasi untuk kecepatan */}
+            <div className="absolute inset-0 z-0 bg-[#050505]">
+                <img
+                    src={bgImage}
+                    alt="OSIS Hero Background"
+                    fetchPriority="high"
+                    loading="eager"
+                    decoding="async"
+                    className="w-full h-full object-cover opacity-90"
+                />
+            </div>
 
             {/* 2. LAYER GRADASI - Agar teks terbaca jelas */}
             <div className="absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-black via-black/60 to-transparent z-10 pointer-events-none" />
@@ -70,7 +71,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ initialImage }) => {
                 @keyframes fadeIn {
                     from { 
                         opacity: 0; 
-                        transform: translateY(20px); 
+                        transform: translateY(12px); 
                     }
                     to { 
                         opacity: 1; 
@@ -78,7 +79,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ initialImage }) => {
                     }
                 }
                 .animate-fadeIn {
-                    animation: fadeIn 1.2s ease-out forwards;
+                    animation: fadeIn 0.5s ease-out forwards;
                 }
             `}</style>
         </section>

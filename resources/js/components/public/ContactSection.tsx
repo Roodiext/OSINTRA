@@ -53,7 +53,7 @@ const ContactSection: React.FC = () => {
                 <div className="grid md:grid-cols-2 gap-12">
                     {/* Contact Info */}
                     <div className="space-y-6 ">
-                        <Reveal delay={200} direction="right">
+                        <Reveal delay={50} direction="right">
                             <div className="p-6 rounded-2xl shadow-lg" style={{ backgroundColor: '#F5F5F5' }}>
                                 <div className="flex items-start gap-4">
                                     <div className="p-3 rounded-xl" style={{ backgroundColor: '#3B4D3A' }}>
@@ -61,13 +61,13 @@ const ContactSection: React.FC = () => {
                                     </div>
                                     <div>
                                         <h3 className="font-bold mb-1" style={{ color: '#3B4D3A' }}>Email</h3>
-                                        <p style={{ color: '#6E8BA3' }}>osis@smkn6solo.sch.id</p>
+                                        <p style={{ color: '#6E8BA3' }}>osisviskaa@gmail.com</p>
                                     </div>
                                 </div>
                             </div>
                         </Reveal>
 
-                        <Reveal delay={400} direction="right">
+                        <Reveal delay={100} direction="right">
                             <div className="p-6 rounded-2xl shadow-lg" style={{ backgroundColor: '#F5F5F5' }}>
                                 <div className="flex items-start gap-4">
                                     <div className="p-3 rounded-xl" style={{ backgroundColor: '#3B4D3A' }}>
@@ -81,7 +81,7 @@ const ContactSection: React.FC = () => {
                             </div>
                         </Reveal>
 
-                        <Reveal delay={600} direction="right">
+                        <Reveal delay={150} direction="right">
                             <div className="p-6 rounded-2xl shadow-lg" style={{ backgroundColor: '#F5F5F5' }}>
                                 <div className="flex items-start gap-4">
                                     <div className="p-3 rounded-xl" style={{ backgroundColor: '#3B4D3A' }}>
@@ -89,7 +89,7 @@ const ContactSection: React.FC = () => {
                                     </div>
                                     <div>
                                         <h3 className="font-bold mb-1" style={{ color: '#3B4D3A' }}>Alamat</h3>
-                                        <p style={{ color: '#6E8BA3' }}>Jl. LU Adisucipto No. 42, Surakarta</p>
+                                        <p style={{ color: '#6E8BA3' }}>Jl. Adi Sucipto No. 38, Kerten, Kec. Laweyan, Kota Surakarta.</p>
                                     </div>
                                 </div>
                             </div>
@@ -97,7 +97,7 @@ const ContactSection: React.FC = () => {
                     </div>
 
                     {/* Contact Form */}
-                    <Reveal delay={400} direction="left" className="p-8 rounded-2xl shadow-lg" style={{ backgroundColor: '#F5F5F5' }}>
+                    <Reveal delay={100} direction="left" className="p-8 rounded-2xl shadow-lg" style={{ backgroundColor: '#F5F5F5' }}>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
                                 <label className="block text-sm font-semibold mb-2" style={{ color: '#3B4D3A' }}>

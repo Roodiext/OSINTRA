@@ -110,7 +110,7 @@ const AboutSection: React.FC = () => {
                 <div className="grid lg:grid-cols-2 gap-6 md:gap-12 items-stretch mb-12 md:mb-24">
 
                     {/* Visi Card - Premium Glass */}
-                    <Reveal direction="left" delay={200} className="h-full">
+                    <Reveal direction="left" delay={50} className="h-full">
                         <div className="group relative p-6 md:p-10 rounded-[2rem] bg-white/60 backdrop-blur-sm border border-gray-200/50 transition-all duration-500 hover:bg-white hover:shadow-[0_30px_60px_-15px_rgba(59,77,58,0.15)] hover:-translate-y-1 h-full">
                             <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-[#3B4D3A]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                             <div className="relative z-10">
@@ -131,7 +131,7 @@ const AboutSection: React.FC = () => {
                     </Reveal>
 
                     {/* Misi Card - Premium Glass */}
-                    <Reveal direction="right" delay={400} className="h-full">
+                    <Reveal direction="right" delay={100} className="h-full">
                         <div className="group relative p-6 md:p-10 rounded-[2rem] bg-white/60 backdrop-blur-sm border border-gray-200/50 transition-all duration-500 hover:bg-white hover:shadow-[0_30px_60px_-15px_rgba(59,77,58,0.15)] hover:-translate-y-1 h-full">
                             <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-[#3B4D3A]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                             <div className="relative z-10">
@@ -184,7 +184,7 @@ const AboutSection: React.FC = () => {
                                 </div>
 
                                 {/* Name & Info - Pulled up closer on desktop */}
-                                <Reveal delay={300} className="relative z-20 text-center mt-6 md:-mt-8 px-4">
+                                <Reveal delay={100} className="relative z-20 text-center mt-6 md:-mt-8 px-4">
                                     <h4 className="text-xl md:text-2xl font-black text-[#3B4D3A] tracking-tight mb-3">{sambutanKetos.name}</h4>
                                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#E8DCC3]/80 backdrop-blur-sm rounded-full border border-[#DBCAB0] shadow-sm hover:bg-[#E8DCC3] transition-colors">
                                         <Sparkles className="w-3.5 h-3.5 text-[#3B4D3A]" />
@@ -197,7 +197,7 @@ const AboutSection: React.FC = () => {
                         </div>
 
                         {/* Speech Content Right Column */}
-                        <Reveal direction="right" delay={500} className="lg:col-span-3 space-y-6 md:space-y-6 relative z-10">
+                        <Reveal direction="right" delay={150} className="lg:col-span-3 space-y-6 md:space-y-6 relative z-10">
                             <div className="relative">
                                 <Quote className="absolute -top-12 -left-8 w-20 h-20 text-[#3B4D3A]/5 -rotate-12" />
                                 <div className="inline-block px-3 py-1 rounded-lg bg-[#3B4D3A] text-white text-[9px] font-bold mb-4 md:mb-4 tracking-[0.2em] shadow-lg">
@@ -234,7 +234,7 @@ const AboutSection: React.FC = () => {
                         {values.map((value, index) => {
                             const IconComponent = value.icon;
                             return (
-                                <Reveal key={index} delay={index * 200} direction="up" className="h-full">
+                                <Reveal key={index} delay={index * 80} direction="up" className="h-full">
                                     <div className="group text-center h-full p-4 rounded-xl hover:bg-white/50 transition-colors">
                                         <div className="w-14 h-14 md:w-20 md:h-20 mx-auto mb-4 md:mb-6 rounded-2xl flex items-center justify-center bg-gradient-to-br from-[#3B4D3A] to-[#2a3729] shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
                                             <IconComponent className="w-6 h-6 md:w-10 md:h-10 text-white" />
@@ -253,7 +253,7 @@ const AboutSection: React.FC = () => {
                 </div>
 
                 {/* Enhanced Stats Section - HORIZONTAL ON MOBILE */}
-                <Reveal direction="up" delay={200}>
+                <Reveal direction="up" delay={50}>
                     <div className="bg-gradient-to-r from-[#3B4D3A]/5 to-[#6E8BA3]/5 rounded-3xl p-6 md:p-12 border border-gray-200/50">
                         <div className="text-center mb-8 md:mb-12">
                             <h3 className="text-xl md:text-3xl font-bold mb-2 md:mb-4" style={{ color: '#3B4D3A' }}>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Menu, X } from 'lucide-react';
+import { Link, router } from '@inertiajs/react';
 
 const links = [
   { label: 'Beranda', href: '/' },
@@ -92,14 +93,12 @@ const Navbar: React.FC<NavbarProps> = ({ logoUrl = '/build/assets/osis-logo-mBAt
                 logoClicks.current += 1;
 
                 if (logoClicks.current === 6) {
-                  window.location.href = '/dashboard';
+                  router.visit('/dashboard');
                   logoClicks.current = 0;
                 } else {
                   clickTimer.current = setTimeout(() => {
-                    // Force navigation to home if not already there, else just reset
-                    // Logic allows staying on page if < 6 clicks
                     if (window.location.pathname !== '/') {
-                      window.location.href = '/';
+                      router.visit('/');
                     }
                     logoClicks.current = 0;
                   }, 350);
@@ -117,9 +116,10 @@ const Navbar: React.FC<NavbarProps> = ({ logoUrl = '/build/assets/osis-logo-mBAt
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center gap-1">
               {links.map(link => (
-                <a
+                <Link
                   key={link.href}
                   href={link.href}
+                  prefetch
                   className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-300 relative group`}
                   style={{
                     color: linkColor(link.href),
@@ -132,7 +132,7 @@ const Navbar: React.FC<NavbarProps> = ({ logoUrl = '/build/assets/osis-logo-mBAt
                   {isActive(link.href) && (
                     <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full shadow-sm ${activeIndicator}`} />
                   )}
-                </a>
+                </Link>
               ))}
             </div>
 
@@ -154,7 +154,7 @@ const Navbar: React.FC<NavbarProps> = ({ logoUrl = '/build/assets/osis-logo-mBAt
           >
             <div className={`h-px w-full mb-2 ${showScrolledState ? 'bg-[#3B4D3A]/10' : 'bg-[#E8DCC3]/10'}`} />
             {links.map((link, i) => (
-              <a
+              <Link
                 key={link.href}
                 href={link.href}
                 className={`p-3 rounded-xl font-semibold transition-all text-left pl-4 ${showScrolledState ? 'hover:bg-[#3B4D3A]/5' : 'hover:bg-[#E8DCC3]/10'}`}
@@ -165,9 +165,10 @@ const Navbar: React.FC<NavbarProps> = ({ logoUrl = '/build/assets/osis-logo-mBAt
                     : undefined,
                   transitionDelay: open ? `${i * 50}ms` : '0ms'
                 }}
+                onClick={() => setOpen(false)}
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </div>
         </div>
