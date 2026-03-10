@@ -88,11 +88,17 @@ const Navbar: React.FC<NavbarProps> = ({ logoUrl = '/build/assets/osis-logo-mBAt
               href="/"
               onClick={(e) => {
                 e.preventDefault();
-                if (clickTimer.current) clearTimeout(clickTimer.current);
 
+                // Mencegah klik berlebihan (spam klik saat transisi) merusak redirect
+                if ((window as any)._lastEasterEggTime && Date.now() - (window as any)._lastEasterEggTime < 2000) {
+                  return;
+                }
+
+                if (clickTimer.current) clearTimeout(clickTimer.current);
                 logoClicks.current += 1;
 
-                if (logoClicks.current === 6) {
+                if (logoClicks.current >= 6) {
+                  (window as any)._lastEasterEggTime = Date.now();
                   router.visit('/dashboard');
                   logoClicks.current = 0;
                 } else {
@@ -101,7 +107,7 @@ const Navbar: React.FC<NavbarProps> = ({ logoUrl = '/build/assets/osis-logo-mBAt
                       router.visit('/');
                     }
                     logoClicks.current = 0;
-                  }, 350);
+                  }, 400); // Sedikit diperpanjang agar tidak tumpang tindih dengan interval klik user
                 }
               }}
               className="flex items-center gap-3 group"
