@@ -80,7 +80,7 @@ const FooterSection: React.FC<FooterProps> = ({ logoUrl = '/build/assets/osis-lo
                                 © {currentYear} OSIS SMKN 6 Surakarta. All rights reserved.
                             </p>
                             <p className="text-xs mt-2" style={{ color: 'rgba(208, 197, 185, 0.7)' }}>
-                                Developed by <a href="https://github.com/Roodiext" className="font-semibold hover:text-white transition-colors">RoodiextProduction</a> & <a href="https://github.com/claveora" className="font-semibold hover:text-white transition-colors">Byataradev</a>
+                                Developed by <a href="https://github.com/Roodiext" className="font-semibold hover:text-white transition-colors">RoodiextProduction</a> & <a href="https://github.com/byatarade" className="font-semibold hover:text-white transition-colors">Byatarade</a>
                             </p>
                         </div>
                         <div className="flex gap-4">
