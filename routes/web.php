@@ -253,6 +253,7 @@ Route::middleware(['inertia.auth'])->group(function () {
                 'can_edit' => $user?->hasPermission('Transactions', 'edit') ?? false,
                 'can_delete' => $user?->hasPermission('Transactions', 'delete') ?? false,
                 'can_approve' => $user?->hasPermission('Transactions', 'approve') ?? false,
+                'is_blurred' => (bool)($user?->role?->permissions()->where('module_name', 'Transactions')->first()?->is_blurred ?? false),
             ],
         ]);
     })->middleware('check.permission:Transactions,view,Keuangan')->name('dashboard.transactions');

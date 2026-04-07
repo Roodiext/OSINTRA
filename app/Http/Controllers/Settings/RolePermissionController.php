@@ -54,6 +54,8 @@ class RolePermissionController extends Controller
             'permissions.*.can_create' => 'boolean',
             'permissions.*.can_edit' => 'boolean',
             'permissions.*.can_delete' => 'boolean',
+            'permissions.*.can_approve' => 'boolean',
+            'permissions.*.is_blurred' => 'boolean',
         ]);
 
         $permissions = $data['permissions']; // structure: ['module_name' => ['can_view'=>true, ...], ...]
@@ -78,6 +80,8 @@ class RolePermissionController extends Controller
                     'can_create' => (bool)($perms['can_create'] ?? false),
                     'can_edit' => (bool)($perms['can_edit'] ?? false),
                     'can_delete' => (bool)($perms['can_delete'] ?? false),
+                    'can_approve' => (bool)($perms['can_approve'] ?? false),
+                    'is_blurred' => (bool)($perms['is_blurred'] ?? false),
                 ]
             );
         }
