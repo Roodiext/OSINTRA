@@ -173,7 +173,7 @@ Website sudah **FINAL**. Saat ini hanya tinggal menunggu perbaikan bug minor (ji
 ## 👨‍💻 Developer
 Dikembangkan oleh:
 - **Roodiext Production**
-- **ClaveoraDev**
+- **ByataraDev**
 
 ---
 
