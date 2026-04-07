@@ -13,6 +13,7 @@ type RolePermissionRow = {
   can_edit: boolean;
   can_delete: boolean;
   can_approve: boolean;
+  is_blurred: boolean;
 };
 type Role = {
   id: number;
@@ -54,6 +55,7 @@ const RoleAccessSetting: React.FC<Props> = ({ roles = [], modules = [] }) => {
           can_edit: !!found?.can_edit,
           can_delete: !!found?.can_delete,
           can_approve: !!found?.can_approve,
+          is_blurred: !!found?.is_blurred,
           id: found?.id,
         };
       });
@@ -119,6 +121,7 @@ const RoleAccessSetting: React.FC<Props> = ({ roles = [], modules = [] }) => {
           can_edit: !!localPermissions[m.name]?.can_edit,
           can_delete: !!localPermissions[m.name]?.can_delete,
           can_approve: !!localPermissions[m.name]?.can_approve,
+          is_blurred: !!localPermissions[m.name]?.is_blurred,
         };
       });
 
@@ -295,16 +298,28 @@ const RoleAccessSetting: React.FC<Props> = ({ roles = [], modules = [] }) => {
                       </label>
 
                       {m.name === 'Transactions' && (
-                        <label className="inline-flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={!!localPermissions[m.name]?.can_approve}
-                            disabled={saving || loading}
-                            onChange={() => toggle(m.name, 'can_approve')}
-                            className="cursor-pointer"
-                          />
-                          <span className="text-sm">Approve</span>
-                        </label>
+                        <>
+                            <label className="inline-flex items-center gap-2 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={!!localPermissions[m.name]?.can_approve}
+                                disabled={saving || loading}
+                                onChange={() => toggle(m.name, 'can_approve')}
+                                className="cursor-pointer"
+                              />
+                              <span className="text-sm">Approve</span>
+                            </label>
+                            <label className="inline-flex items-center gap-2 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={!!localPermissions[m.name]?.is_blurred}
+                                disabled={saving || loading}
+                                onChange={() => toggle(m.name, 'is_blurred')}
+                                className="cursor-pointer"
+                              />
+                              <span className="text-sm text-red-500 font-semibold">Blur Layar</span>
+                            </label>
+                        </>
                       )}
                     </div>
                   </div>
