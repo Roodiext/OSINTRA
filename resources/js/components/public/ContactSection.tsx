@@ -1,7 +1,21 @@
-import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Mail, Phone, MapPin, Send, ShieldCheck, AlertTriangle } from 'lucide-react';
 import api from '@/lib/axios';
 import Reveal from './Reveal';
+
+// Minimum characters required for name and message fields
+const MIN_CHARS = 15;
+
+// reCAPTCHA site key - uses Google's test key for development
+// Replace with your production key in .env (VITE_RECAPTCHA_SITE_KEY)
+const RECAPTCHA_SITE_KEY = (import.meta as any).env?.VITE_RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
+
+declare global {
+    interface Window {
+        grecaptcha: any;
+        onRecaptchaLoad: () => void;
+    }
+}
 
 const ContactSection: React.FC = () => {
     const [formData, setFormData] = useState({
@@ -14,20 +28,114 @@ const ContactSection: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState('');
+    const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+    const [recaptchaLoaded, setRecaptchaLoaded] = useState(false);
+    const [showRecaptcha, setShowRecaptcha] = useState(false);
+    const recaptchaRef = useRef<HTMLDivElement>(null);
+    const recaptchaWidgetId = useRef<number | null>(null);
+
+    // Load reCAPTCHA script
+    useEffect(() => {
+        if (typeof window.grecaptcha !== 'undefined') {
+            setRecaptchaLoaded(true);
+            return;
+        }
+
+        window.onRecaptchaLoad = () => {
+            setRecaptchaLoaded(true);
+        };
+
+        const script = document.createElement('script');
+        script.src = 'https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit';
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+
+        return () => {
+            delete (window as any).onRecaptchaLoad;
+        };
+    }, []);
+
+    // Render reCAPTCHA widget when loaded and visible
+    useEffect(() => {
+        if (recaptchaLoaded && showRecaptcha && recaptchaRef.current && recaptchaWidgetId.current === null) {
+            try {
+                recaptchaWidgetId.current = window.grecaptcha.render(recaptchaRef.current, {
+                    sitekey: RECAPTCHA_SITE_KEY,
+                    callback: (token: string) => {
+                        setRecaptchaToken(token);
+                    },
+                    'expired-callback': () => {
+                        setRecaptchaToken(null);
+                    },
+                    theme: 'light',
+                    size: 'normal',
+                });
+            } catch (e) {
+                console.error('reCAPTCHA render error:', e);
+            }
+        }
+    }, [recaptchaLoaded, showRecaptcha]);
+
+    // Character count helpers
+    const messageCharCount = formData.message.length;
+    const isMessageValid = messageCharCount >= MIN_CHARS;
+    const isFormFieldsValid = isMessageValid && formData.name.length > 0 && formData.email.length > 0;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Validate minimum characters
+        if (!isMessageValid) {
+            setError(`Pesan harus minimal ${MIN_CHARS} karakter. Saat ini: ${messageCharCount} karakter.`);
+            return;
+        }
+
+        // Show reCAPTCHA if not shown yet
+        if (!showRecaptcha) {
+            setShowRecaptcha(true);
+            setError('');
+            return;
+        }
+
+        // Check reCAPTCHA
+        if (!recaptchaToken) {
+            setError('Silakan selesaikan verifikasi reCAPTCHA terlebih dahulu.');
+            return;
+        }
+
         setLoading(true);
         setError('');
         setSuccess(false);
 
         try {
-            await api.post('/messages', formData);
+            await api.post('/messages', {
+                ...formData,
+                recaptcha_token: recaptchaToken,
+            });
             setSuccess(true);
             setFormData({ name: '', email: '', message: '', category: 'saran_program', priority: 'normal' });
+            setRecaptchaToken(null);
+            setShowRecaptcha(false);
+
+            // Reset reCAPTCHA widget
+            if (recaptchaWidgetId.current !== null && window.grecaptcha) {
+                try {
+                    window.grecaptcha.reset(recaptchaWidgetId.current);
+                } catch (e) { /* ignore */ }
+                recaptchaWidgetId.current = null;
+            }
+
             setTimeout(() => setSuccess(false), 5000);
         } catch (err: any) {
             setError(err.response?.data?.message || 'Gagal mengirim pesan. Silakan coba lagi.');
+            // Reset reCAPTCHA on error
+            if (recaptchaWidgetId.current !== null && window.grecaptcha) {
+                try {
+                    window.grecaptcha.reset(recaptchaWidgetId.current);
+                } catch (e) { /* ignore */ }
+            }
+            setRecaptchaToken(null);
         } finally {
             setLoading(false);
         }
@@ -94,6 +202,8 @@ const ContactSection: React.FC = () => {
                                 </div>
                             </div>
                         </Reveal>
+
+
                     </div>
 
                     {/* Contact Form */}
@@ -181,13 +291,14 @@ const ContactSection: React.FC = () => {
 
                             <div>
                                 <label className="block text-sm font-semibold mb-2" style={{ color: '#3B4D3A' }}>
-                                    Pesan
+                                    Pesan <span className="text-xs font-normal opacity-70">(minimal {MIN_CHARS} karakter)</span>
                                 </label>
                                 <textarea
                                     name="message"
                                     value={formData.message}
                                     onChange={handleChange}
                                     required
+                                    minLength={MIN_CHARS}
                                     rows={5}
                                     className="w-full px-4 py-3 border rounded-xl transition-all bg-white
                                             focus:outline focus:outline-2 focus:outline-[#E8DCC3]
@@ -197,31 +308,76 @@ const ContactSection: React.FC = () => {
                                 />
                             </div>
 
+                            {/* reCAPTCHA section - appears after clicking send */}
+                            {showRecaptcha && (
+                                <div
+                                    className="p-4 rounded-xl border transition-all duration-300"
+                                    style={{
+                                        backgroundColor: recaptchaToken ? '#F0FFF0' : '#FFFEF5',
+                                        borderColor: recaptchaToken ? '#4CAF50' : '#E8DCC3',
+                                    }}
+                                >
+                                    <div className="flex items-center gap-2 mb-3">
+                                        {recaptchaToken ? (
+                                            <ShieldCheck className="w-4 h-4" style={{ color: '#4CAF50' }} />
+                                        ) : (
+                                            <AlertTriangle className="w-4 h-4" style={{ color: '#FF9800' }} />
+                                        )}
+                                        <p className="text-sm font-semibold" style={{ color: '#3B4D3A' }}>
+                                            {recaptchaToken ? 'Verifikasi berhasil ✓' : 'Verifikasi bahwa Anda bukan robot'}
+                                        </p>
+                                    </div>
+                                    <div className="flex justify-center" ref={recaptchaRef} />
+                                </div>
+                            )}
+
                             {success && (
-                                <div className="p-4 rounded-xl" style={{ backgroundColor: '#E8F5E9', color: '#2E7D32' }}>
+                                <div className="p-4 rounded-xl flex items-center gap-2" style={{ backgroundColor: '#E8F5E9', color: '#2E7D32' }}>
+                                    <ShieldCheck className="w-5 h-5" />
                                     Pesan berhasil dikirim! Terima kasih.
                                 </div>
                             )}
 
                             {error && (
-                                <div className="p-4 rounded-xl" style={{ backgroundColor: '#FFEBEE', color: '#C62828' }}>
+                                <div className="p-4 rounded-xl flex items-center gap-2" style={{ backgroundColor: '#FFEBEE', color: '#C62828' }}>
+                                    <AlertTriangle className="w-5 h-5" />
                                     {error}
                                 </div>
                             )}
 
                             <button
                                 type="submit"
-                                disabled={loading}
-                                className="w-full px-6 py-4 text-white rounded-xl font-semibold hover:scale-105 hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled={loading || !isFormFieldsValid || (showRecaptcha && !recaptchaToken)}
+                                className="w-full px-6 py-4 text-white rounded-xl font-semibold hover:scale-105 hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                                 style={{ backgroundColor: '#3B4D3A' }}
                             >
-                                {loading ? 'Mengirim...' : (
+                                {loading ? (
+                                    <span className="flex items-center gap-2">
+                                        <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                        </svg>
+                                        Mengirim...
+                                    </span>
+                                ) : showRecaptcha && !recaptchaToken ? (
+                                    <>
+                                        <ShieldCheck className="w-5 h-5" />
+                                        Selesaikan Verifikasi
+                                    </>
+                                ) : !showRecaptcha ? (
+                                    <>
+                                        <Send className="w-5 h-5" />
+                                        Kirim Pesan
+                                    </>
+                                ) : (
                                     <>
                                         <Send className="w-5 h-5" />
                                         Kirim Pesan
                                     </>
                                 )}
                             </button>
+
+
                         </form>
                     </Reveal>
                 </div>

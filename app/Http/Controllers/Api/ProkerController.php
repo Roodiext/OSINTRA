@@ -262,13 +262,20 @@ class ProkerController extends Controller
         $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
         $image = $manager->read($file);
         
-        // Resize only if > 4K (Ultra HD) - keeps detail for zoom interactions
-        if ($image->width() > 3840) {
-            $image->scale(width: 3840);
+        // Scale down width to max 1920px for documentation gallery to heavily reduce size
+        if ($image->width() > 1920) {
+            $image->scale(width: 1920);
         }
         
-        // Quality 95: High quality, decent compression via WebP
-        $image->toWebp(quality: 95)->save($destinationPath . '/' . $filename);
+        // Initial decent quality
+        $quality = 85;
+        $image->toWebp(quality: $quality)->save($destinationPath . '/' . $filename);
+        
+        // Ensure file size is below 1MB (1,048,576 bytes)
+        while (file_exists($destinationPath . '/' . $filename) && filesize($destinationPath . '/' . $filename) > 1048576 && $quality > 20) {
+            $quality -= 10;
+            $image->toWebp(quality: $quality)->save($destinationPath . '/' . $filename);
+        }
         
         // URL is now direct
         $mediaUrl = '/assets/' . $filename;

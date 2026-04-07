@@ -17,6 +17,7 @@ class MessageReplyMail extends Mailable
     public $originalMessage;
     public $senderName;
     public $senderEmail;
+    public $senderPosition;
     public $recipientName;
     public $recipientEmail;
 
@@ -33,6 +34,7 @@ class MessageReplyMail extends Mailable
         $this->recipientEmail = $message->email;
         $this->senderName = $message->repliedBy?->name ?? 'Administrator';
         $this->senderEmail = $message->repliedBy?->email ?? config('mail.from.address');
+        $this->senderPosition = $message->repliedBy?->position?->name ?? 'Pengurus';
     }
 
     /**
@@ -63,6 +65,7 @@ class MessageReplyMail extends Mailable
                 'originalMessage' => $this->originalMessage,
                 'senderName' => $this->senderName,
                 'senderEmail' => $this->senderEmail,
+                'senderPosition' => $this->senderPosition,
                 'recipientName' => $this->recipientName,
                 'siteLogo' => $siteLogo,
                 'siteName' => AppSetting::get('site_name', 'OSIS SMKN 6 Surakarta'),

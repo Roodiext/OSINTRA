@@ -70,22 +70,20 @@
                             <!-- Closing -->
                             <div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid #f1f1f1;">
                                 <p style="color: #4a4a4a; font-size: 14px; margin: 0 0 5px 0;">Tertanda,</p>
-                                <p style="color: #3B4D3A; font-size: 16px; font-weight: 700; margin: 0;">Pengurus OSIS SMKN 6 Surakarta</p>
+                                <p style="color: #3B4D3A; font-size: 16px; font-weight: 700; margin: 0 0 2px 0;">{{ $senderName }}</p>
+                                <p style="color: #6c757d; font-size: 14px; margin: 0;">{{ $senderPosition }} OSIS SMKN 6 Surakarta</p>
                             </div>
                         </td>
                     </tr>
 
                     <!-- Footer Info -->
                     <tr>
-                        <td style="background-color: #f8f9fa; padding: 30px 40px; text-align: center;">
-                            <div style="margin: 10px 0;">
-                                <a href="{{ config('app.url') }}" style="color: #3B4D3A; text-decoration: none; font-size: 12px; font-weight: 600;">Website Utama</a>
+                        <td style="background-color: #f8f9fa; padding: 20px 40px; text-align: center;">
+                            <div style="margin: 5px 0;">
+                                <a href="{{ config('app.url') }}" style="color: #3B4D3A; text-decoration: none; font-size: 12px; font-weight: 600;">OSINTRA</a>
                                 <span style="color: #dee2e6; margin: 0 10px;">|</span>
-                                <a href="{{ config('app.url') }}/contact" style="color: #3B4D3A; text-decoration: none; font-size: 12px; font-weight: 600;">Hubungi Kami</a>
+                                <a href="https://www.instagram.com/osis_smkn6ska?igsh=MWcyeDBmc3Uwa3F2YQ==" style="color: #3B4D3A; text-decoration: none; font-size: 12px; font-weight: 600;">Hubungi Kami</a>
                             </div>
-                            <p style="color: #95a5a6; font-size: 12px; line-height: 1.5; margin: 0 0 10px 0;">
-                                Email ini dikirim secara otomatis melalui Sistem OSINTRA.
-                            </p>
                             <p style="color: #adb5bd; font-size: 11px; margin: 0;">
                                 &copy; {{ date('Y') }} OSIS SMKN 6 Surakarta. All rights reserved.
                             </p>
