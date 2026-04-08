@@ -222,7 +222,7 @@ Route::middleware(['inertia.auth'])->group(function () {
     
     Route::get('/dashboard/transactions', function () {
         $user = auth('sanctum')->user() ?? auth()->user();
-        $transactions = \App\Models\Transaction::with('creator')->orderBy('date', 'desc')->get();
+        $transactions = \App\Models\Transaction::with(['creator.role', 'approver.role'])->orderBy('date', 'desc')->get();
         $balance = $transactions->where('type', 'income')->sum('amount') - $transactions->where('type', 'expense')->sum('amount');
         $totalIncome = $transactions->where('type', 'income')->sum('amount');
         $totalExpense = $transactions->where('type', 'expense')->sum('amount');

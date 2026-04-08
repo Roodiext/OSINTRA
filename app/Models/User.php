@@ -111,10 +111,8 @@ class User extends Authenticatable
             return false;
         }
 
-        // Admin role always has all permissions
-        if ($this->role->name === 'Admin') {
-            return true;
-        }
+        // Admin role: check actual permissions from database
+        // This ensures role access settings are respected even for admin
 
         // Check role permissions
         $permission = $this->role->permissions()
@@ -132,6 +130,7 @@ class User extends Authenticatable
             'create' => (bool) $permission->can_create,
             'edit' => (bool) $permission->can_edit,
             'delete' => (bool) $permission->can_delete,
+            'approve' => (bool) ($permission->can_approve ?? false),
             default => false,
         };
     }

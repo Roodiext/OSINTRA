@@ -20,6 +20,8 @@ class Transaction extends Model
         'status',
         'approved_by',
         'category',
+        'ip_address',
+        'user_agent',
     ];
 
     protected $casts = [

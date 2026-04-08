@@ -85,50 +85,69 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Mock Backup Download
+    // Real Database Backup Download
     const handleBackup = () => {
         Swal.fire({
             title: 'Backup Database',
-            text: 'Sistem akan mengunduh database terbaru (format .json).',
+            text: 'Sistem akan memproses dan mengunduh seluruh database (ZIP). Proses ini mungkin memakan waktu.',
             icon: 'info',
             showCancelButton: true,
             confirmButtonColor: '#3B4D3A',
             cancelButtonColor: '#9CA3AF',
             confirmButtonText: 'Ya, Download',
             cancelButtonText: 'Batal'
-        }).then((result) => {
+        }).then(async (result) => {
             if (result.isConfirmed) {
-                // Determine filename
-                const date = new Date().toISOString().split('T')[0];
-                const filename = `backup_osintra_${date}.json`;
-
-                // Create mock data blob
-                const backupData = {
-                    siteName,
-                    academicPeriod,
-                    maintenanceMode,
-                    exportedAt: new Date().toISOString(),
-                    version: "1.0.0"
-                };
-
-                const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = filename;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
-
+                // Show loading state
                 Swal.fire({
-                    title: 'Backup Selesai!',
-                    text: `File ${filename} berhasil diunduh.`,
-                    icon: 'success',
-                    timer: 2000,
-                    showConfirmButton: false
+                    title: 'Memproses Backup...',
+                    text: 'Tolong jangan tutup halaman ini.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
                 });
+
+                try {
+                    const response = await api.get('/settings/backup/download', {
+                        responseType: 'blob' // Important for downloading files
+                    });
+
+                    // Determine filename from content-disposition header if available, else generate
+                    const contentDisposition = response.headers['content-disposition'];
+                    let filename = `OSVIS_Backup_${new Date().toISOString().split('T')[0]}.zip`;
+                    if (contentDisposition) {
+                        const filenameMatch = contentDisposition.match(/filename="?(.+)"?/);
+                        if (filenameMatch && filenameMatch.length === 2) {
+                            filename = filenameMatch[1];
+                        }
+                    }
+
+                    // Create file link and download
+                    const url = window.URL.createObjectURL(new Blob([response.data]));
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', filename);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+
+                    Swal.fire({
+                        title: 'Backup Berhasil!',
+                        text: 'File ZIP database berhasil diunduh.',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } catch (error) {
+                    console.error('Backup error:', error);
+                    Swal.fire(
+                        'Gagal!',
+                        'Terjadi kesalahan saat memproses backup ZIP.',
+                        'error'
+                    );
+                }
             }
         });
     };
@@ -225,8 +244,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
             // 2. Save other settings
             await api.put('/settings', {
                 settings: [
-                    { key: 'site_name', value: siteName },
-                    { key: 'academic_period', value: academicPeriod },
                     // Maintenance mode is handled separately now, but we still include it to be safe or we can omit it if we want to rely solely on the toggle. 
                     // However, keeping it ensures consistency if the user modifies other things and saves.
                     { key: 'maintenance_mode', value: maintenanceMode ? '1' : '0' },

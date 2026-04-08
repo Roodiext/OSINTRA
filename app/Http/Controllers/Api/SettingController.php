@@ -301,4 +301,75 @@ class SettingController extends Controller
 
         return response()->json($logs);
     }
+
+    /**
+     * Download comprehensive ZIP database backup
+     */
+    public function downloadBackup()
+    {
+        $zip = new \ZipArchive();
+        
+        $dateStr = now()->format('Y-m-d_H-i');
+        $fileName = "OSVIS_Backup_{$dateStr}.zip";
+        $zipPath = storage_path("app/temp_{$fileName}");
+
+        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
+            
+            // 1. Metadata
+            $metadata = [
+                'exported_at' => now()->toIso8601String(),
+                'version' => '1.0.0',
+                'app_settings' => AppSetting::all()->pluck('value', 'key'),
+            ];
+            $zip->addFromString('metadata.json', json_encode($metadata, JSON_PRETTY_PRINT));
+
+            // 2. Keuangan
+            $transactions = \App\Models\Transaction::all();
+            $zip->addEmptyDir('keuangan');
+            $zip->addFromString('keuangan/transactions_history.json', $transactions->toJson(JSON_PRETTY_PRINT));
+            
+            // Generate CSV for transactions
+            $csvData = "ID,Tanggal,Judul,Kategori,Jenis,Jumlah,Status,Pembuat,Penyetuju,IP,UserAgent\n";
+            foreach ($transactions as $t) {
+                $csvData .= sprintf(
+                    "%s,%s,\"%s\",\"%s\",%s,%s,%s,%s,%s,\"%s\",\"%s\"\n",
+                    $t->id,
+                    $t->date,
+                    str_replace('"', '""', $t->title),
+                    str_replace('"', '""', $t->category ?? ''),
+                    $t->type,
+                    $t->amount,
+                    $t->status,
+                    $t->created_by,
+                    $t->approved_by ?? '',
+                    $t->ip_address ?? '',
+                    str_replace('"', '""', $t->user_agent ?? '')
+                );
+            }
+            $zip->addFromString('keuangan/transactions_history.csv', $csvData);
+
+            // 3. Pengguna dan Akses
+            $zip->addEmptyDir('pengguna_dan_akses');
+            $zip->addFromString('pengguna_dan_akses/users_list.json', \App\Models\User::all()->toJson(JSON_PRETTY_PRINT));
+            $zip->addFromString('pengguna_dan_akses/roles.json', Role::all()->toJson(JSON_PRETTY_PRINT));
+            $zip->addFromString('pengguna_dan_akses/roles_permissions.json', RolePermission::all()->toJson(JSON_PRETTY_PRINT));
+
+            // 4. Operasional
+            $zip->addEmptyDir('operasional');
+            $zip->addFromString('operasional/divisions.json', \App\Models\Division::all()->toJson(JSON_PRETTY_PRINT));
+            $zip->addFromString('operasional/positions.json', \App\Models\Position::all()->toJson(JSON_PRETTY_PRINT));
+            $zip->addFromString('operasional/program_kerja.json', \App\Models\Proker::with(['anggota', 'media'])->get()->toJson(JSON_PRETTY_PRINT));
+
+            // 5. History
+            $zip->addEmptyDir('history');
+            $zip->addFromString('history/messages.json', \App\Models\Message::all()->toJson(JSON_PRETTY_PRINT));
+            $zip->addFromString('history/audit_logs.json', AuditLog::all()->toJson(JSON_PRETTY_PRINT));
+
+            $zip->close();
+
+            return response()->download($zipPath)->deleteFileAfterSend(true);
+        }
+
+        return response()->json(['error' => 'Failed to create backup ZIP archive.'], 500);
+    }
 }

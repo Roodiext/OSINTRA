@@ -81,6 +81,8 @@ class TransactionController extends Controller
         $validated['amount'] = (int)round($validated['amount']);
         $validated['created_by'] = $request->user()->id;
         $validated['status'] = 'pending';
+        $validated['ip_address'] = $request->ip();
+        $validated['user_agent'] = $request->userAgent();
 
         $transaction = Transaction::create($validated);
 
