@@ -50,7 +50,9 @@ interface Proker {
     media: ProkerMedia[];
 }
 
-interface ProkerDetailPageProps {
+import { PageProps } from '@inertiajs/core';
+
+interface ProkerDetailPageProps extends PageProps {
     permissions?: {
         can_view: boolean;
         can_create: boolean;
@@ -369,6 +371,90 @@ const ProkerDetailPage: React.FC = () => {
         return acc;
     }, {} as Record<number, { division: Division; members: ProkerAnggota[] }>);
 
+    // Media Card Component for reuse in different sections
+    const MediaCard = ({ media }: { media: ProkerMedia }) => (
+        <div
+            className="group relative aspect-square rounded-xl overflow-hidden bg-gray-100 cursor-pointer shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200"
+            onClick={() => setSelectedMedia(media)}
+        >
+            {media.media_type === 'video' && !/\.(jpg|jpeg|png|webp|gif|svg)$/i.test(media.media_url) ? (
+                <video
+                    src={media.media_url}
+                    className="w-full h-full object-cover"
+                    muted
+                />
+            ) : (
+                <img
+                    src={media.thumbnail_url || media.media_url}
+                    alt={media.caption || ''}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                    decoding="async"
+                    onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        if (target.src !== media.media_url) target.src = media.media_url;
+                    }}
+                />
+            )}
+            
+            {/* Overlay Controls */}
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex gap-2">
+                    {permissions.can_edit && media.media_type !== 'video' && (
+                        <>
+                            <button
+                                onClick={(e) => handleSetThumbnail(media, e)}
+                                className={`p-2.5 rounded-xl transition-all shadow-lg transform hover:scale-110 ${media.is_thumbnail ? 'bg-yellow-400 text-white' : 'bg-white text-gray-600 hover:bg-yellow-50'}`}
+                                title={media.is_thumbnail ? "Thumbnail Aktif" : "Jadikan Thumbnail"}
+                            >
+                                <Star className={`w-4 h-4 ${media.is_thumbnail ? 'fill-current' : ''}`} />
+                            </button>
+                            <button
+                                onClick={(e) => handleToggleHighlight(media, e)}
+                                className={`p-2.5 rounded-xl transition-all shadow-lg transform hover:scale-110 ${media.is_highlight ? 'bg-blue-500 text-white' : 'bg-white text-gray-600 hover:bg-blue-50'}`}
+                                title={media.is_highlight ? "Highlight Aktif" : "Jadikan Highlight"}
+                            >
+                                <Bookmark className={`w-4 h-4 ${media.is_highlight ? 'fill-current' : ''}`} />
+                            </button>
+                        </>
+                    )}
+                    {permissions.can_delete && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteMedia(media);
+                            }}
+                            className="p-2.5 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-all shadow-lg transform hover:scale-110"
+                            title="Hapus"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                        </button>
+                    )}
+                </div>
+            </div>
+
+            {/* Badges */}
+            <div className="absolute top-2 left-2 flex flex-col gap-1 z-10">
+                {media.is_thumbnail && (
+                    <div className="bg-yellow-400 text-white text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded shadow-md flex items-center gap-1">
+                        <Star className="w-3 h-3 fill-current" /> Thumbnail
+                    </div>
+                )}
+                {media.is_highlight && (
+                    <div className="bg-blue-500 text-white text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded shadow-md flex items-center gap-1">
+                        <Bookmark className="w-3 h-3 fill-current" /> Highlight
+                    </div>
+                )}
+            </div>
+
+            {media.caption && (
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3">
+                    <p className="text-white text-xs font-medium line-clamp-2">{media.caption}</p>
+                </div>
+            )}
+        </div>
+    );
+
     return (
         <>
             <Head title={`${proker.title} - OSINTRA`} />
@@ -638,7 +724,7 @@ const ProkerDetailPage: React.FC = () => {
                                 </div>
                                 <h2 className="text-2xl font-bold text-[#3B4D3A]">Galeri Dokumentasi</h2>
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex flex-col items-end gap-2">
                                 <input
                                     ref={fileInputRef}
                                     type="file"
@@ -648,7 +734,18 @@ const ProkerDetailPage: React.FC = () => {
                                 />
                                 {permissions.can_edit && (
                                     <button
-                                        onClick={() => fileInputRef.current?.click()}
+                                        onClick={() => {
+                                            if (proker.media.length >= 6) {
+                                                Swal.fire({
+                                                    icon: 'warning',
+                                                    title: 'Dokumentasi Penuh',
+                                                    text: 'Maksimal dokumentasi yang dapat diupload adalah 6 foto (1 Thumbnail & 5 Highlight). Silakan hapus foto yang sudah ada untuk menambah foto baru.',
+                                                    confirmButtonColor: '#3B4D3A'
+                                                });
+                                                return;
+                                            }
+                                            fileInputRef.current?.click();
+                                        }}
                                         disabled={uploading}
                                         className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all font-bold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
@@ -665,92 +762,58 @@ const ProkerDetailPage: React.FC = () => {
                                         )}
                                     </button>
                                 )}
+                                <p className="text-[10px] md:text-xs font-semibold text-gray-400 bg-gray-50 px-3 py-1 rounded-full border border-gray-100">
+                                    Limit: <span className={proker.media.length >= 6 ? 'text-red-500' : 'text-[#3B4D3A]'}>{proker.media.length}/6</span> (1 Thumbnail, 5 Highlight)
+                                </p>
                             </div>
                         </div>
 
                         {proker.media && proker.media.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                                {proker.media.map((media) => (
-                                    <div
-                                        key={media.id}
-                                        className="group relative aspect-square rounded-lg overflow-hidden bg-gray-100 cursor-pointer"
-                                        onClick={() => setSelectedMedia(media)}
-                                    >
-                                        {media.media_type === 'video' && !/\.(jpg|jpeg|png|webp|gif|svg)$/i.test(media.media_url) ? (
-                                            <video
-                                                src={media.media_url}
-                                                className="w-full h-full object-cover"
-                                                muted
-                                            />
-                                        ) : (
-                                            <img
-                                                src={media.thumbnail_url || media.media_url}
-                                                alt={media.caption || ''}
-                                                className="w-full h-full object-cover"
-                                                loading="lazy"
-                                                decoding="async"
-                                                onError={(e) => {
-                                                    // Fallback to original if thumbnail fails
-                                                    const target = e.target as HTMLImageElement;
-                                                    if (target.src !== media.media_url) {
-                                                        target.src = media.media_url;
-                                                    }
-                                                }}
-                                            />
-                                        )}
-                                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
-                                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex gap-2">
-                                                {permissions.can_edit && media.media_type !== 'video' && (
-                                                    <>
-                                                        <button
-                                                            onClick={(e) => handleSetThumbnail(media, e)}
-                                                            className={`p-2 rounded-lg transition ${media.is_thumbnail ? 'bg-yellow-400 text-white' : 'bg-white text-gray-600 hover:bg-yellow-100'}`}
-                                                            title={media.is_thumbnail ? "Thumbnail Aktif" : "Jadikan Thumbnail"}
-                                                        >
-                                                            <Star className={`w-4 h-4 ${media.is_thumbnail ? 'fill-current' : ''}`} />
-                                                        </button>
-                                                        <button
-                                                            onClick={(e) => handleToggleHighlight(media, e)}
-                                                            className={`p-2 rounded-lg transition ${media.is_highlight ? 'bg-blue-500 text-white' : 'bg-white text-gray-600 hover:bg-blue-100'}`}
-                                                            title={media.is_highlight ? "Highlight Aktif" : "Jadikan Highlight"}
-                                                        >
-                                                            <Bookmark className={`w-4 h-4 ${media.is_highlight ? 'fill-current' : ''}`} />
-                                                        </button>
-                                                    </>
-                                                )}
-                                                {permissions.can_delete && (
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleDeleteMedia(media);
-                                                        }}
-                                                        className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
-                                                        title="Hapus"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
-                                                )}
-                                            </div>
+                            <div className="space-y-10">
+                                {/* Thumbnail Section */}
+                                {proker.media.filter(m => m.is_thumbnail).length > 0 && (
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-2 border-b border-gray-100 pb-2">
+                                            <Star className="w-5 h-5 text-yellow-500 fill-current" />
+                                            <h3 className="text-lg font-bold text-[#3B4D3A]">Thumbnail Utama</h3>
                                         </div>
-
-                                        {media.is_thumbnail && (
-                                            <div className="absolute top-2 left-2 bg-yellow-400 text-white text-xs font-bold px-2 py-1 rounded shadow-md z-10 flex items-center gap-1">
-                                                <Star className="w-3 h-3 fill-current" /> Thumbnail
-                                            </div>
-                                        )}
-                                        {media.is_highlight && !media.is_thumbnail && (
-                                            <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded shadow-md z-10 flex items-center gap-1">
-                                                <Bookmark className="w-3 h-3 fill-current" /> Highlight
-                                            </div>
-                                        )}
-
-                                        {media.caption && (
-                                            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
-                                                <p className="text-white text-sm truncate">{media.caption}</p>
-                                            </div>
-                                        )}
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                            {proker.media.filter(m => m.is_thumbnail).map((media) => (
+                                                <MediaCard key={media.id} media={media} />
+                                            ))}
+                                        </div>
                                     </div>
-                                ))}
+                                )}
+
+                                {/* Highlight Section */}
+                                {proker.media.filter(m => m.is_highlight && !m.is_thumbnail).length > 0 && (
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-2 border-b border-gray-100 pb-2">
+                                            <Bookmark className="w-5 h-5 text-blue-500 fill-current" />
+                                            <h3 className="text-lg font-bold text-[#3B4D3A]">Highlight Event</h3>
+                                        </div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                            {proker.media.filter(m => m.is_highlight && !m.is_thumbnail).map((media) => (
+                                                <MediaCard key={media.id} media={media} />
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Regular Media Section */}
+                                {proker.media.filter(m => !m.is_highlight && !m.is_thumbnail).length > 0 && (
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-2 border-b border-gray-100 pb-2">
+                                            <ImageIcon className="w-5 h-5 text-gray-400" />
+                                            <h3 className="text-lg font-bold text-[#3B4D3A]">Foto Dokumentasi</h3>
+                                        </div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                            {proker.media.filter(m => !m.is_highlight && !m.is_thumbnail).map((media) => (
+                                                <MediaCard key={media.id} media={media} />
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-lg">

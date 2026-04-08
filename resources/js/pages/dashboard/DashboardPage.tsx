@@ -131,7 +131,7 @@ const DashboardPage: React.FC = () => {
                                     <div className="flex flex-col items-end">
                                         <p className="text-sm font-medium text-[#6E8BA3] mb-1">Saldo</p>
                                         <p className="text-xl sm:text-2xl font-bold text-[#3B4D3A] break-all text-right">
-                                            Rp {stats?.balance?.toLocaleString('id-ID') || 0}
+                                            Rp{stats?.balance?.toLocaleString('id-ID') || 0}
                                         </p>
                                     </div>
                                 </div>
@@ -153,7 +153,7 @@ const DashboardPage: React.FC = () => {
                                 </div>
                             </div>
                             <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-green-600 break-words">
-                                Rp {stats?.total_income?.toLocaleString('id-ID') || 0}
+                                Rp{stats?.total_income?.toLocaleString('id-ID') || 0}
                             </p>
                         </div>
 
@@ -168,7 +168,7 @@ const DashboardPage: React.FC = () => {
                                 </div>
                             </div>
                             <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-red-600 break-words">
-                                Rp {stats?.total_expense?.toLocaleString('id-ID') || 0}
+                                Rp{stats?.total_expense?.toLocaleString('id-ID') || 0}
                             </p>
                         </div>
                     </div>

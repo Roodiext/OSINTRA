@@ -10,7 +10,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ initialImage }) => {
 
     const scrollToAbout = () => {
         document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
-    };
+    }; 
 
     return (
         <section className="relative h-screen flex flex-col justify-end items-center bg-[#050505] overflow-hidden">

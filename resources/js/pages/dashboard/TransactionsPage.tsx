@@ -25,6 +25,14 @@ interface TransactionsPageProps {
     balance: number;
     totalIncome: number;
     totalExpense: number;
+    permissions?: {
+        can_view?: boolean;
+        can_create?: boolean;
+        can_edit?: boolean;
+        can_delete?: boolean;
+        can_approve?: boolean;
+        is_blurred?: boolean;
+    };
 }
 
 const CATEGORIES = ['Iuran', 'Donasi', 'Supplies', 'Event', 'Utility', 'Transport', 'Other'];
@@ -34,7 +42,8 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
     monthlyData,
     balance,
     totalIncome,
-    totalExpense
+    totalExpense,
+    permissions
 }) => {
     const { props } = usePage<any>();
     usePermissionAlert(props.flash?.permission_message);
@@ -275,15 +284,14 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
     };
 
     const formatCurrency = (value: number | string): string => {
-        if (value === null || value === undefined) return 'Rp 0';
+        if (value === null || value === undefined) return 'Rp0';
         // Always treat as a number - no additional parsing if already numeric
         const numValue = typeof value === 'string' ? parseAmountInput(value) : Math.floor(value);
-        return new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
+        const formatted = new Intl.NumberFormat('id-ID', {
             minimumFractionDigits: 0,
             maximumFractionDigits: 0,
         }).format(numValue);
+        return `Rp${formatted}`;
     };
 
     const handleAmountChange = (value: string, setter: Function) => {
@@ -301,7 +309,7 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
             <Head title="Transaksi - OSINTRA" />
             <DashboardLayout>
                 <div className="p-8 space-y-6">
-                    {/* Header */}
+                        {/* Header */}
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div>
                             <h1 className="text-3xl font-bold text-[#3B4D3A]">Transaksi Keuangan</h1>
@@ -402,8 +410,17 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
                         </div>
                     </div>
 
-                    {/* Filters */}
-                    <div className="bg-white rounded-xl shadow-md p-6">
+                    <div className="relative">
+                        {permissions?.is_blurred && (
+                            <div className="absolute inset-0 z-40 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center rounded-xl border border-white/10 shadow-lg">
+                                <AlertCircle className="w-16 h-16 text-red-500 mb-4" />
+                                <h2 className="text-2xl font-bold text-white mb-2">Akses Terbatas</h2>
+                                <p className="!text-white">Maaf, Anda tidak memiliki akses untuk melihat rincian transaksi.</p>
+                            </div>
+                        )}
+                        <div className={`space-y-6 ${permissions?.is_blurred ? 'filter blur-md select-none pointer-events-none opacity-30 select-none' : ''}`}>
+                            {/* Filters */}
+                            <div className="bg-white rounded-xl shadow-md p-6">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-lg font-bold text-[#3B4D3A]">Filter Lanjutan</h3>
                             {[searchQuery, filterType, filterStatus, filterCategory, startDate, endDate, minAmount, maxAmount].filter(Boolean).length > 0 && (
@@ -598,6 +615,8 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
                             </div>
                         )}
                     </div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Modal */}
@@ -786,12 +805,11 @@ const ChartSummary: React.FC<ChartSummaryProps> = ({ monthlyData }) => {
     }, [monthlyData]);
 
     const formatCurrency = (value: number): string => {
-        return new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
+        const formatted = new Intl.NumberFormat('id-ID', {
             minimumFractionDigits: 0,
             maximumFractionDigits: 0,
         }).format(value);
+        return `Rp${formatted}`;
     };
 
     const TrendIndicator = ({ change }: { change: number }) => {

@@ -7,6 +7,7 @@ use App\Mail\MessageReplyMail;
 use App\Models\Message;
 use App\Models\AuditLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 
 class MessageController extends Controller
@@ -69,12 +70,35 @@ class MessageController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email',
-            // 'subject' => 'required|string|max:255', // Removed as per request
-            'message' => 'required|string',
+            'message' => 'required|string|min:15',
             'category' => 'required|in:saran_program,kritik_feedback,laporan_masalah,ide_usulan,komplain',
             'priority' => 'required|in:low,normal,high',
             'is_anonymous' => 'boolean',
+            'recaptcha_token' => 'required|string',
+        ], [
+            'name.min' => 'Nama harus minimal 15 karakter.',
+            'message.min' => 'Pesan harus minimal 15 karakter.',
+            'recaptcha_token.required' => 'Verifikasi reCAPTCHA diperlukan.',
         ]);
+
+        // Verify reCAPTCHA (skip in local/testing environment with test keys)
+        $recaptchaSecret = config('services.recaptcha.secret');
+        if ($recaptchaSecret && config('app.env') !== 'local') {
+            $recaptchaResponse = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+                'secret' => $recaptchaSecret,
+                'response' => $validated['recaptcha_token'],
+                'remoteip' => $request->ip(),
+            ]);
+
+            if (!$recaptchaResponse->json('success')) {
+                return response()->json([
+                    'message' => 'Verifikasi reCAPTCHA gagal. Silakan coba lagi.',
+                ], 422);
+            }
+        }
+
+        // Remove recaptcha_token from validated data before creating message
+        unset($validated['recaptcha_token']);
 
         // Auto-generate subject if not present (mapping category to readable title)
         if (!isset($validated['subject'])) {
@@ -153,14 +177,16 @@ class MessageController extends Controller
             'reply_message' => 'required|string',
         ]);
 
-        // Load repliedBy relation before updating
-        $message->load('repliedBy:id,name,email');
-
         $message->update([
             'reply_message' => $validated['reply_message'],
             'replied_at' => now(),
             'replied_by' => $request->user()->id,
         ]);
+
+        // Load repliedBy relation and its position AFTER updating
+        $message->load(['repliedBy' => function($q) {
+            $q->select('id', 'name', 'email', 'position_id')->with('position:id,name');
+        }]);
 
         // Send email to the message sender
         try {
@@ -171,14 +197,14 @@ class MessageController extends Controller
              // Return error response so frontend shows it
              return response()->json([
                  'message' => 'Reply saved but email failed to send: ' . $e->getMessage(),
-                 'data' => $message->load('repliedBy:id,name,email')
+                 'data' => $message
              ], 500); 
         }
 
         AuditLog::log('reply_message', "Replied to message from: {$message->name}");
 
         return response()->json([
-            'message' => $message->load('repliedBy:id,name,email'),
+            'message' => $message,
             'message_text' => 'Reply sent successfully',
         ]);
     }
