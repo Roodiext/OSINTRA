@@ -415,7 +415,6 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
                             <div className="absolute inset-0 z-40 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center rounded-xl border border-white/10 shadow-lg">
                                 <AlertCircle className="w-16 h-16 text-red-500 mb-4" />
                                 <h2 className="text-2xl font-bold text-white mb-2">Akses Terbatas</h2>
-                                <p className="!text-white">Maaf, Anda tidak memiliki akses untuk melihat rincian transaksi.</p>
                             </div>
                         )}
                         <div className={`space-y-6 ${permissions?.is_blurred ? 'filter blur-md select-none pointer-events-none opacity-30 select-none' : ''}`}>

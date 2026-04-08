@@ -309,76 +309,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
                     {/* LEFT COLUMN (Main Content) - Spans 2 cols */}
                     <div className="xl:col-span-2 space-y-6">
 
-                        {/* CARD: General Settings */}
-                        <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
-                            <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
-                                <div className="p-2.5 bg-[#E8DCC3]/30 rounded-xl text-[#3B4D3A]">
-                                    <Globe className="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <h2 className="text-xl font-bold text-[#3B4D3A]">Identitas Organisasi</h2>
-                                    <p className="text-sm text-gray-400">Informasi utama website</p>
-                                </div>
-                            </div>
-
-                            <div className="space-y-6">
-                                <div>
-                                    <label className="block text-sm font-semibold text-[#3B4D3A] mb-2">Nama Organisasi</label>
-                                    <input
-                                        type="text"
-                                        value={siteName}
-                                        onChange={(e) => setSiteName(e.target.value)}
-                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#3B4D3A]/20 focus:border-[#3B4D3A] transition-all bg-gray-50 focus:bg-white"
-                                        placeholder="Contoh: OSIS SMAN 1 Kota..."
-                                    />
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label className="block text-sm font-semibold text-[#3B4D3A] mb-2">Periode Akademik</label>
-                                        <div className="relative group">
-                                            <Calendar className="absolute left-4 top-3.5 w-5 h-5 text-gray-400 group-hover:text-[#3B4D3A] transition-colors" />
-                                            <select
-                                                value={academicPeriod}
-                                                onChange={(e) => setAcademicPeriod(e.target.value)}
-                                                className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#3B4D3A]/20 focus:border-[#3B4D3A] bg-gray-50 focus:bg-white appearance-none cursor-pointer"
-                                            >
-                                                <option>2023/2024</option>
-                                                <option>2024/2025</option>
-                                                <option>2025/2026</option>
-                                                <option>2026/2027</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-semibold text-[#3B4D3A] mb-2">Status Website</label>
-                                        <div
-                                            className={`flex items-center justify-between p-3 border rounded-xl transition-all cursor-pointer ${publicAccess
-                                                ? 'bg-green-50 border-green-200'
-                                                : 'bg-gray-50 border-gray-200'
-                                                }`}
-                                            onClick={() => setPublicAccess(!publicAccess)}
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <div className={`w-2.5 h-2.5 rounded-full ${publicAccess ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
-                                                <span className={`text-sm font-medium ${publicAccess ? 'text-green-800' : 'text-gray-600'}`}>
-                                                    {publicAccess ? 'Online' : 'Offline'}
-                                                </span>
-                                            </div>
-                                            <div className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none ${publicAccess ? 'bg-green-600' : 'bg-gray-300'
-                                                }`}
-                                            >
-                                                <span
-                                                    className={`${publicAccess ? 'translate-x-6' : 'translate-x-1'
-                                                        } inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 shadow-sm`}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        
 
                         {/* CARD: Visi & Misi */}
                         <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
