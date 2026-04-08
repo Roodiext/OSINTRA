@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
-import { Plus, Search, Edit2, Trash2, CheckCircle, XCircle, Clock, AlertCircle, TrendingUp, TrendingDown } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, CheckCircle, XCircle, Clock, AlertCircle, TrendingUp, TrendingDown, Info, X, Monitor, Globe, User, Shield } from 'lucide-react';
 import Chart from 'react-apexcharts';
 import type { Transaction } from '@/types';
 import Swal from 'sweetalert2';
@@ -12,10 +12,16 @@ interface ExtendedTransaction extends Transaction {
     status?: 'pending' | 'approved' | 'rejected';
     category?: string;
     approved_by?: number;
+    ip_address?: string;
+    user_agent?: string;
     approver?: {
         id: number;
         name: string;
         email: string;
+        role?: {
+            id: number;
+            name: string;
+        };
     };
 }
 
@@ -49,6 +55,7 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
     usePermissionAlert(props.flash?.permission_message);
 
     const [transactions, setTransactions] = useState<ExtendedTransaction[]>(initialTransactions || []);
+    const [infoTransaction, setInfoTransaction] = useState<ExtendedTransaction | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState<string>('');
     const [filterStatus, setFilterStatus] = useState<string>('');
@@ -315,18 +322,20 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
                             <h1 className="text-3xl font-bold text-[#3B4D3A]">Transaksi Keuangan</h1>
                             <p className="text-[#6E8BA3] mt-1">Kelola pemasukan dan pengeluaran OSIS</p>
                         </div>
-                        <button
-                            type="button"
-                            onClick={(e) => {
-                                console.log('Button clicked!', e);
-                                e.preventDefault();
-                                handleOpenModal();
-                            }}
-                            className="flex items-center gap-2 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] active:scale-95 transition-all shadow-md cursor-pointer"
-                        >
-                            <Plus className="w-5 h-5" />
-                            Tambah Transaksi
-                        </button>
+                        {permissions?.can_create && (
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    console.log('Button clicked!', e);
+                                    e.preventDefault();
+                                    handleOpenModal();
+                                }}
+                                className="flex items-center gap-2 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] active:scale-95 transition-all shadow-md cursor-pointer"
+                            >
+                                <Plus className="w-5 h-5" />
+                                Tambah Transaksi
+                            </button>
+                        )}
                     </div>
 
                     {/* Summary Cards */}
@@ -415,7 +424,6 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
                             <div className="absolute inset-0 z-40 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center rounded-xl border border-white/10 shadow-lg">
                                 <AlertCircle className="w-16 h-16 text-red-500 mb-4" />
                                 <h2 className="text-2xl font-bold text-white mb-2">Akses Terbatas</h2>
-                                <p className="!text-white">Maaf, Anda tidak memiliki akses untuk melihat rincian transaksi.</p>
                             </div>
                         )}
                         <div className={`space-y-6 ${permissions?.is_blurred ? 'filter blur-md select-none pointer-events-none opacity-30 select-none' : ''}`}>
@@ -568,7 +576,14 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex gap-2 justify-center">
-                                                    {(transaction.status === 'pending' || !transaction.status) && (
+                                                    <button
+                                                        onClick={() => setInfoTransaction(transaction)}
+                                                        className="p-2 hover:bg-blue-100 rounded-lg transition-colors"
+                                                        title="Info Transparansi"
+                                                    >
+                                                        <Info className="w-5 h-5 text-blue-600" />
+                                                    </button>
+                                                    {(transaction.status === 'pending' || !transaction.status) && permissions?.can_approve && (
                                                         <>
                                                             <button
                                                                 onClick={() => handleApprove(transaction.id, 'approved')}
@@ -586,20 +601,24 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
                                                             </button>
                                                         </>
                                                     )}
-                                                    <button
-                                                        onClick={() => handleOpenModal(transaction)}
-                                                        className="p-2 hover:bg-[#E8DCC3] rounded-lg transition-colors"
-                                                        title="Edit"
-                                                    >
-                                                        <Edit2 className="w-5 h-5 text-[#3B4D3A]" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDelete(transaction.id)}
-                                                        className="p-2 hover:bg-red-100 rounded-lg transition-colors"
-                                                        title="Hapus"
-                                                    >
-                                                        <Trash2 className="w-5 h-5 text-red-600" />
-                                                    </button>
+                                                    {permissions?.can_edit && (
+                                                        <button
+                                                            onClick={() => handleOpenModal(transaction)}
+                                                            className="p-2 hover:bg-[#E8DCC3] rounded-lg transition-colors"
+                                                            title="Edit"
+                                                        >
+                                                            <Edit2 className="w-5 h-5 text-[#3B4D3A]" />
+                                                        </button>
+                                                    )}
+                                                    {permissions?.can_delete && (
+                                                        <button
+                                                            onClick={() => handleDelete(transaction.id)}
+                                                            className="p-2 hover:bg-red-100 rounded-lg transition-colors"
+                                                            title="Hapus"
+                                                        >
+                                                            <Trash2 className="w-5 h-5 text-red-600" />
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </td>
                                         </tr>
@@ -746,6 +765,78 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
                                     </button>
                                 </div>
                             </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* Info Transparansi Modal */}
+                {infoTransaction && (
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
+                            <div className="px-6 py-4 bg-[#3B4D3A] flex justify-between items-center text-white">
+                                <h3 className="text-lg font-bold flex items-center gap-2">
+                                    <Shield className="w-5 h-5 text-[#E8DCC3]" />
+                                    Informasi Transparansi
+                                </h3>
+                                <button
+                                    onClick={() => setInfoTransaction(null)}
+                                    className="p-1 hover:bg-white/20 rounded-lg transition-colors"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+                            
+                            <div className="p-6 space-y-6">
+                                {/* Device & Network Info */}
+                                <div className="space-y-4">
+                                    <h4 className="text-sm font-semibold text-[#8EB69B] uppercase tracking-wider">Perangkat & Jaringan</h4>
+                                    <div className="bg-[#F5F5F5] rounded-xl p-4 space-y-3">
+                                        <div className="flex gap-3">
+                                            <Globe className="w-5 h-5 text-[#6E8BA3] shrink-0" />
+                                            <div>
+                                                <p className="text-xs text-[#6E8BA3] font-medium">Alamat IP</p>
+                                                <p className="text-sm font-semibold text-[#3B4D3A] break-all">{infoTransaction.ip_address || 'Tidak terekam (Sistem Lama)'}</p>
+                                            </div>
+                                        </div>
+                                        <div className="h-px bg-gray-200" />
+                                        <div className="flex gap-3">
+                                            <Monitor className="w-5 h-5 text-[#6E8BA3] shrink-0" />
+                                            <div>
+                                                <p className="text-xs text-[#6E8BA3] font-medium">User Agent (Perangkat/Browser)</p>
+                                                <p className="text-sm font-semibold text-[#3B4D3A] break-words">{infoTransaction.user_agent || 'Tidak terekam (Sistem Lama)'}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* User Info */}
+                                <div className="space-y-4">
+                                    <h4 className="text-sm font-semibold text-[#8EB69B] uppercase tracking-wider">Informasi Pembuat (Kreator)</h4>
+                                    <div className="bg-[#F5F5F5] rounded-xl p-4 space-y-3">
+                                        <div className="flex gap-3">
+                                            <User className="w-5 h-5 text-[#6E8BA3] shrink-0" />
+                                            <div>
+                                                <p className="text-xs text-[#6E8BA3] font-medium">Nama Akun</p>
+                                                <p className="text-sm font-semibold text-[#3B4D3A]">{infoTransaction.creator?.name || 'Unknown'}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-3 ml-8">
+                                            <div>
+                                                <p className="text-xs text-[#6E8BA3] font-medium">Email Terdaftar</p>
+                                                <p className="text-sm font-semibold text-[#3B4D3A]">{infoTransaction.creator?.email || 'Unknown'}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-3 ml-8">
+                                            <div>
+                                                <p className="text-xs text-[#6E8BA3] font-medium">Role Hak Akses</p>
+                                                <span className="inline-block mt-1 px-2.5 py-1 bg-[#3B4D3A]/10 text-[#3B4D3A] rounded-md text-xs font-bold">
+                                                    {infoTransaction.creator?.role?.name || 'External'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 )}
