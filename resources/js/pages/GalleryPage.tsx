@@ -168,7 +168,7 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                             </div>
                             <div>
                                 {/* Masonry or Grid Layout */}
-                                <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+                                <div className="columns-2 md:columns-3 lg:columns-4 gap-3 sm:gap-4 space-y-3 sm:space-y-4">
                                     {sortedMedia.map((item, index) => (
                                         <motion.div
                                             key={item.id}

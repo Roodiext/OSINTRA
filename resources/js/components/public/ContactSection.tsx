@@ -183,7 +183,7 @@ const ContactSection: React.FC = () => {
                                     </div>
                                     <div>
                                         <h3 className="font-bold mb-1" style={{ color: '#3B4D3A' }}>Telepon</h3>
-                                        <p style={{ color: '#6E8BA3' }}>(0271) 123456</p>
+                                        <p style={{ color: '#6E8BA3' }}>+62 895-2657-1038</p>
                                     </div>
                                 </div>
                             </div>

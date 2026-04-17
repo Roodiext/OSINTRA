@@ -23,7 +23,7 @@ interface Props {
 
 const ModuleAccessPage: React.FC<Props> = ({ modules, roles, matrix }) => {
     const [selectedModule, setSelectedModule] = useState<string>(modules[0]?.name || '');
-    const [local, setLocal] = useState<Record<number, any>>(matrix[selectedModule] || {});
+    const [local, setLocal] = useState<Record<number, { can_view: boolean; can_create: boolean; can_edit: boolean; can_delete: boolean }>>(matrix[selectedModule] || {});
 
     React.useEffect(() => {
         setLocal(matrix[selectedModule] || {});

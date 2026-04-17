@@ -16,7 +16,7 @@ const FooterSection: React.FC<FooterProps> = ({ logoUrl = '/build/assets/osis-lo
                     <div>
                         <div className="flex items-center gap-3 mb-4">
                             <img src={logoUrl} alt="OSIS Logo" className="w-10 h-10 object-contain" />
-                            <h3 className="text-2xl font-bold text-white">OSVIS</h3>
+                            <h3 className="text-2xl font-bold text-white">OSINTRA</h3>
                         </div>
                         <p className="leading-relaxed" style={{ color: '#D0C5B9' }}>
                             Sistem Manajemen OSIS SMKN 6 Surakarta yang modern dan profesional untuk mengelola kegiatan organisasi siswa.
@@ -62,7 +62,7 @@ const FooterSection: React.FC<FooterProps> = ({ logoUrl = '/build/assets/osis-lo
                             </li>
                             <li className="flex items-start gap-3">
                                 <Phone className="w-5 h-5 mt-0.5" style={{ color: '#E8DCC3' }} />
-                                <span style={{ color: '#D0C5B9' }}>(0271) 123456</span>
+                                <span style={{ color: '#D0C5B9' }}>+62 895-2657-1038</span>
                             </li>
                             <li className="flex items-start gap-3">
                                 <MapPin className="w-5 h-5 mt-0.5" style={{ color: '#E8DCC3' }} />

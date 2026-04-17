@@ -138,7 +138,7 @@ const LoginPage = () => {
                             <img src={logoUrl || logo} alt="OSINTRA" className="w-full h-full object-contain" />
                         </div>
                     </div>
-                    <h1 className="text-4xl font-bold text-[#3B4D3A] mb-2 tracking-tight">OSVIS</h1>
+                    <h1 className="text-4xl font-bold text-[#3B4D3A] mb-2 tracking-tight">OSINTRA</h1>
                 </div>
 
                 {/* Login Form Card */}

@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 export default function useGsap(ref:any, animation?: (gsap:any)=>void, deps: any[] = []){
   useEffect(()=>{
     if(!ref?.current) return;
-    let ctx:any = null;
+    const ctx:any = null;
     let gsap:any = null;
     let ScrollTrigger:any = null;
     import('gsap')

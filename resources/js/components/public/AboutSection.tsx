@@ -184,11 +184,17 @@ const AboutSection: React.FC = () => {
                                 </div>
 
                                 {/* Name & Info - Pulled up closer on desktop */}
-                                <Reveal delay={100} className="relative z-20 text-center mt-6 md:-mt-8 px-4">
-                                    <h4 className="text-xl md:text-2xl font-black text-[#3B4D3A] tracking-tight mb-3">{sambutanKetos.name}</h4>
-                                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#E8DCC3]/80 backdrop-blur-sm rounded-full border border-[#DBCAB0] shadow-sm hover:bg-[#E8DCC3] transition-colors">
-                                        <Sparkles className="w-3.5 h-3.5 text-[#3B4D3A]" />
-                                        <span className="text-[10px] md:text-xs font-bold text-[#3B4D3A] uppercase tracking-[0.15em]">
+                                <Reveal delay={100} className="relative z-20 text-center mt-6 md:-mt-8 px-4 flex justify-center">
+                                    <div className="inline-flex flex-col items-center px-7 py-3.5 bg-[#E8DCC3]/90 backdrop-blur-md rounded-[1.25rem] border border-[#DBCAB0] shadow-lg hover:shadow-xl hover:bg-[#E8DCC3] transition-all">
+                                        <h4 className="text-lg md:text-xl font-extrabold text-[#3B4D3A] tracking-tight leading-none mb-0.5">{sambutanKetos.name}</h4>
+                                        
+                                        <div className="flex items-center w-full justify-center mt-1 mb-2 opacity-80">
+                                            <Sparkles className="w-3 h-3 text-[#3B4D3A] shrink-0" />
+                                            <div className="flex-1 h-[1.5px] bg-gradient-to-r from-[#3B4D3A]/20 via-[#3B4D3A]/70 to-[#3B4D3A]/20 mx-2 rounded-full"></div>
+                                            <Sparkles className="w-3 h-3 text-[#3B4D3A] shrink-0" />
+                                        </div>
+
+                                        <span className="text-[9px] md:text-[10px] font-bold text-[#3B4D3A]/90 uppercase tracking-[0.2em] text-center">
                                             {sambutanKetos.title}
                                         </span>
                                     </div>
@@ -197,9 +203,9 @@ const AboutSection: React.FC = () => {
                         </div>
 
                         {/* Speech Content Right Column */}
-                        <Reveal direction="right" delay={150} className="lg:col-span-3 space-y-6 md:space-y-6 relative z-10">
+                        <Reveal direction="right" delay={150} className="lg:col-span-3 space-y-6 md:space-y-6 relative z-10 px-4 md:px-0">
                             <div className="relative">
-                                <Quote className="absolute -top-12 -left-8 w-20 h-20 text-[#3B4D3A]/5 -rotate-12" />
+                                <Quote className="absolute -top-12 -left-4 md:-left-8 w-20 h-20 text-[#3B4D3A]/5 -rotate-12" />
                                 <div className="inline-block px-3 py-1 rounded-lg bg-[#3B4D3A] text-white text-[9px] font-bold mb-4 md:mb-4 tracking-[0.2em] shadow-lg">
                                     SAMBUTAN KETUA OSIS
                                 </div>
@@ -209,8 +215,8 @@ const AboutSection: React.FC = () => {
                                 </h3>
 
                                 <div className="relative">
-                                    <div className="absolute left-0 top-0 w-1.5 h-full bg-gradient-to-b from-[#E8DCC3] via-[#3B4D3A] to-transparent rounded-full hidden md:block" />
-                                    <p className="text-base md:text-lg text-[#3B4D3A]/70 leading-relaxed italic md:pl-10 font-medium relative z-10 whitespace-pre-line break-words text-justify">
+                                    <div className="absolute left-0 top-0 w-1 md:w-1.5 h-full bg-gradient-to-b from-[#E8DCC3] via-[#3B4D3A] to-transparent rounded-full" />
+                                    <p className="text-base md:text-lg text-[#3B4D3A]/70 leading-relaxed italic pl-5 pr-2 md:pr-0 md:pl-10 font-medium relative z-10 whitespace-pre-line break-words text-justify">
                                         {sambutanKetos.content}
                                     </p>
                                 </div>
@@ -220,37 +226,37 @@ const AboutSection: React.FC = () => {
                 </div>
 
                 {/* Core Values Section */}
-                <div className="mb-16 md:mb-24">
-                    <div className="text-center mb-8 md:mb-16">
-                        <h3 className="text-2xl md:text-3xl font-bold mb-2 md:mb-4" style={{ color: '#3B4D3A' }}>
-                            Nilai-Nilai Inti
-                        </h3>
-                        <p className="text-base md:text-lg" style={{ color: '#6E8BA3' }}>
-                            Fondasi yang memandu setiap langkah kami
-                        </p>
-                    </div>
+                <Reveal direction="up" delay={50} className="mb-16 md:mb-24">
+                    <div className="bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-3xl p-6 md:p-12 shadow-sm">
+                        <div className="text-center mb-8 md:mb-12">
+                            <h3 className="text-2xl md:text-3xl font-bold mb-2 md:mb-4" style={{ color: '#3B4D3A' }}>
+                                Nilai-Nilai Inti
+                            </h3>
+                            <p className="text-base md:text-lg" style={{ color: '#6E8BA3' }}>
+                                Fondasi yang memandu setiap langkah kami
+                            </p>
+                        </div>
 
-                    <div className="grid md:grid-cols-3 gap-4 md:gap-8">
-                        {values.map((value, index) => {
-                            const IconComponent = value.icon;
-                            return (
-                                <Reveal key={index} delay={index * 80} direction="up" className="h-full">
-                                    <div className="group text-center h-full p-4 rounded-xl hover:bg-white/50 transition-colors">
-                                        <div className="w-14 h-14 md:w-20 md:h-20 mx-auto mb-4 md:mb-6 rounded-2xl flex items-center justify-center bg-gradient-to-br from-[#3B4D3A] to-[#2a3729] shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
-                                            <IconComponent className="w-6 h-6 md:w-10 md:h-10 text-white" />
+                        <div className="grid grid-cols-3 md:grid-cols-3 gap-3 md:gap-8">
+                            {values.map((value, index) => {
+                                const IconComponent = value.icon;
+                                return (
+                                    <div key={index} className="group text-center h-full rounded-xl hover:bg-white/50 transition-colors flex flex-col items-center">
+                                        <div className="w-12 h-12 md:w-20 md:h-20 mx-auto mb-3 md:mb-6 rounded-xl md:rounded-2xl flex items-center justify-center bg-gradient-to-br from-[#3B4D3A] to-[#2a3729] shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1 shrink-0">
+                                            <IconComponent className="w-5 h-5 md:w-10 md:h-10 text-white" />
                                         </div>
-                                        <h4 className="text-lg md:text-xl font-bold mb-2 md:mb-3" style={{ color: '#3B4D3A' }}>
+                                        <h4 className="text-[11px] md:text-xl font-bold mb-1 md:mb-3" style={{ color: '#3B4D3A' }}>
                                             {value.title}
                                         </h4>
-                                        <p className="text-xs md:text-sm leading-relaxed" style={{ color: '#6E8BA3' }}>
+                                        <p className="text-[10px] hidden sm:block md:text-sm leading-tight md:leading-relaxed" style={{ color: '#6E8BA3' }}>
                                             {value.desc}
                                         </p>
                                     </div>
-                                </Reveal>
-                            );
-                        })}
+                                );
+                            })}
+                        </div>
                     </div>
-                </div>
+                </Reveal>
 
                 {/* Enhanced Stats Section - HORIZONTAL ON MOBILE */}
                 <Reveal direction="up" delay={50}>

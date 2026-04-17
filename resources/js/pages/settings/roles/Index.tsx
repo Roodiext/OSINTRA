@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import axios from 'axios';
@@ -13,14 +13,23 @@ interface Role {
     id: number;
     name: string;
     description?: string;
-    permissions: Array<{
-        id: number;
-        module_name: string;
-        can_view: boolean;
-        can_create: boolean;
-        can_edit: boolean;
-        can_delete: boolean;
-    }>;
+    permissions: PermissionEntry[];
+}
+
+interface PermissionEntry {
+    id: number;
+    module_name: string;
+    can_view: boolean;
+    can_create: boolean;
+    can_edit: boolean;
+    can_delete: boolean;
+}
+
+interface ModulePermissions {
+    can_view: boolean;
+    can_create: boolean;
+    can_edit: boolean;
+    can_delete: boolean;
 }
 
 interface Props {
@@ -31,12 +40,12 @@ interface Props {
 const RolePermissionsPage: React.FC<Props> = ({ roles, modules }) => {
     const [selectedRoleId, setSelectedRoleId] = useState<number | null>(roles[0]?.id ?? null);
 
-    const buildPermissionsFromRole = (roleId: number | null) => {
+    const buildPermissionsFromRole = useCallback((roleId: number | null): Record<string, ModulePermissions> => {
         const role = roles.find(r => r.id === roleId) || roles[0];
-        const map: Record<string, any> = {};
+        const map: Record<string, ModulePermissions> = {};
 
         modules.forEach((m) => {
-            const found = role?.permissions?.find((p: any) => p.module_name === m.name);
+            const found = role?.permissions?.find((p: PermissionEntry) => p.module_name === m.name);
             map[m.name] = {
                 can_view: !!found?.can_view,
                 can_create: !!found?.can_create,
@@ -46,13 +55,13 @@ const RolePermissionsPage: React.FC<Props> = ({ roles, modules }) => {
         });
 
         return map;
-    };
+    }, [roles, modules]);
 
-    const [localPermissions, setLocalPermissions] = useState<Record<string, any>>(buildPermissionsFromRole(selectedRoleId));
+    const [localPermissions, setLocalPermissions] = useState<Record<string, ModulePermissions>>(() => buildPermissionsFromRole(selectedRoleId));
 
     React.useEffect(() => {
         setLocalPermissions(buildPermissionsFromRole(selectedRoleId));
-    }, [selectedRoleId, roles, modules]);
+    }, [selectedRoleId, buildPermissionsFromRole]);
 
     const selectedRole = roles.find(r => r.id === selectedRoleId) || null;
 

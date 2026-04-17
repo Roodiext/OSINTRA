@@ -273,11 +273,11 @@ const DivisionsSection: React.FC = () => {
                                     })}
                                 </div>
 
-                                {/* Connector ke Tier 2 */}
+                                {/* Connector ke Tier 2 (Antara Jenis Card) - Kelihatan beda (tebal & gradasi) */}
                                 {structure.middle.length > 0 && (
-                                    <div className="absolute" style={{ top: '100%', left: '50%', transform: 'translateX(-50%)' }}>
-                                        <div className="vertical-line w-0.5 h-16" style={{ backgroundColor: '#E8DCC3' }} />
-                                        <div className="connector-dot w-2 h-2 rounded-full absolute -bottom-1 left-1/2 -translate-x-1/2" style={{ backgroundColor: '#3B4D3A' }} />
+                                    <div className="absolute" style={{ top: '100%', left: '50%', transform: 'translateX(-50%)', zIndex: 10 }}>
+                                        <div className="vertical-line w-[3px] md:w-[2px] h-16 bg-gradient-to-b from-[#3B4D3A] via-[#3B4D3A]/80 to-[#E8DCC3] md:from-[#E8DCC3] md:to-[#E8DCC3]" />
+                                        <div className="connector-dot w-2.5 h-2.5 md:w-2 md:h-2 rounded-full absolute -bottom-1 left-1/2 -translate-x-1/2" style={{ backgroundColor: '#3B4D3A' }} />
                                     </div>
                                 )}
                             </div>
@@ -288,6 +288,9 @@ const DivisionsSection: React.FC = () => {
                         {/* === TIER 2: Sekretaris, Bendahara, dll === */}
                         {structure.middle.length > 0 && (
                             <div className="flex flex-col items-center relative">
+                                {/* The Central Spine for Mobile (Antar card biasa) */}
+                                <div className="absolute top-0 bottom-4 left-1/2 -translate-x-1/2 w-[1.5px] bg-[#E8DCC3] block md:hidden" style={{ zIndex: 0 }}></div>
+
                                 {/* Horizontal Line Spanning Tier 2 */}
                                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[90%] max-w-6xl hidden md:block" style={{ zIndex: 0 }}>
                                     <Reveal delay={50} duration={500} direction="left" className="w-full">
@@ -295,33 +298,42 @@ const DivisionsSection: React.FC = () => {
                                     </Reveal>
                                 </div>
 
-                                <div className="flex flex-wrap justify-center gap-4 md:gap-6 w-full max-w-7xl relative pt-8 px-2">
+                                <div className="flex flex-wrap justify-center gap-3 md:gap-6 w-full max-w-7xl relative pt-8 px-4 md:px-2">
                                     {structure.middle.map((position, index) => (
-                                        <div key={position.id} className="flex flex-col items-center relative group">
+                                        <div key={position.id} className="flex flex-col items-center relative group w-[calc(50%-0.375rem)] md:w-auto">
                                             {/* Vertical Connectors (Desktop) */}
                                             <div className="absolute -top-8 left-1/2 -translate-x-1/2 hidden md:block" style={{ zIndex: 50 }}>
                                                 <div className="vertical-line w-0.5 h-8" style={{ backgroundColor: '#E8DCC3', animationDelay: '0.3s' }} />
                                                 <div className="connector-dot w-2 h-2 rounded-full absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ backgroundColor: '#3B4D3A', animationDelay: '0.3s' }} />
                                             </div>
 
+                                            {/* Horizontal Connectors to Spine (Mobile Only) */}
+                                            <div className={`absolute top-1/2 -translate-y-1/2 w-[6px] h-[1.5px] bg-[#E8DCC3] block md:hidden ${
+                                                index === structure.middle.length - 1 && structure.middle.length % 2 !== 0 
+                                                    ? 'hidden' 
+                                                    : index % 2 === 0 
+                                                        ? '-right-[6px]' 
+                                                        : '-left-[6px]'
+                                            }`} style={{ zIndex: 0 }}></div>
+
                                             {/* Card */}
                                             <Reveal
                                                 delay={100 + (index * 50)}
-                                                className="w-48 md:w-56 h-full"
+                                                className="w-full md:w-56 h-full"
                                             >
                                                 <div
-                                                    className="p-4 md:p-5 rounded-xl transition-all duration-300 w-full bg-white relative z-10 h-full flex flex-col justify-between hover:-translate-y-1"
+                                                    className="p-3 md:p-5 rounded-xl transition-all duration-300 w-full bg-white relative z-10 h-full flex flex-col hover:-translate-y-1"
                                                     style={{
                                                         border: '2px solid #E8DCC3',
                                                         boxShadow: '0 4px 15px rgba(59, 77, 58, 0.1)'
                                                     }}
                                                 >
-                                                    <div className="flex flex-col items-center text-center">
+                                                    <div className="flex flex-col items-center text-center h-full">
                                                         <div className="p-2 md:p-3 rounded-lg mb-2 md:mb-3" style={{ background: 'linear-gradient(135deg, #3B4D3A 0%, #2a3729 100%)' }}>
                                                             {React.createElement(getIconForPosition(position.name), { className: "w-4 h-4 md:w-5 md:h-5 text-white" })}
                                                         </div>
-                                                        <h3 className="text-xs md:text-sm font-bold mb-1 md:mb-2" style={{ color: '#3B4D3A' }}>{position.name}</h3>
-                                                        <p className="text-xs leading-relaxed" style={{ color: '#6E8BA3' }}>{position.description || 'Koordinator bidang'}</p>
+                                                        <h3 className="text-[10px] md:text-sm font-bold mb-1 md:mb-2 uppercase" style={{ color: '#3B4D3A' }}>{position.name}</h3>
+                                                        <p className="text-[9px] md:text-xs leading-relaxed mt-auto" style={{ color: '#6E8BA3' }}>{position.description || 'Koordinator bidang'}</p>
                                                     </div>
                                                 </div>
                                             </Reveal>
@@ -329,11 +341,11 @@ const DivisionsSection: React.FC = () => {
                                     ))}
                                 </div>
 
-                                {/* Line Connector to Divisions */}
+                                {/* Line Connector to Divisions (Antara Jenis Card) */}
                                 {structure.divisions.length > 0 && (
                                     <div className="relative mt-8">
-                                        <div className="vertical-line w-0.5 h-16 mx-auto" style={{ backgroundColor: '#E8DCC3', animationDelay: '0.6s' }} />
-                                        <div className="connector-dot w-2 h-2 rounded-full absolute -bottom-1 left-1/2 -translate-x-1/2" style={{ backgroundColor: '#3B4D3A', animationDelay: '0.6s' }} />
+                                        <div className="vertical-line w-[3px] md:w-[2px] h-16 mx-auto bg-gradient-to-b from-[#E8DCC3] via-[#3B4D3A]/80 to-[#3B4D3A] md:from-[#E8DCC3] md:to-[#E8DCC3]" style={{ animationDelay: '0.6s' }} />
+                                        <div className="connector-dot w-2.5 h-2.5 md:w-2 md:h-2 rounded-full absolute -bottom-1 left-1/2 -translate-x-1/2" style={{ backgroundColor: '#3B4D3A', animationDelay: '0.6s' }} />
                                     </div>
                                 )}
                             </div>
