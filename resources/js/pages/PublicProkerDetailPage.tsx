@@ -30,7 +30,7 @@ const PublicProkerDetailPage: React.FC = () => {
     if (loading) {
         return (
             <PublicLayout>
-                <div className="flex items-center justify-center min-h-screen">
+                <div className="flex items-center justify-center min-h-[60vh] bg-gray-50/50">
                     <p className="text-lg text-gray-500">Memuat...</p>
                 </div>
             </PublicLayout>
@@ -40,8 +40,14 @@ const PublicProkerDetailPage: React.FC = () => {
     if (!proker) {
         return (
             <PublicLayout>
-                <div className="flex items-center justify-center min-h-screen">
-                    <p className="text-lg text-gray-500">Program kerja tidak ditemukan</p>
+                <div className="flex flex-col items-center justify-center min-h-[60vh] bg-gray-50/50">
+                    <p className="text-lg text-gray-500 mb-4">Program kerja tidak ditemukan</p>
+                    <button
+                        onClick={() => router.visit('/prokers')}
+                        className="text-[#3B4D3A] font-semibold underline hover:text-opacity-80"
+                    >
+                        Kembali ke Program Kerja
+                    </button>
                 </div>
             </PublicLayout>
         );

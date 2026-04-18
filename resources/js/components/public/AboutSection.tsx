@@ -294,27 +294,7 @@ const AboutSection: React.FC = () => {
                     </div>
                 </Reveal>
 
-                {/* Enhanced CTA Section */}
-                <div className="mt-20 text-center">
-                    <div
-                        onClick={scrollToDivisions}
-                        className="inline-flex items-center gap-4 px-8 py-4 rounded-2xl bg-white shadow-lg border border-gray-200/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer"
-                    >
-                        <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-[#3B4D3A] to-[#2a3729]">
-                                <ChevronRight className="w-6 h-6 text-white" />
-                            </div>
-                            <div className="text-left">
-                                <div className="text-sm font-semibold" style={{ color: '#3B4D3A' }}>
-                                    Lihat Struktur Organisasi
-                                </div>
-                                <div className="text-xs" style={{ color: '#6E8BA3' }}>
-                                    Temui tim kepemimpinan kami
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
             </div>
 
             <style>{`

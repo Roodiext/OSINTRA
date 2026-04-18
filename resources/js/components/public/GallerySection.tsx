@@ -63,12 +63,12 @@ const GallerySection: React.FC = () => {
                     </p>
                 </Reveal>
 
-                <div className="grid md:grid-cols-3 gap-6">
-                    {media.slice(0, 9).map((item, index) => (
+                <div className="grid grid-cols-2 gap-3 md:gap-6">
+                    {media.slice(0, 4).map((item, index) => (
                         <Reveal
                             key={item.id}
                             delay={index * 50}
-                            className="relative group cursor-pointer overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
+                            className="relative group cursor-pointer overflow-hidden rounded-xl md:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
                         >
                             <div onClick={() => handleItemClick(item)}>
                                 {item.media_type === 'image' ? (
@@ -76,28 +76,28 @@ const GallerySection: React.FC = () => {
                                         src={item.media_url}
                                         alt={item.caption || 'Gallery image'}
                                         loading="lazy"
-                                        className="w-full h-64 object-cover transform group-hover:scale-110 transition-transform duration-300"
+                                        className="w-full h-40 md:h-64 object-cover transform group-hover:scale-110 transition-transform duration-300"
                                     />
                                 ) : (
-                                    <div className="w-full h-64 bg-gradient-to-br from-[#1E3A8A] to-[#2563EB] flex items-center justify-center">
-                                        <Video className="w-16 h-16 text-white" />
+                                    <div className="w-full h-40 md:h-64 bg-gradient-to-br from-[#1E3A8A] to-[#2563EB] flex items-center justify-center">
+                                        <Video className="w-10 md:w-16 h-10 md:h-16 text-white" />
                                     </div>
                                 )}
 
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                                        <div className="flex items-center gap-2 mb-2">
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
+                                    <div className="absolute bottom-0 left-0 right-0 p-2 md:p-4 text-white">
+                                        <div className="flex items-center gap-1.5 md:gap-2 mb-1 md:mb-2">
                                             {item.media_type === 'image' ? (
-                                                <ImageIcon className="w-4 h-4" />
+                                                <ImageIcon className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0" />
                                             ) : (
-                                                <Video className="w-4 h-4" />
+                                                <Video className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0" />
                                             )}
-                                            <span className="text-sm font-semibold">
+                                            <span className="text-xs md:text-sm font-semibold line-clamp-1">
                                                 {item.proker?.title || 'Kegiatan OSIS'}
                                             </span>
                                         </div>
                                         {item.caption && (
-                                            <p className="text-sm text-gray-200 line-clamp-2">
+                                            <p className="text-[10px] md:text-sm text-gray-200 line-clamp-2">
                                                 {item.caption}
                                             </p>
                                         )}
@@ -113,6 +113,19 @@ const GallerySection: React.FC = () => {
                         <p style={{ color: '#6E8BA3' }}>Belum ada media yang tersedia.</p>
                     </div>
                 )}
+
+                <Reveal direction="up" delay={200} className="mt-10 md:mt-12 text-center">
+                    <button 
+                        onClick={() => router.visit('/prokers')}
+                        className="px-6 md:px-8 py-2.5 md:py-3 rounded-full font-semibold text-white transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1 text-sm md:text-base inline-flex items-center gap-2"
+                        style={{ backgroundColor: '#3B4D3A' }}
+                    >
+                        Lihat Proker Lainnya
+                        <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </button>
+                </Reveal>
             </div>
         </section>
     );

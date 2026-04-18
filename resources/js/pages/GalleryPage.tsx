@@ -91,7 +91,7 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                 if (isFullscreen) {
                     closeFullscreen()
                 } else {
-                    router.visit('/')
+                    window.history.back()
                 }
             }
         }
@@ -103,11 +103,7 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
         }
     }, [isFullscreen])
 
-    // Instead of pushing to a new route for every click, we might want to just update the view?
-    // But the user asked for typical "gallery detail" behavior.
-    // The provided code used `router.push('/galeri/id')`.
-    // We can replicate this by visiting the same route with a new ID, which will trigger a re-render/re-sort.
-    // Updated: User wants click to ONLY maximize/fullscreen, NOT navigate
+    // Update the handleImageClick to just max
     const handleImageClick = (newImageId: number) => {
         const selected = media.find(m => m.id === newImageId);
         if (selected) {
@@ -126,7 +122,7 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
     }
 
     const handleBack = () => {
-        router.visit('/')
+        window.history.back();
     }
 
     const formatDateRange = (dateStr: string, endDateStr?: string) => {
@@ -304,16 +300,6 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                     }
                 `}</style>
 
-                {/* Close Button */}
-                <motion.button
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="fixed top-4 right-4 md:top-6 md:right-6 z-50 w-10 h-10 md:w-12 md:h-12 bg-black/40 hover:bg-red-900/40 border border-white/10 text-white/70 hover:text-red-400 rounded-full flex items-center justify-center transition-all duration-300 backdrop-blur-md"
-                    onClick={handleBack}
-                >
-                    <X className="w-4 h-4 md:w-5 md:h-5" />
-                </motion.button>
-
                 {/* Back Button */}
                 <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="fixed top-4 left-4 md:top-6 md:left-6 z-50">
                     <Button
@@ -322,7 +308,7 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                         className="bg-black/40 border-white/10 text-white/80 hover:bg-white/10 hover:text-white rounded-full px-4 md:px-6 text-sm md:text-base backdrop-blur-md"
                     >
                         <ArrowLeft className="w-4 h-4 mr-1 md:mr-2" />
-                        <span className="hidden sm:inline">Back</span>
+                        <span className="hidden sm:inline">Kembali</span>
                     </Button>
                 </motion.div>
 

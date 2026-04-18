@@ -63,7 +63,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Prokers (protected routes)
     Route::post('/prokers', [ProkerController::class, 'store'])
         ->middleware('permission:Prokers,create');
-    Route::get('/prokers/{proker}', [ProkerController::class, 'show']);
     Route::put('/prokers/{proker}', [ProkerController::class, 'update'])
         ->middleware('permission:Prokers,edit');
     Route::patch('/prokers/{proker}', [ProkerController::class, 'update'])
