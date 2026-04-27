@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Users, Briefcase, Award, Shield, DollarSign, Megaphone, Camera, Eye, X, ChevronRight, Grid } from 'lucide-react';
+import { Users, Briefcase, Award, DollarSign, Megaphone, Camera, Eye, X, ChevronRight, Grid } from 'lucide-react';
 import api from '@/lib/axios';
 import type { Position } from '@/types';
 import Reveal from './Reveal';

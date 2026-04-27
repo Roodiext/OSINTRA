@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Head, usePage } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import api from '@/lib/axios';
 import Swal from 'sweetalert2';
@@ -15,12 +15,16 @@ interface PositionsPageProps {
     };
 }
 
+interface Position {
+    id: number;
+    name: string;
+    description?: string;
+}
+
 const PositionsPage: React.FC<PositionsPageProps> = ({ permissions = {} }) => {
     
-    const [positions, setPositions] = useState<any[]>([]);
+    const [positions, setPositions] = useState<Position[]>([]);
     const [loading, setLoading] = useState(true);
-    const [name, setName] = useState('');
-    const [editing, setEditing] = useState<any | null>(null);
 
     const fetch = async () => {
         try {
@@ -39,7 +43,7 @@ const PositionsPage: React.FC<PositionsPageProps> = ({ permissions = {} }) => {
     const [modalOpen, setModalOpen] = useState(false);
     const [form, setForm] = useState<{ id?: number | null; name: string; description?: string }>({ id: null, name: '', description: '' });
 
-    const openModal = (pos?: any) => {
+    const openModal = (pos?: Position) => {
         if (pos) {
             setForm({ id: pos.id, name: pos.name ?? '', description: pos.description ?? '' });
         } else {
@@ -69,9 +73,10 @@ const PositionsPage: React.FC<PositionsPageProps> = ({ permissions = {} }) => {
             }
             fetch();
             closeModal();
-        } catch (err: any) {
+        } catch (error: unknown) {
+            const err = error as { response?: { status?: number; data?: { errors?: Record<string, string[] | string>; message?: string } }, message?: string };
             const statusCode = err.response?.status;
-            const resp = err?.response?.data;
+            const resp = err.response?.data;
             
             if (statusCode === 403) {
                 Swal.fire('Akses Ditolak!', 'Anda tidak memiliki izin untuk melakukan tindakan ini.', 'error');
@@ -80,7 +85,7 @@ const PositionsPage: React.FC<PositionsPageProps> = ({ permissions = {} }) => {
                 const message = Array.isArray(first) ? first[0] : String(first);
                 Swal.fire('Gagal', message, 'error');
             } else {
-                const msg = resp?.message || err?.message || 'Error';
+                const msg = resp?.message || err.message || 'Error';
                 Swal.fire('Gagal', msg, 'error');
             }
         }
@@ -94,7 +99,8 @@ const PositionsPage: React.FC<PositionsPageProps> = ({ permissions = {} }) => {
             await api.delete(`/positions/${id}`);
             Swal.fire('Dihapus', '', 'success');
             fetch();
-        } catch (err: any) {
+        } catch (error: unknown) {
+            const err = error as { response?: { status?: number; data?: { message?: string } } };
             const statusCode = err.response?.status;
             if (statusCode === 403) {
                 Swal.fire('Akses Ditolak!', 'Anda tidak memiliki izin untuk menghapus posisi ini.', 'error');

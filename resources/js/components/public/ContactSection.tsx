@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send, ShieldCheck, AlertTriangle } from 'lucide-react';
 import api from '@/lib/axios';
 import Reveal from './Reveal';
@@ -6,13 +6,9 @@ import Reveal from './Reveal';
 // Minimum characters required for name and message fields
 const MIN_CHARS = 15;
 
-// reCAPTCHA site key - uses Google's test key for development
-// Replace with your production key in .env (VITE_RECAPTCHA_SITE_KEY)
-const RECAPTCHA_SITE_KEY = (import.meta as any).env?.VITE_RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
-
 declare global {
     interface Window {
-        grecaptcha: any;
+        grecaptcha: unknown;
         onRecaptchaLoad: () => void;
     }
 }
@@ -55,7 +51,8 @@ const ContactSection: React.FC = () => {
             setFormData({ name: '', email: '', message: '', category: 'saran_program', priority: 'normal' });
 
             setTimeout(() => setSuccess(false), 5000);
-        } catch (err: any) {
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string } } };
             setError(err.response?.data?.message || 'Gagal mengirim pesan. Silakan coba lagi.');
         } finally {
             setLoading(false);

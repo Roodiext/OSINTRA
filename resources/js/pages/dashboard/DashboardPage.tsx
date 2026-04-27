@@ -30,7 +30,7 @@ const DashboardPage: React.FC = () => {
                 }
             });
         }
-    }, [flash?.permission_denied]);
+    }, [flash?.permission_denied, flash?.permission_message]);
 
     useEffect(() => {
         const fetchStats = async () => {

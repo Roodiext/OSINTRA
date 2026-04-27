@@ -19,16 +19,15 @@ interface ProkersPageProps {
 }
 
 const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divisions = [], permissions = {} }) => {
-    const { props } = usePage<any>();
+    const { props } = usePage<{ flash?: { permission_message?: string } }>();
     usePermissionAlert(props.flash?.permission_message);
-    const [prokers, setProkers] = useState<Proker[]>(initialProkers || []);
+    const [prokers] = useState<Proker[]>(initialProkers || []);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterDivision, setFilterDivision] = useState<string>('');
     const [filterStatus, setFilterStatus] = useState<string>('');
     const [showModal, setShowModal] = useState(false);
-    const [showDetailModal, setShowDetailModal] = useState(false);
+
     const [editingProker, setEditingProker] = useState<Proker | null>(null);
-    const [viewingProker, setViewingProker] = useState<Proker | null>(null);
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -40,7 +39,6 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
     });
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [loading, setLoading] = useState(false);
-    const [isMultipleDays, setIsMultipleDays] = useState(false);
 
     // Helper function to safely parse date to YYYY-MM-DD format
     const formatDateForInput = (dateValue: string | null | undefined): string => {
@@ -51,7 +49,7 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
             const date = new Date(dateValue);
             if (isNaN(date.getTime())) return '';
             return date.toISOString().split('T')[0];
-        } catch (e) {
+        } catch {
             return '';
         }
     };
@@ -73,9 +71,6 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
 
             const startDate = formatDateForInput(proker.date);
             const endDate = formatDateForInput(proker.end_date);
-            const hasMultipleDays = !!(endDate && endDate !== startDate);
-
-            setIsMultipleDays(hasMultipleDays);
 
             setFormData({
                 title: proker.title,
@@ -88,7 +83,6 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
             });
         } else {
             setEditingProker(null);
-            setIsMultipleDays(false);
             setFormData({
                 title: '',
                 description: '',
@@ -107,20 +101,7 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
         setEditingProker(null);
     };
 
-    const handleViewDetail = async (proker: Proker) => {
-        try {
-            const response = await api.get(`/prokers/${proker.id}`);
-            setViewingProker(response.data);
-            setShowDetailModal(true);
-        } catch (error) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Gagal!',
-                text: 'Gagal memuat detail proker',
-                confirmButtonColor: '#3B4D3A',
-            });
-        }
-    };
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -153,12 +134,13 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
             }
             router.reload();
             handleCloseModal();
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const err = error as { response?: { status?: number; data?: { errors?: Record<string, string[] | string>; message?: string } } };
             // Handle validation errors
-            if (error.response?.data?.errors) {
-                setErrors(error.response.data.errors);
-                const errorMessages = Object.entries(error.response.data.errors)
-                    .map(([field, msgs]: [string, any]) => {
+            if (err.response?.data?.errors) {
+                setErrors(err.response.data.errors as Record<string, string>);
+                const errorMessages = Object.entries(err.response.data.errors)
+                    .map(([field, msgs]) => {
                         const fieldLabel = field
                             .replace(/_/g, ' ')
                             .replace(/^\w/, c => c.toUpperCase());
@@ -172,8 +154,8 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
                     confirmButtonColor: '#3B4D3A',
                 });
             } else {
-                const statusCode = error.response?.status;
-                const errorMessage = error.response?.data?.message || 'Terjadi kesalahan';
+                const statusCode = err.response?.status;
+                const errorMessage = err.response?.data?.message || 'Terjadi kesalahan';
 
                 if (statusCode === 403) {
                     Swal.fire({
@@ -218,9 +200,10 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
                     confirmButtonColor: '#3B4D3A',
                 });
                 router.reload();
-            } catch (error: any) {
-                const statusCode = error.response?.status;
-                const errorMessage = error.response?.data?.message || 'Terjadi kesalahan';
+            } catch (error: unknown) {
+                const err = error as { response?: { status?: number; data?: { message?: string } } };
+                const statusCode = err.response?.status;
+                const errorMessage = err.response?.data?.message || 'Terjadi kesalahan';
 
                 if (statusCode === 403) {
                     Swal.fire({
@@ -558,7 +541,7 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
                                                 <select
                                                     required
                                                     value={formData.status}
-                                                    onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                                                    onChange={(e) => setFormData({ ...formData, status: e.target.value as 'planned' | 'ongoing' | 'done' })}
                                                     className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm bg-[#F5F5F5] border-2 border-transparent rounded-lg sm:rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
                                                 >
                                                     <option value="planned">Direncanakan</option>

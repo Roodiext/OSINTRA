@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Link, router } from '@inertiajs/react';
-import OptimizedImage from '@/components/ui/OptimizedImage';
+
 
 const links = [
   { label: 'Beranda', href: '/' },
@@ -19,7 +19,7 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ logoUrl = '/build/assets/osis-logo-mBAtwUV-.png' }) => {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [activeLink, setActiveLink] = useState('/');
+  const activeLink = typeof window !== 'undefined' ? window.location.pathname : '/';
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const logoClicks = useRef(0);
@@ -43,9 +43,9 @@ const Navbar: React.FC<NavbarProps> = ({ logoUrl = '/build/assets/osis-logo-mBAt
     };
 
     window.addEventListener('scroll', onScroll);
-    setActiveLink(window.location.pathname);
     return () => window.removeEventListener('scroll', onScroll);
   }, [lastScrollY]);
+
 
   const isActive = (href: string) => activeLink === href;
 
@@ -90,8 +90,9 @@ const Navbar: React.FC<NavbarProps> = ({ logoUrl = '/build/assets/osis-logo-mBAt
               onClick={(e) => {
                 e.preventDefault();
 
+                const globalWindow = window as typeof window & { _lastEasterEggTime?: number };
                 // Mencegah klik berlebihan (spam klik saat transisi) merusak redirect
-                if ((window as any)._lastEasterEggTime && Date.now() - (window as any)._lastEasterEggTime < 2000) {
+                if (globalWindow._lastEasterEggTime && Date.now() - globalWindow._lastEasterEggTime < 2000) {
                   return;
                 }
 
@@ -99,7 +100,7 @@ const Navbar: React.FC<NavbarProps> = ({ logoUrl = '/build/assets/osis-logo-mBAt
                 logoClicks.current += 1;
 
                 if (logoClicks.current >= 6) {
-                  (window as any)._lastEasterEggTime = Date.now();
+                  globalWindow._lastEasterEggTime = Date.now();
                   router.visit('/dashboard');
                   logoClicks.current = 0;
                 } else {

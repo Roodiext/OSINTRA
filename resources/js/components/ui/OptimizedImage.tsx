@@ -52,7 +52,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
                 alt={alt}
                 loading={priority ? 'eager' : 'lazy'}
                 decoding="async"
-                {...(priority ? { fetchPriority: 'high' as any } : {})}
+                {...(priority ? { fetchPriority: 'high' as "high" | "low" | "auto" } : {})}
                 onLoad={handleLoad}
                 style={style}
                 className={`transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'} ${className}`}

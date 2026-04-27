@@ -6,7 +6,7 @@ import AboutSection from '@/components/public/AboutSection';
 import DivisionsSection from '@/components/public/DivisionsSection';
 import GallerySection from '@/components/public/GallerySection';
 import ContactSection from '@/components/public/ContactSection';
-import FooterSection from '@/components/public/FooterSection';
+
 
 interface PublicPageProps {
     heroImage?: string;

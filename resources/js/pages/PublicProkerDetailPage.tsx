@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import PublicLayout from '@/components/public/PublicLayout';
-import { ArrowLeft, X, Share2, Calendar, MapPin, Users, Building2 } from 'lucide-react';
+import { ArrowLeft, X, Share2, Users, Building2 } from 'lucide-react';
 import api from '@/lib/axios';
 import type { Proker, ProkerMedia } from '@/types';
 import ProkerDetailContent from '@/components/public/ProkerDetailContent';

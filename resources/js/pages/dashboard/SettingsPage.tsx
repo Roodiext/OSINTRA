@@ -3,11 +3,9 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import {
     Settings as SettingsIcon,
-    Globe,
     Database,
     Bell,
     Save,
-    Calendar,
     Image as ImageIcon,
     Upload,
     RefreshCw,
@@ -22,21 +20,18 @@ import { usePermissionAlert } from '@/hooks/usePermissionAlert';
 
 interface SettingsPageProps {
     auth: {
-        user: any;
+        user: { role?: { name?: string } };
     };
     permission_denied?: string | null;
 }
 
 const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
-    const { props } = usePage<any>();
+    const { props } = usePage<{ flash?: { permission_message?: string } }>();
     usePermissionAlert(props.flash?.permission_message);
 
     // Application Configuration State
-    const [siteName, setSiteName] = useState('OSIS SMAN 1 Indonesia');
-    const [academicPeriod, setAcademicPeriod] = useState('2024/2025');
     const [maintenanceMode, setMaintenanceMode] = useState(false);
     const [emailNotif, setEmailNotif] = useState(true);
-    const [publicAccess, setPublicAccess] = useState(true);
     const [vision, setVision] = useState('');
     const [mission, setMission] = useState('');
 
@@ -62,8 +57,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
                 const response = await api.get('/settings');
                 const settings = response.data;
                 if (settings) {
-                    if (settings.site_name) setSiteName(settings.site_name);
-                    if (settings.academic_period) setAcademicPeriod(settings.academic_period);
                     if (settings.maintenance_mode) setMaintenanceMode(settings.maintenance_mode === '1' || settings.maintenance_mode === true);
                     if (settings.osis_vision) setVision(settings.osis_vision);
                     if (settings.osis_mission) setMission(settings.osis_mission);
@@ -692,7 +685,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
                                     </div>
 
                                     {auth?.user?.role?.name && auth.user.role.name.toLowerCase() === 'admin' ? (
-                                        <Link href={(window as any).route ? (window as any).route('dashboard.settings.role-access') : '/dashboard/settings/role-access'} className="w-full block text-center py-2 bg-white border border-gray-200 text-[#3B4D3A] font-semibold rounded-lg hover:bg-[#3B4D3A] hover:text-white transition-all text-sm">Buka Pengaturan Akses Role</Link>
+                                        <Link href="/dashboard/settings/role-access" className="w-full block text-center py-2 bg-white border border-gray-200 text-[#3B4D3A] font-semibold rounded-lg hover:bg-[#3B4D3A] hover:text-white transition-all text-sm">Buka Pengaturan Akses Role</Link>
                                     ) : (
                                         <button
                                             onClick={() => Swal.fire({

@@ -51,10 +51,10 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
     totalExpense,
     permissions
 }) => {
-    const { props } = usePage<any>();
+    const { props } = usePage<{ flash?: { permission_message?: string } }>();
     usePermissionAlert(props.flash?.permission_message);
 
-    const [transactions, setTransactions] = useState<ExtendedTransaction[]>(initialTransactions || []);
+    const [transactions] = useState<ExtendedTransaction[]>(initialTransactions || []);
     const [infoTransaction, setInfoTransaction] = useState<ExtendedTransaction | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState<string>('');
@@ -165,11 +165,12 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
             }
             router.reload();
             handleCloseModal();
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string } } };
             Swal.fire({
                 icon: 'error',
                 title: 'Gagal!',
-                text: error.response?.data?.message || 'Terjadi kesalahan',
+                text: err.response?.data?.message || 'Terjadi kesalahan',
                 confirmButtonColor: '#3B4D3A',
             });
         } finally {
@@ -199,11 +200,12 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
                     confirmButtonColor: '#3B4D3A',
                 });
                 router.reload();
-            } catch (error: any) {
+            } catch (error: unknown) {
+                const err = error as { response?: { data?: { message?: string } } };
                 Swal.fire({
                     icon: 'error',
                     title: 'Gagal!',
-                    text: error.response?.data?.message || 'Terjadi kesalahan',
+                    text: err.response?.data?.message || 'Terjadi kesalahan',
                     confirmButtonColor: '#3B4D3A',
                 });
             }
@@ -233,11 +235,12 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
                     confirmButtonColor: '#3B4D3A',
                 });
                 router.reload();
-            } catch (error: any) {
+            } catch (error: unknown) {
+                const err = error as { response?: { data?: { message?: string } } };
                 Swal.fire({
                     icon: 'error',
                     title: 'Gagal!',
-                    text: error.response?.data?.message || 'Terjadi kesalahan',
+                    text: err.response?.data?.message || 'Terjadi kesalahan',
                     confirmButtonColor: '#3B4D3A',
                 });
             }
@@ -301,7 +304,7 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
         return `Rp${formatted}`;
     };
 
-    const handleAmountChange = (value: string, setter: Function) => {
+    const handleAmountChange = (value: string, setter: (value: string) => void) => {
         try {
             // Store as numeric string for consistency
             const numericValue = parseAmountInput(value);
@@ -845,6 +848,27 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
     );
 };
 
+// Trend Indicator Component (extracted outside render to avoid re-creation)
+const TrendIndicator: React.FC<{ change: number }> = ({ change }) => {
+    const isPositive = change > 0;
+    const isNeutral = change === 0;
+
+    if (isNeutral) {
+        return <span className="text-xs font-semibold text-[#6E8BA3]">-</span>;
+    }
+
+    return (
+        <div className={`flex items-center gap-1 ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+            {isPositive ? (
+                <TrendingUp className="w-4 h-4" />
+            ) : (
+                <TrendingDown className="w-4 h-4" />
+            )}
+            <span className="text-xs font-semibold">{Math.abs(change).toFixed(1)}%</span>
+        </div>
+    );
+};
+
 // Chart Summary Component
 interface ChartSummaryProps {
     monthlyData: { month: string; income: number; expense: number }[];
@@ -903,25 +927,7 @@ const ChartSummary: React.FC<ChartSummaryProps> = ({ monthlyData }) => {
         return `Rp${formatted}`;
     };
 
-    const TrendIndicator = ({ change }: { change: number }) => {
-        const isPositive = change > 0;
-        const isNeutral = change === 0;
 
-        if (isNeutral) {
-            return <span className="text-xs font-semibold text-[#6E8BA3]">-</span>;
-        }
-
-        return (
-            <div className={`flex items-center gap-1 ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                {isPositive ? (
-                    <TrendingUp className="w-4 h-4" />
-                ) : (
-                    <TrendingDown className="w-4 h-4" />
-                )}
-                <span className="text-xs font-semibold">{Math.abs(change).toFixed(1)}%</span>
-            </div>
-        );
-    };
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pb-6 border-b border-[#E8DCC3]">
@@ -999,7 +1005,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ monthlyData, chartType 
 
     const options: ApexCharts.ApexOptions = useMemo(() => ({
         chart: {
-            type: chartType as any,
+            type: chartType,
             toolbar: {
                 show: false
             },
@@ -1139,7 +1145,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ monthlyData, chartType 
                 vertical: 5
             }
         }
-    }), [chartType]);
+    }), [chartType, chartData.categories]);
 
     return (
         <div className="w-full">

@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
 
-export default function useGsap(ref:any, animation?: (gsap:any)=>void, deps: any[] = []){
+export default function useGsap(ref: React.RefObject<Element | null>, animation?: (gsap: unknown)=>void, deps: unknown[] = []){
   useEffect(()=>{
     if(!ref?.current) return;
-    const ctx:any = null;
-    let gsap:any = null;
-    let ScrollTrigger:any = null;
+    const ctx: unknown = null;
+    let gsap: unknown = null;
+    let ScrollTrigger: unknown = null;
     import('gsap')
       .then((m)=>{
         gsap = m.gsap || m.default || m;
@@ -25,7 +25,7 @@ export default function useGsap(ref:any, animation?: (gsap:any)=>void, deps: any
       });
 
     return ()=>{
-      if(ctx && ctx.revert) ctx.revert();
+      if(ctx && typeof (ctx as { revert?: () => void }).revert === 'function') (ctx as { revert: () => void }).revert();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);

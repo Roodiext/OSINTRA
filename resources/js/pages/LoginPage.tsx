@@ -90,12 +90,13 @@ const LoginPage = () => {
             } else {
                 throw new Error('Token tidak ditemukan');
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
             setLoading(false);
 
             // Prefer field-specific validation messages if present
-            const errors = err?.response?.data?.errors;
-            let msg = err?.response?.data?.message || 'Gagal login. Periksa kredensial.';
+            const error = err as { response?: { data?: { errors?: Record<string, string[]>, message?: string } } };
+            const errors = error?.response?.data?.errors;
+            let msg = error?.response?.data?.message || 'Gagal login. Periksa kredensial.';
 
             if (errors) {
                 if (errors.password && errors.password.length) {

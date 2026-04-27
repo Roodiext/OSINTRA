@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Head, usePage } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Search, Download, Calendar, User } from 'lucide-react';
 import type { AuditLog } from '@/types';

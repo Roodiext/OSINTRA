@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
-import { User, Mail, Shield, Building2, Key, Camera } from 'lucide-react';
+import { User, Mail, Shield, Building2, Key } from 'lucide-react';
 import type { User as UserType } from '@/types';
 import Swal from 'sweetalert2';
 import api from '@/lib/axios';
@@ -50,11 +50,12 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user: initialUser }) => {
             });
             router.reload();
             setIsEditingProfile(false);
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string } } };
             Swal.fire({
                 icon: 'error',
                 title: 'Gagal!',
-                text: error.response?.data?.message || 'Terjadi kesalahan',
+                text: err.response?.data?.message || 'Terjadi kesalahan',
                 confirmButtonColor: '#3B4D3A',
             });
         } finally {
@@ -101,11 +102,12 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user: initialUser }) => {
                 new_password_confirmation: '',
             });
             setIsChangingPassword(false);
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string } } };
             Swal.fire({
                 icon: 'error',
                 title: 'Gagal!',
-                text: error.response?.data?.message || 'Terjadi kesalahan',
+                text: err.response?.data?.message || 'Terjadi kesalahan',
                 confirmButtonColor: '#3B4D3A',
             });
         } finally {

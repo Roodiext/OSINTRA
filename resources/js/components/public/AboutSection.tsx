@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Target, Eye, Users, Award, Calendar, ChevronRight, Sparkles, Heart, Lightbulb, TrendingUp, Quote, User } from 'lucide-react';
+import { Target, Eye, Users, Award, Calendar, Sparkles, Heart, Lightbulb, TrendingUp, Quote, User } from 'lucide-react';
 import api from '@/lib/axios';
 import Reveal from './Reveal';
+import OptimizedImage from '@/components/ui/OptimizedImage';
 
 const AboutSection: React.FC = () => {
     const [vision, setVision] = useState('');
     const [mission, setMission] = useState('');
-    const [ketosImageLoaded, setKetosImageLoaded] = useState(false);
 
     const [sambutanKetos, setSambutanKetos] = useState({
         name: 'Person',
@@ -14,10 +14,6 @@ const AboutSection: React.FC = () => {
         content: 'Sambutan Ketua OSIS SMKN 6 Surakarta',
         image: null as string | null
     });
-
-    const scrollToDivisions = () => {
-        document.getElementById('divisions')?.scrollIntoView({ behavior: 'smooth' });
-    };
 
     useEffect(() => {
         const fetchSettings = async () => {
@@ -172,23 +168,13 @@ const AboutSection: React.FC = () => {
                                 {/* Photo Container */}
                                 <div className="relative z-10 w-full aspect-[4/5] overflow-visible transition-all duration-500">
                                     {sambutanKetos.image ? (
-                                        <>
-                                            {!ketosImageLoaded && (
-                                                <div className="absolute inset-0 flex items-center justify-center">
-                                                    <div className="w-32 h-32 rounded-full bg-gray-200 animate-pulse" />
-                                                </div>
-                                            )}
-                                            <img
+                                        <div className="w-full h-full transform translate-y-4 md:translate-y-6">
+                                            <OptimizedImage
                                                 src={sambutanKetos.image}
                                                 alt={sambutanKetos.name}
-                                                loading="lazy"
-                                                decoding="async"
-                                                onLoad={() => setKetosImageLoaded(true)}
-                                                className={`w-full h-full object-contain transform translate-y-4 md:translate-y-6 filter drop-shadow-[0_15px_20px_rgba(59,77,58,0.25)] transition-all duration-700 group-hover:scale-105 ${
-                                                    ketosImageLoaded ? 'opacity-100' : 'opacity-0'
-                                                }`}
+                                                className="w-full h-full object-contain filter drop-shadow-[0_15px_20px_rgba(59,77,58,0.25)] transition-all duration-700 group-hover:scale-105"
                                             />
-                                        </>
+                                        </div>
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center">
                                             <User className="w-32 h-32 text-[#3B4D3A]/20" />

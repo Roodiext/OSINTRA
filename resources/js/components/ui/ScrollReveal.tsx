@@ -13,7 +13,7 @@ const ScrollReveal: React.FC<Props> = ({ children, className = '', origin = 'bot
   const ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    let sr: any = null;
+    let sr: unknown = null;
     const node = ref.current;
     if (!node) return;
 
@@ -42,7 +42,9 @@ const ScrollReveal: React.FC<Props> = ({ children, className = '', origin = 'bot
       });
 
     return () => {
-      if (sr && sr.destroy) sr.destroy();
+      if (sr && typeof (sr as { destroy?: () => void }).destroy === 'function') {
+        (sr as { destroy: () => void }).destroy();
+      }
     };
   }, [origin, distance, duration, delay]);
 

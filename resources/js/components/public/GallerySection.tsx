@@ -7,7 +7,7 @@ import { router } from '@inertiajs/react';
 
 // Declare route function for TypeScript
 declare global {
-    function route(name: string, params?: any, absolute?: boolean): string;
+    function route(name: string, params?: Record<string, unknown>, absolute?: boolean): string;
 }
 
 const GallerySection: React.FC = () => {

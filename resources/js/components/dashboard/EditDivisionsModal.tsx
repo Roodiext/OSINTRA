@@ -77,11 +77,12 @@ const EditDivisionsModal: React.FC<EditDivisionsModalProps> = ({
                 onSuccess();
                 onClose();
             });
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error updating divisions:', error);
+            const err = error as { response?: { data?: { message?: string } }, message?: string };
             const errorMessage = 
-                error.response?.data?.message || 
-                error.message || 
+                err.response?.data?.message || 
+                err.message || 
                 'Terjadi kesalahan saat memperbarui divisi';
             
             Swal.fire({

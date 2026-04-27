@@ -29,8 +29,8 @@ interface Props {
 
 const RoleAccessSetting: React.FC<Props> = ({ roles = [], modules = [] }) => {
   const [selectedRoleId, setSelectedRoleId] = React.useState<number | null>(roles[0]?.id ?? null);
-  const [localPermissions, setLocalPermissions] = React.useState<Record<string, any>>({});
-  const [originalPermissions, setOriginalPermissions] = React.useState<Record<string, any>>({});
+  const [localPermissions, setLocalPermissions] = React.useState<Record<string, Partial<RolePermissionRow>>>({});
+  const [originalPermissions, setOriginalPermissions] = React.useState<Record<string, Partial<RolePermissionRow>>>({});
   const [saving, setSaving] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
 
@@ -40,7 +40,7 @@ const RoleAccessSetting: React.FC<Props> = ({ roles = [], modules = [] }) => {
       const role = roles.find((r) => r.id === roleId);
       if (!role) return {};
 
-      const map: Record<string, any> = {};
+      const map: Record<string, Partial<RolePermissionRow>> = {};
 
       modules.forEach((m) => {
         // Find permission by exact module_name match
@@ -111,7 +111,7 @@ const RoleAccessSetting: React.FC<Props> = ({ roles = [], modules = [] }) => {
     setSaving(true);
     try {
       // Transform data to match backend expectation: use actual module_name from database
-      const permissionsData: Record<string, any> = {};
+      const permissionsData: Record<string, Partial<RolePermissionRow>> = {};
       
       modules.forEach((m) => {
         // Use module_name exactly as it should be stored (from the module definition)
@@ -126,7 +126,7 @@ const RoleAccessSetting: React.FC<Props> = ({ roles = [], modules = [] }) => {
       });
 
       // API contract: PUT /settings/roles/{roleId} with { permissions: { moduleName: { can_view, ... } } }
-      const response = await api.put(`/settings/roles/${selectedRoleId}`, { 
+      await api.put(`/settings/roles/${selectedRoleId}`, { 
         permissions: permissionsData 
       });
 
@@ -140,10 +140,11 @@ const RoleAccessSetting: React.FC<Props> = ({ roles = [], modules = [] }) => {
         icon: 'success', 
         confirmButtonColor: '#3B4D3A' 
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error saving permissions:', err);
       setSaving(false);
-      const msg = err?.response?.data?.message || 'Terjadi kesalahan saat menyimpan.';
+      const error = err as { response?: { data?: { message?: string } } };
+      const msg = error?.response?.data?.message || 'Terjadi kesalahan saat menyimpan.';
       Swal.fire({ 
         title: 'Gagal', 
         text: msg, 

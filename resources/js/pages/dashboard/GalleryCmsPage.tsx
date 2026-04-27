@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Head } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
-import { Image as ImageIcon, Upload, Trash2, Search, Filter, X, Eye, Bookmark, Star } from 'lucide-react';
+import { Image as ImageIcon, Upload, Trash2, Search, X, Bookmark, Star } from 'lucide-react';
 import api from '@/lib/axios';
 import Swal from 'sweetalert2';
 import type { ProkerMedia, Proker } from '@/types';
@@ -99,9 +99,10 @@ const GalleryCmsPage: React.FC = () => {
             Swal.fire('Berhasil!', 'Media berhasil diupload', 'success');
             fetchData();
             setSelectedProker(null);
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error(error);
-            Swal.fire('Error', error.response?.data?.message || 'Gagal upload media', 'error');
+            const err = error as { response?: { data?: { message?: string } } };
+            Swal.fire('Error', err.response?.data?.message || 'Gagal upload media', 'error');
         } finally {
             setUploading(false);
             e.target.value = '';
@@ -125,7 +126,7 @@ const GalleryCmsPage: React.FC = () => {
                 await api.delete(`/prokers/${media.proker_id}/media/${media.id}`);
                 Swal.fire('Terhapus!', 'Media berhasil dihapus', 'success');
                 fetchData();
-            } catch (error) {
+            } catch {
                 Swal.fire('Gagal!', 'Gagal menghapus media', 'error');
             }
         }
@@ -288,8 +289,9 @@ const GalleryCmsPage: React.FC = () => {
                                                                 toast: true,
                                                                 position: 'top-end'
                                                             });
-                                                        } catch (error: any) {
-                                                            Swal.fire('Error', error.response?.data?.message || 'Gagal update highlight', 'error');
+                                                        } catch (error: unknown) {
+                                                            const err = error as { response?: { data?: { message?: string } } };
+                                                            Swal.fire('Error', err.response?.data?.message || 'Gagal update highlight', 'error');
                                                         }
                                                     }}
                                                     className={`p-2 rounded-lg transition ${item.is_highlight ? 'bg-blue-500 text-white' : 'bg-white text-gray-600 hover:bg-blue-100'}`}

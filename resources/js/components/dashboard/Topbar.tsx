@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, Bell } from 'lucide-react';
+import { Menu } from 'lucide-react';
 
 import { usePage, Link } from '@inertiajs/react';
 import { SharedData } from '@/types';

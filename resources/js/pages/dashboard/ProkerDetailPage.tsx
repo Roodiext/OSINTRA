@@ -124,8 +124,9 @@ const ProkerDetailPage: React.FC = () => {
                 Swal.fire('Terhapus!', 'Panitia berhasil dihapus', 'success');
                 const response = await api.get(`/prokers/${proker.id}`);
                 setProker(response.data);
-            } catch (error: any) {
-                if (error.response?.status === 403) {
+            } catch (error: unknown) {
+                const err = error as { response?: { status?: number } };
+                if (err.response?.status === 403) {
                     Swal.fire('Gagal!', 'Anda tidak memiliki izin untuk menghapus panitia', 'error');
                 } else {
                     Swal.fire('Gagal!', 'Gagal menghapus panitia', 'error');
@@ -224,9 +225,10 @@ const ProkerDetailPage: React.FC = () => {
             // Refresh proker data
             const response = await api.get(`/prokers/${proker.id}`);
             setProker(response.data);
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error(error);
-            Swal.fire('Error', error.response?.data?.message || 'Gagal upload media', 'error');
+            const err = error as { response?: { data?: { message?: string } } };
+            Swal.fire('Error', err.response?.data?.message || 'Gagal upload media', 'error');
         } finally {
             setUploading(false);
             e.target.value = '';
@@ -253,8 +255,9 @@ const ProkerDetailPage: React.FC = () => {
                 // Refresh proker data
                 const response = await api.get(`/prokers/${proker.id}`);
                 setProker(response.data);
-            } catch (error: any) {
-                if (error.response?.status === 403) {
+            } catch (error: unknown) {
+                const err = error as { response?: { status?: number } };
+                if (err.response?.status === 403) {
                     Swal.fire('Gagal!', 'Anda tidak memiliki izin untuk menghapus media', 'error');
                 } else {
                     Swal.fire('Gagal!', 'Gagal menghapus media', 'error');
@@ -283,16 +286,17 @@ const ProkerDetailPage: React.FC = () => {
                 toast: true,
                 position: 'top-end'
             });
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const err = error as { response?: { status?: number; data?: { message?: string } } };
             // Check for specific error message (like limit reached)
-            if (error.response?.data?.message) {
+            if (err.response?.data?.message) {
                 Swal.fire({
                     icon: 'warning',
                     title: 'Perhatian',
-                    text: error.response.data.message,
+                    text: err.response.data.message,
                     confirmButtonColor: '#3B4D3A'
                 });
-            } else if (error.response?.status === 403) {
+            } else if (err.response?.status === 403) {
                 Swal.fire('Error', 'Anda tidak memiliki izin', 'error');
             } else {
                 Swal.fire('Error', 'Gagal update status highlight', 'error');
@@ -337,11 +341,12 @@ const ProkerDetailPage: React.FC = () => {
             // Refresh Data
             const response = await api.get(`/prokers/${proker.id}`);
             setProker(response.data);
-        } catch (error: any) {
-            if (error.response?.status === 403) {
+        } catch (error: unknown) {
+            const err = error as { response?: { status?: number; data?: { message?: string } } };
+            if (err.response?.status === 403) {
                 Swal.fire('Error', 'Anda tidak memiliki izin untuk mengatur thumbnail', 'error');
             } else {
-                Swal.fire('Error', error.response?.data?.message || 'Gagal update thumbnail', 'error');
+                Swal.fire('Error', err.response?.data?.message || 'Gagal update thumbnail', 'error');
             }
         }
     };

@@ -2,8 +2,7 @@ import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ArrowLeft, X, Expand } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { router } from '@inertiajs/react'
-import { Head, Link } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import PublicLayout from '@/components/public/PublicLayout';
 import type { ProkerMedia } from "@/types"
 
@@ -84,6 +83,16 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
         }
     }, [initialId])
 
+    const handleFullscreen = (image: ProkerMedia) => {
+        setFullscreenImage(image)
+        setIsFullscreen(true)
+    }
+
+    const closeFullscreen = () => {
+        setIsFullscreen(false)
+        setTimeout(() => setFullscreenImage(null), 300)
+    }
+
     // Handle ESC key
     useEffect(() => {
         const handleEscape = (e: KeyboardEvent) => {
@@ -109,16 +118,6 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
         if (selected) {
             handleFullscreen(selected);
         }
-    }
-
-    const handleFullscreen = (image: ProkerMedia) => {
-        setFullscreenImage(image)
-        setIsFullscreen(true)
-    }
-
-    const closeFullscreen = () => {
-        setIsFullscreen(false)
-        setTimeout(() => setFullscreenImage(null), 300)
     }
 
     const handleBack = () => {

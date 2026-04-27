@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Search, Plus } from 'lucide-react';
+import { Search, Plus } from 'lucide-react';
 import api from '@/lib/axios';
 import Swal from 'sweetalert2';
 
@@ -34,7 +34,6 @@ const AddPanitiaModal: React.FC<AddPanitiaModalProps> = ({
     onSuccess,
     prokerId,
     eventDivisions,
-    positions,
 }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -69,7 +68,7 @@ const AddPanitiaModal: React.FC<AddPanitiaModalProps> = ({
                 }
                 
                 // Filter to only active users with required fields
-                const filteredUsers = users.filter((u: any) => u.status === 'active' || !u.status).slice(0, 10);
+                const filteredUsers = users.filter((u: { status?: string }) => u.status === 'active' || !u.status).slice(0, 10);
                 
                 setUserSuggestions(filteredUsers);
                 setShowSuggestions(filteredUsers.length > 0);
@@ -118,8 +117,9 @@ const AddPanitiaModal: React.FC<AddPanitiaModalProps> = ({
             onSuccess();
             onClose();
             resetForm();
-        } catch (error: any) {
-            const errorMessage = error.response?.data?.message || 'Gagal menambahkan panitia';
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string } } };
+            const errorMessage = err.response?.data?.message || 'Gagal menambahkan panitia';
             Swal.fire('Gagal!', errorMessage, 'error');
         } finally {
             setLoading(false);

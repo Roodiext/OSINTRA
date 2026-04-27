@@ -3,11 +3,11 @@ import { Head, router } from '@inertiajs/react';
 import PublicLayout from '@/components/public/PublicLayout';
 import { Calendar, MapPin, Users, Search, Filter } from 'lucide-react';
 import api from '@/lib/axios';
-import type { Proker, Division } from '@/types';
+import type { Proker } from '@/types';
 
 const PublicProkersPage: React.FC = () => {
     const [prokers, setProkers] = useState<Proker[]>([]);
-    const [divisions, setDivisions] = useState<Division[]>([]);
+
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState(() => sessionStorage.getItem('prokersSearch') || '');
     const [filterYear, setFilterYear] = useState(() => sessionStorage.getItem('prokersFilterYear') || '');
@@ -26,12 +26,10 @@ const PublicProkersPage: React.FC = () => {
         const fetchData = async () => {
             try {
                 setLoading(true);
-                const [prokersRes, divisionsRes] = await Promise.all([
-                    api.get('/prokers', { params: { per_page: 100 } }),
-                    api.get('/divisions'),
+                const [prokersRes] = await Promise.all([
+                    api.get('/prokers', { params: { per_page: 100 } })
                 ]);
                 setProkers(prokersRes.data.data || prokersRes.data);
-                setDivisions(Array.isArray(divisionsRes.data) ? divisionsRes.data : (divisionsRes.data.data || []));
             } catch (error) {
                 console.error(error);
             } finally {

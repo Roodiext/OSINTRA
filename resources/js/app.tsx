@@ -35,7 +35,7 @@ router.on('before', (event) => {
 router.on('error', (event) => {
     console.error('❌ Inertia error:', event.detail.errors);
 
-    if (event.detail.errors?.message === 'Unauthenticated.' || (event.detail as any).status === 401) {
+    if (event.detail.errors?.message === 'Unauthenticated.' || (event.detail as { status?: number }).status === 401) {
         console.log('🚀 Redirecting to login due to 401...');
         localStorage.removeItem('auth_token');
         localStorage.removeItem('user');
@@ -79,9 +79,7 @@ const verifyToken = async () => {
             return true;
         }
         return false;
-    } catch (error: any) {
-        const status = error.response?.status;
-
+    } catch {
         // Clear invalid token
         localStorage.removeItem('auth_token');
         localStorage.removeItem('user');

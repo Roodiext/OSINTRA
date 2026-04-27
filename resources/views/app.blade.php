@@ -53,6 +53,9 @@
         <meta property="twitter:image" content="{{ asset('osis-favicon.png') }}">
 
         <link rel="canonical" href="{{ url()->current() }}">
+        <link rel="icon" type="image/png" href="/osis-logo.png">
+        <link rel="preload" href="/osis-logo.png" as="image">
+
         <link rel="preload" href="/osis-favicon.png" as="image" type="image/png">
         <link rel="icon" href="/osis-favicon.png" type="image/png">
         <link rel="apple-touch-icon" href="/osis-favicon.png">

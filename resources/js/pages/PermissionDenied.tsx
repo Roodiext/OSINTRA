@@ -120,7 +120,7 @@ const PermissionDenied: React.FC = () => {
       backdrop: true,
       width: 'auto',
       padding: '2.5rem',
-      didOpen: (modal) => {
+      didOpen: () => {
         // Ensure popup has high z-index
         const popup = Swal.getPopup();
         if (popup) {
@@ -146,7 +146,7 @@ const PermissionDenied: React.FC = () => {
           } else {
             window.location.href = '/dashboard';
           }
-        } catch (e) {
+        } catch {
           window.location.href = '/dashboard';
         }
       }

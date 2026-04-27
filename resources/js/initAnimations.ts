@@ -1,14 +1,14 @@
 export interface InitResult {
-  locomotive?: any;
-  gsap?: any;
-  ScrollTrigger?: any;
-  scrollReveal?: any;
+  locomotive?: unknown;
+  gsap?: unknown;
+  ScrollTrigger?: unknown;
+  scrollReveal?: unknown;
 }
 
-let _locomotiveInstance: any = null;
-let _gsap: any = null;
-let _ScrollTrigger: any = null;
-let _scrollReveal: any = null;
+let _locomotiveInstance: unknown = null;
+let _gsap: unknown = null;
+let _ScrollTrigger: unknown = null;
+let _scrollReveal: unknown = null;
 
 export async function initAnimations(containerSelector?: string): Promise<InitResult> {
   const result: InitResult = {};
@@ -20,7 +20,7 @@ export async function initAnimations(containerSelector?: string): Promise<InitRe
     const el = document.querySelector(containerSelector || '[data-scroll-container]') || document.scrollingElement || document.documentElement;
     _locomotiveInstance = new Locomotive({ el, smooth: true, lerp: 0.08 });
     result.locomotive = _locomotiveInstance;
-  } catch (err) {
+  } catch {
     // Not fatal — library may be absent or environment not suitable
     // console.debug('Locomotive Scroll not initialized:', err);
   }
@@ -40,11 +40,11 @@ export async function initAnimations(containerSelector?: string): Promise<InitRe
         result.gsap = _gsap;
         result.ScrollTrigger = _ScrollTrigger;
       }
-    } catch (innerErr) {
+    } catch {
       // plugin not available — continue without it
       // console.debug('GSAP ScrollTrigger not available:', innerErr);
     }
-  } catch (err) {
+  } catch {
     // console.debug('GSAP not initialized:', err);
   }
 
@@ -63,7 +63,7 @@ export async function initAnimations(containerSelector?: string): Promise<InitRe
       easing: 'cubic-bezier(.2,.8,.2,1)'
     });
     result.scrollReveal = _scrollReveal;
-  } catch (err) {
+  } catch {
     // console.debug('ScrollReveal not initialized:', err);
   }
 
@@ -76,7 +76,7 @@ export async function destroyAnimations(): Promise<void> {
       _locomotiveInstance.destroy();
       _locomotiveInstance = null;
     }
-  } catch (err) {
+  } catch {
     // ignore
   }
 
@@ -85,7 +85,7 @@ export async function destroyAnimations(): Promise<void> {
       _scrollReveal.destroy();
       _scrollReveal = null;
     }
-  } catch (err) {
+  } catch {
     // ignore
   }
 
@@ -93,12 +93,18 @@ export async function destroyAnimations(): Promise<void> {
     if (_gsap && _ScrollTrigger) {
       // attempt to kill ScrollTrigger instances
       try {
-        _ScrollTrigger && _ScrollTrigger.getAll && _ScrollTrigger.getAll().forEach((t: any) => t.kill && t.kill());
-      } catch (e) { /* ignore */ }
+        if (_ScrollTrigger && typeof (_ScrollTrigger as { getAll?: () => unknown[] }).getAll === 'function') {
+          ((_ScrollTrigger as { getAll: () => unknown[] }).getAll() || []).forEach((t: unknown) => {
+            if (t && typeof (t as { kill?: () => void }).kill === 'function') {
+              (t as { kill: () => void }).kill();
+            }
+          });
+        }
+      } catch { /* ignore */ }
       _gsap = null;
       _ScrollTrigger = null;
     }
-  } catch (err) {
+  } catch {
     // ignore
   }
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Plus, Edit, Trash2, Users, Search } from 'lucide-react';
 import type { Division } from '@/types';
@@ -17,9 +17,7 @@ interface DivisionsPageProps {
 }
 
 const DivisionsPage: React.FC<DivisionsPageProps> = ({ divisions: initialDivisions, permissions = {} }) => {
-    const { props } = usePage<DivisionsPageProps>();
-    
-    const [divisions, setDivisions] = useState<Division[]>(initialDivisions || []);
+    const [divisions] = useState<Division[]>(initialDivisions || []);
     const [searchQuery, setSearchQuery] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [editingDivision, setEditingDivision] = useState<Division | null>(null);
@@ -72,9 +70,10 @@ const DivisionsPage: React.FC<DivisionsPageProps> = ({ divisions: initialDivisio
             }
             router.reload();
             handleCloseModal();
-        } catch (error: any) {
-            const statusCode = error.response?.status;
-            const errorMessage = error.response?.data?.message || 'Terjadi kesalahan';
+        } catch (error: unknown) {
+            const err = error as { response?: { status?: number; data?: { message?: string } } };
+            const statusCode = err.response?.status;
+            const errorMessage = err.response?.data?.message || 'Terjadi kesalahan';
             
             if (statusCode === 403) {
                 Swal.fire({
@@ -118,9 +117,10 @@ const DivisionsPage: React.FC<DivisionsPageProps> = ({ divisions: initialDivisio
                     confirmButtonColor: '#3B4D3A',
                 });
                 router.reload();
-            } catch (error: any) {
-                const statusCode = error.response?.status;
-                const errorMessage = error.response?.data?.message || 'Terjadi kesalahan';
+            } catch (error: unknown) {
+                const err = error as { response?: { status?: number; data?: { message?: string } } };
+                const statusCode = err.response?.status;
+                const errorMessage = err.response?.data?.message || 'Terjadi kesalahan';
                 
                 if (statusCode === 403) {
                     Swal.fire({

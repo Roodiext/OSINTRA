@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
-import { Plus, Edit, Trash2, Search, Filter, UserCircle, Key, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, UserCircle, ToggleLeft, ToggleRight } from 'lucide-react';
 import type { User, Role, Division } from '@/types';
 import type { Position } from '@/types';
 import Swal from 'sweetalert2';
@@ -9,7 +9,7 @@ import api from '@/lib/axios';
 import { usePermissionAlert } from '@/hooks/usePermissionAlert';
 
 interface UsersPageProps {
-    [key: string]: any;
+    [key: string]: unknown;
     users: User[];
     roles: Role[];
     divisions: Division[];
@@ -22,14 +22,13 @@ interface UsersPageProps {
     };
 }
 
-const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divisions, positions, permissions = {} }) => {
-    const { props } = usePage<any>();
+const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, positions, permissions = {} }) => {
+    const { props } = usePage<{ flash?: { permission_message?: string } }>();
     usePermissionAlert(props.flash?.permission_message);
 
-    const [users, setUsers] = useState<User[]>(initialUsers || []);
+    const [users] = useState<User[]>(initialUsers || []);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterRole, setFilterRole] = useState<string>('');
-    const [filterDivision, setFilterDivision] = useState<string>('');
     const [showModal, setShowModal] = useState(false);
     const [editingUser, setEditingUser] = useState<User | null>(null);
     const [formData, setFormData] = useState({
@@ -90,7 +89,7 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divis
         try {
             const submitData = { ...formData };
             if (editingUser && !submitData.password) {
-                delete (submitData as any).password;
+                delete (submitData as Record<string, unknown>).password;
             }
 
             if (editingUser) {
@@ -112,9 +111,10 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divis
             }
             router.reload();
             handleCloseModal();
-        } catch (error: any) {
-            const statusCode = error.response?.status;
-            const errorMessage = error.response?.data?.message || 'Terjadi kesalahan';
+        } catch (error: unknown) {
+            const err = error as { response?: { status?: number; data?: { message?: string } } };
+            const statusCode = err.response?.status;
+            const errorMessage = err.response?.data?.message || 'Terjadi kesalahan';
 
             if (statusCode === 403) {
                 Swal.fire({
@@ -158,9 +158,10 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divis
                     confirmButtonColor: '#3B4D3A',
                 });
                 router.reload();
-            } catch (error: any) {
-                const statusCode = error.response?.status;
-                const errorMessage = error.response?.data?.message || 'Terjadi kesalahan';
+            } catch (error: unknown) {
+                const err = error as { response?: { status?: number; data?: { message?: string } } };
+                const statusCode = err.response?.status;
+                const errorMessage = err.response?.data?.message || 'Terjadi kesalahan';
 
                 if (statusCode === 403) {
                     Swal.fire({
@@ -193,9 +194,10 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, divis
                 timer: 1500,
             });
             router.reload();
-        } catch (error: any) {
-            const statusCode = error.response?.status;
-            const errorMessage = error.response?.data?.message || 'Terjadi kesalahan';
+        } catch (error: unknown) {
+            const err = error as { response?: { status?: number; data?: { message?: string } } };
+            const statusCode = err.response?.status;
+            const errorMessage = err.response?.data?.message || 'Terjadi kesalahan';
 
             if (statusCode === 403) {
                 Swal.fire({

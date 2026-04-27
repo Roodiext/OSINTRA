@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { ArrowLeft, X } from 'lucide-react';
 import api from '@/lib/axios';
@@ -27,14 +27,8 @@ interface ProkerEditPageProps {
     };
 }
 
-const ProkerEditPage: React.FC<ProkerEditPageProps> = ({ divisions, permissions: defaultPermissions }) => {
-    const permissions = defaultPermissions || {
-        can_view: false,
-        can_create: false,
-        can_edit: false,
-        can_delete: false,
-    };
-    const [proker, setProker] = useState<Proker | null>(null);
+const ProkerEditPage: React.FC<ProkerEditPageProps> = ({ divisions }) => {
+    const [, setProker] = useState<Proker | null>(null);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -166,18 +160,19 @@ const ProkerEditPage: React.FC<ProkerEditPageProps> = ({ divisions, permissions:
             }).then(() => {
                 router.visit('/dashboard/prokers');
             });
-        } catch (error: any) {
-            if (error.response?.status === 403) {
+        } catch (error: unknown) {
+            const err = error as { response?: { status?: number; data?: { errors?: Record<string, string[] | string>; message?: string } } };
+            if (err.response?.status === 403) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Gagal!',
                     text: 'Anda tidak memiliki izin untuk mengedit proker ini',
                     confirmButtonColor: '#3B4D3A',
                 });
-            } else if (error.response?.data?.errors) {
-                setErrors(error.response.data.errors);
-                const errorMessages = Object.entries(error.response.data.errors)
-                    .map(([field, msgs]: [string, any]) => {
+            } else if (err.response?.data?.errors) {
+                setErrors(err.response.data.errors as Record<string, string>);
+                const errorMessages = Object.entries(err.response.data.errors)
+                    .map(([field, msgs]) => {
                         const fieldLabel = field
                             .replace(/_/g, ' ')
                             .replace(/^\w/, c => c.toUpperCase());
@@ -194,7 +189,7 @@ const ProkerEditPage: React.FC<ProkerEditPageProps> = ({ divisions, permissions:
                 Swal.fire({
                     icon: 'error',
                     title: 'Gagal!',
-                    text: error.response?.data?.message || 'Terjadi kesalahan',
+                    text: err.response?.data?.message || 'Terjadi kesalahan',
                     confirmButtonColor: '#3B4D3A',
                 });
             }

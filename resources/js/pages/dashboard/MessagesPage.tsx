@@ -1,18 +1,26 @@
 import React, { useState } from 'react';
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Search, Mail, MailOpen, Archive, Eye } from 'lucide-react';
 import type { Message } from '@/types';
 import Swal from 'sweetalert2';
 import api from '@/lib/axios';
 
+interface ExtendedMessage extends Message {
+    category?: string;
+    priority?: string;
+    replied_at?: string;
+    reply_message?: string;
+    replied_by?: { name: string };
+}
+
 interface MessagesPageProps {
-    messages: Message[];
+    messages: ExtendedMessage[];
 }
 
 const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }) => {
 
-    const [messages, setMessages] = useState<Message[]>(initialMessages || []);
+    const [messages] = useState<ExtendedMessage[]>(initialMessages || []);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterStatus, setFilterStatus] = useState<string>('');
     const [filterCategory, setFilterCategory] = useState<string>('');
@@ -20,7 +28,7 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
     const [filterReplyStatus, setFilterReplyStatus] = useState<string>('');
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [showReplyModal, setShowReplyModal] = useState(false);
-    const [viewingMessage, setViewingMessage] = useState<Message | null>(null);
+    const [viewingMessage, setViewingMessage] = useState<ExtendedMessage | null>(null);
     const [replyText, setReplyText] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -28,15 +36,15 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
         const matchesSearch = message.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             message.email.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesStatus = !filterStatus || message.status === filterStatus;
-        const matchesCategory = !filterCategory || (message as any).category === filterCategory;
-        const matchesPriority = !filterPriority || (message as any).priority === filterPriority;
+        const matchesCategory = !filterCategory || message.category === filterCategory;
+        const matchesPriority = !filterPriority || message.priority === filterPriority;
         const matchesReplyStatus = !filterReplyStatus ||
-            (filterReplyStatus === 'replied' && (message as any).replied_at) ||
-            (filterReplyStatus === 'not_replied' && !(message as any).replied_at);
+            (filterReplyStatus === 'replied' && message.replied_at) ||
+            (filterReplyStatus === 'not_replied' && !message.replied_at);
         return matchesSearch && matchesStatus && matchesCategory && matchesPriority && matchesReplyStatus;
     });
 
-    const handleViewMessage = async (message: Message) => {
+    const handleViewMessage = async (message: ExtendedMessage) => {
         setViewingMessage(message);
         setShowDetailModal(true);
 
@@ -68,11 +76,12 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
             setReplyText('');
             setShowReplyModal(false);
             router.reload();
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string } } };
             Swal.fire({
                 icon: 'error',
                 title: 'Gagal!',
-                text: error.response?.data?.message || 'Terjadi kesalahan',
+                text: err.response?.data?.message || 'Terjadi kesalahan',
                 confirmButtonColor: '#3B4D3A',
             });
         } finally {
@@ -91,11 +100,12 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
                 timer: 1500,
             });
             router.reload();
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string } } };
             Swal.fire({
                 icon: 'error',
                 title: 'Gagal!',
-                text: error.response?.data?.message || 'Terjadi kesalahan',
+                text: err.response?.data?.message || 'Terjadi kesalahan',
                 confirmButtonColor: '#3B4D3A',
             });
         }
@@ -212,7 +222,7 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
                                 <div>
                                     <p className="text-sm font-medium text-[#6E8BA3]">Sudah Dibalas</p>
                                     <p className="text-2xl font-bold text-[#3B4D3A]">
-                                        {messages.filter(m => (m as any).replied_at).length}
+                                        {messages.filter(m => m.replied_at).length}
                                     </p>
                                 </div>
                             </div>
@@ -346,13 +356,13 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
                                             </td>
                                             <td className="px-6 py-4 text-[#6E8BA3]">{message.email}</td>
                                             <td className="px-6 py-4">
-                                                <span className={`px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap ${getCategoryColor((message as any).category)}`}>
-                                                    {getCategoryLabel((message as any).category)}
+                                                <span className={`px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap ${getCategoryColor(message.category)}`}>
+                                                    {getCategoryLabel(message.category)}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4">
-                                                <span className={`px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap ${getPriorityColor((message as any).priority)}`}>
-                                                    {getPriorityLabel((message as any).priority)}
+                                                <span className={`px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap ${getPriorityColor(message.priority)}`}>
+                                                    {getPriorityLabel(message.priority)}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4">
@@ -426,14 +436,14 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
                                     </div>
                                     <div>
                                         <p className="text-sm font-semibold text-[#6E8BA3] mb-1">Kategori</p>
-                                        <p className={`inline-block px-3 py-1 rounded-lg text-xs font-bold ${getCategoryColor((viewingMessage as any).category)}`}>
-                                            {getCategoryLabel((viewingMessage as any).category)}
+                                        <p className={`inline-block px-3 py-1 rounded-lg text-xs font-bold ${getCategoryColor(viewingMessage.category)}`}>
+                                            {getCategoryLabel(viewingMessage.category)}
                                         </p>
                                     </div>
                                     <div>
                                         <p className="text-sm font-semibold text-[#6E8BA3] mb-1">Prioritas</p>
-                                        <p className={`inline-block px-3 py-1 rounded-lg text-xs font-bold ${getPriorityColor((viewingMessage as any).priority)}`}>
-                                            {getPriorityLabel((viewingMessage as any).priority)}
+                                        <p className={`inline-block px-3 py-1 rounded-lg text-xs font-bold ${getPriorityColor(viewingMessage.priority)}`}>
+                                            {getPriorityLabel(viewingMessage.priority)}
                                         </p>
                                     </div>
                                     <div className="sm:col-span-2">
@@ -451,18 +461,18 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
                                     </div>
                                 </div>
 
-                                {(viewingMessage as any).replied_at && (
+                                {viewingMessage.replied_at && (
                                     <div className="border-l-4 border-green-500 p-4 bg-green-50 rounded-xl">
                                         <h3 className="text-lg font-bold text-green-700 mb-2">✓ Balasan Admin</h3>
                                         <p className="text-sm text-green-600 mb-3">
-                                            Dibalas oleh {(viewingMessage as any).replied_by?.name} pada {new Date((viewingMessage as any).replied_at).toLocaleString('id-ID')}
+                                            Dibalas oleh {viewingMessage.replied_by?.name} pada {new Date(viewingMessage.replied_at).toLocaleString('id-ID')}
                                         </p>
-                                        <p className="text-[#1E1E1E] whitespace-pre-wrap">{(viewingMessage as any).reply_message}</p>
+                                        <p className="text-[#1E1E1E] whitespace-pre-wrap">{viewingMessage.reply_message}</p>
                                     </div>
                                 )}
 
                                 <div className="flex flex-col sm:flex-row gap-3">
-                                    {!(viewingMessage as any).replied_at && (
+                                    {!viewingMessage.replied_at && (
                                         <button
                                             onClick={() => setShowReplyModal(true)}
                                             className="w-full sm:flex-1 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all font-semibold flex items-center justify-center gap-2"
