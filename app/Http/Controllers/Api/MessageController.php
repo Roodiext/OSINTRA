@@ -74,31 +74,10 @@ class MessageController extends Controller
             'category' => 'required|in:saran_program,kritik_feedback,laporan_masalah,ide_usulan,komplain',
             'priority' => 'required|in:low,normal,high',
             'is_anonymous' => 'boolean',
-            'recaptcha_token' => 'required|string',
         ], [
             'name.min' => 'Nama harus minimal 15 karakter.',
             'message.min' => 'Pesan harus minimal 15 karakter.',
-            'recaptcha_token.required' => 'Verifikasi reCAPTCHA diperlukan.',
         ]);
-
-        // Verify reCAPTCHA (skip in local/testing environment with test keys)
-        $recaptchaSecret = config('services.recaptcha.secret');
-        if ($recaptchaSecret && config('app.env') !== 'local') {
-            $recaptchaResponse = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-                'secret' => $recaptchaSecret,
-                'response' => $validated['recaptcha_token'],
-                'remoteip' => $request->ip(),
-            ]);
-
-            if (!$recaptchaResponse->json('success')) {
-                return response()->json([
-                    'message' => 'Verifikasi reCAPTCHA gagal. Silakan coba lagi.',
-                ], 422);
-            }
-        }
-
-        // Remove recaptcha_token from validated data before creating message
-        unset($validated['recaptcha_token']);
 
         // Auto-generate subject if not present (mapping category to readable title)
         if (!isset($validated['subject'])) {

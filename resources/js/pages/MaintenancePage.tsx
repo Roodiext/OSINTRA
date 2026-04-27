@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Head } from '@inertiajs/react';
 import { Clock } from 'lucide-react';
 
@@ -7,8 +7,8 @@ interface MaintenancePageProps {
 }
 
 const MaintenancePage: React.FC<MaintenancePageProps> = ({ logo }) => {
-    // Default logo if not provided from settings
     const logoUrl = logo || '/build/assets/osis-logo-mBAtwUV-.png';
+    const [logoLoaded, setLogoLoaded] = useState(false);
 
     return (
         <div className="min-h-screen bg-[#FDFBF7] flex flex-col items-center justify-center p-4">
@@ -27,10 +27,16 @@ const MaintenancePage: React.FC<MaintenancePageProps> = ({ logo }) => {
                 {/* Logo Section */}
                 <div className="relative z-10 w-24 h-24 mx-auto mb-8 flex items-center justify-center">
                     <div className="absolute inset-0 bg-[#E8DCC3]/20 rounded-full blur-xl animate-pulse"></div>
+                    {!logoLoaded && (
+                        <div className="absolute inset-0 rounded-full bg-gray-200 animate-pulse" />
+                    )}
                     <img
                         src={logoUrl}
                         alt="Logo OSIS"
-                        className="relative w-full h-full object-contain drop-shadow-md"
+                        loading="eager"
+                        decoding="async"
+                        onLoad={() => setLogoLoaded(true)}
+                        className={`relative w-full h-full object-contain drop-shadow-md transition-opacity duration-500 ${logoLoaded ? 'opacity-100' : 'opacity-0'}`}
                     />
                 </div>
 

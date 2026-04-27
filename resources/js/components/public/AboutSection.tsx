@@ -6,6 +6,7 @@ import Reveal from './Reveal';
 const AboutSection: React.FC = () => {
     const [vision, setVision] = useState('');
     const [mission, setMission] = useState('');
+    const [ketosImageLoaded, setKetosImageLoaded] = useState(false);
 
     const [sambutanKetos, setSambutanKetos] = useState({
         name: 'Person',
@@ -171,11 +172,23 @@ const AboutSection: React.FC = () => {
                                 {/* Photo Container */}
                                 <div className="relative z-10 w-full aspect-[4/5] overflow-visible transition-all duration-500">
                                     {sambutanKetos.image ? (
-                                        <img
-                                            src={sambutanKetos.image}
-                                            alt={sambutanKetos.name}
-                                            className="w-full h-full object-contain transform translate-y-4 md:translate-y-6 filter drop-shadow-[0_15px_20px_rgba(59,77,58,0.25)] transition-transform duration-1000 group-hover:scale-105"
-                                        />
+                                        <>
+                                            {!ketosImageLoaded && (
+                                                <div className="absolute inset-0 flex items-center justify-center">
+                                                    <div className="w-32 h-32 rounded-full bg-gray-200 animate-pulse" />
+                                                </div>
+                                            )}
+                                            <img
+                                                src={sambutanKetos.image}
+                                                alt={sambutanKetos.name}
+                                                loading="lazy"
+                                                decoding="async"
+                                                onLoad={() => setKetosImageLoaded(true)}
+                                                className={`w-full h-full object-contain transform translate-y-4 md:translate-y-6 filter drop-shadow-[0_15px_20px_rgba(59,77,58,0.25)] transition-all duration-700 group-hover:scale-105 ${
+                                                    ketosImageLoaded ? 'opacity-100' : 'opacity-0'
+                                                }`}
+                                            />
+                                        </>
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center">
                                             <User className="w-32 h-32 text-[#3B4D3A]/20" />

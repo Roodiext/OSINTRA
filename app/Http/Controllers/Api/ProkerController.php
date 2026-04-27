@@ -433,11 +433,13 @@ class ProkerController extends Controller
 
     public function getAllMedia()
     {
+        // Limit to 24 most recent media items to keep the initial load light
         $media = ProkerMedia::with('proker.divisions')
             ->whereHas('proker', function($query) {
                 $query->where('status', 'done');
             })
             ->latest()
+            ->limit(24) 
             ->get();
 
         return response()->json($media);

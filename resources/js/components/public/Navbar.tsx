@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Link, router } from '@inertiajs/react';
+import OptimizedImage from '@/components/ui/OptimizedImage';
 
 const links = [
   { label: 'Beranda', href: '/' },
@@ -114,7 +115,7 @@ const Navbar: React.FC<NavbarProps> = ({ logoUrl = '/build/assets/osis-logo-mBAt
             >
               <div className="relative">
                 <div className={`absolute inset-0 bg-gradient-to-tr ${showScrolledState ? 'from-[#3B4D3A] to-[#E8DCC3]' : 'from-[#E8DCC3] to-white'} opacity-20 blur-lg rounded-full group-hover:opacity-40 transition-all`} />
-                <img src={logoUrl} alt="OSIS" className="relative w-9 h-9 object-contain group-hover:scale-110 transition-transform duration-300 drop-shadow-sm" />
+                <img src={logoUrl} alt="OSIS" className="relative w-9 h-9 object-contain group-hover:scale-110 transition-transform duration-300 drop-shadow-sm" loading="eager" decoding="async" />
               </div>
               <span className={`font-bold text-lg tracking-tight transition-colors duration-300 ${logoText}`}>OSINTRA</span>
             </a>

@@ -134,11 +134,7 @@ const PublicProkersPage: React.FC = () => {
                                             key={proker.id}
                                             onClick={() => {
                                                 sessionStorage.setItem('prokersScrollY', window.scrollY.toString());
-                                                if (thumbnail) {
-                                                    router.visit(`/gallery/${thumbnail.id}`);
-                                                } else {
-                                                    router.visit(`/prokers/${proker.id}`);
-                                                }
+                                                router.visit(`/prokers/${proker.id}`);
                                             }}
                                             className="bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-all transform hover:-translate-y-1 flex flex-col"
                                         >

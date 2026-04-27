@@ -149,64 +149,84 @@ const ProkerDetailPage: React.FC = () => {
     };
 
     const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file || !proker) return;
+        const files = Array.from(e.target.files || []);
+        if (files.length === 0 || !proker) return;
 
-        // Validate file type (Images only)
-        const isImage = file.type.startsWith('image/');
-        if (!isImage) {
-            Swal.fire('Error', 'File harus berupa gambar (JPG, PNG, WEBP, dll)', 'error');
-            return;
-        }
+        // Calculate how many more files can be uploaded
+        const currentCount = proker.media?.length || 0;
+        const availableSlots = 6 - currentCount;
 
-        // Validate file size (20MB)
-        if (file.size > 20 * 1024 * 1024) {
-            Swal.fire('Error', 'Ukuran file maksimal 20MB', 'error');
-            return;
-        }
-
-        const caption = await Swal.fire({
-            title: 'Tambah Caption?',
-            input: 'text',
-            inputLabel: 'Caption (opsional)',
-            inputPlaceholder: 'Masukkan caption untuk media ini...',
-            showCancelButton: true,
-            confirmButtonText: 'Upload',
-            cancelButtonText: 'Batal',
-            inputValidator: () => null,
-        });
-
-        if (caption.isDismissed) {
+        if (files.length > availableSlots) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Limit Tercapai',
+                text: `Anda hanya bisa menambah ${availableSlots} foto lagi. (Maksimal 6 foto)`,
+                confirmButtonColor: '#3B4D3A'
+            });
             e.target.value = '';
             return;
         }
 
+        // Validate all files
+        for (const file of files) {
+            if (!file.type.startsWith('image/')) {
+                Swal.fire('Error', `File ${file.name} bukan gambar.`, 'error');
+                e.target.value = '';
+                return;
+            }
+            if (file.size > 20 * 1024 * 1024) {
+                Swal.fire('Error', `Ukuran file ${file.name} melebihi 20MB.`, 'error');
+                e.target.value = '';
+                return;
+            }
+        }
+
+        let commonCaption = '';
+        if (files.length === 1) {
+            const captionResult = await Swal.fire({
+                title: 'Tambah Caption?',
+                input: 'text',
+                inputLabel: 'Caption (opsional)',
+                inputPlaceholder: 'Masukkan caption untuk media ini...',
+                showCancelButton: true,
+                confirmButtonText: 'Upload',
+                cancelButtonText: 'Batal',
+            });
+            if (captionResult.isDismissed) {
+                e.target.value = '';
+                return;
+            }
+            commonCaption = captionResult.value;
+        }
+
         setUploading(true);
         try {
-            const formData = new FormData();
-            formData.append('file', file);
-            if (caption.value) {
-                formData.append('caption', caption.value);
-            }
-
-            await api.post(`/prokers/${proker.id}/media/upload`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
+            const uploadPromises = files.map(file => {
+                const formData = new FormData();
+                formData.append('file', file);
+                if (commonCaption) formData.append('caption', commonCaption);
+                
+                return api.post(`/prokers/${proker.id}/media/upload`, formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                });
             });
 
-            Swal.fire('Berhasil!', 'Media berhasil diupload', 'success');
+            await Promise.all(uploadPromises);
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: `${files.length} media berhasil diupload`,
+                timer: 2000,
+                showConfirmButton: false
+            });
 
             // Refresh proker data
             const response = await api.get(`/prokers/${proker.id}`);
             setProker(response.data);
         } catch (error: any) {
             console.error(error);
-            if (error.response?.status === 403) {
-                Swal.fire('Gagal!', 'Anda tidak memiliki izin untuk upload media', 'error');
-            } else {
-                Swal.fire('Error', error.response?.data?.message || 'Gagal upload media', 'error');
-            }
+            Swal.fire('Error', error.response?.data?.message || 'Gagal upload media', 'error');
         } finally {
             setUploading(false);
             e.target.value = '';
@@ -729,6 +749,7 @@ const ProkerDetailPage: React.FC = () => {
                                     ref={fileInputRef}
                                     type="file"
                                     accept="image/*"
+                                    multiple
                                     onChange={handleFileSelect}
                                     className="hidden"
                                 />

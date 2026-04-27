@@ -15,7 +15,7 @@ const FooterSection: React.FC<FooterProps> = ({ logoUrl = '/build/assets/osis-lo
                     {/* About */}
                     <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <img src={logoUrl} alt="OSIS Logo" className="w-10 h-10 object-contain" />
+                            <img src={logoUrl} alt="OSIS Logo" className="w-10 h-10 object-contain" loading="eager" decoding="async" />
                             <h3 className="text-2xl font-bold text-white">OSINTRA</h3>
                         </div>
                         <p className="leading-relaxed" style={{ color: '#D0C5B9' }}>

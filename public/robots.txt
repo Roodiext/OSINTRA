@@ -1,2 +1,7 @@
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /dashboard/
+Disallow: /login
+Disallow: /api/
+
+Sitemap: https://osis.smkn6solo.sch.id/sitemap.xml

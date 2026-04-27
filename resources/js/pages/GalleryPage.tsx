@@ -40,8 +40,8 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
         // i.e., an initialId was provided and we are showing the slider view.
         if (!initialId) return;
 
-        // Check if we're on desktop (md breakpoint = 768px)
-        const isDesktop = () => window.innerWidth >= 768;
+        // Check if we're on desktop (lg breakpoint = 1024px)
+        const isDesktop = () => window.innerWidth >= 1024;
 
         const applyDesktopBehavior = () => {
             if (isDesktop()) {
@@ -148,9 +148,13 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
         return `${startFormatted} - ${endFormatted}`;
     };
 
+    const [loadedImages, setLoadedImages] = useState<Record<number, boolean>>({});
+
+    const handleImageLoad = (id: number) => {
+        setLoadedImages(prev => ({ ...prev, [id]: true }));
+    };
+
     // If no initialId is provided, we should probably render a GRID VIEW of all media
-    // instead of defaulting to the first item as a 'detail' view.
-    // The user wants a gallery index page.
     if (!initialId) {
         return (
             <>
@@ -171,15 +175,25 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: index * 0.05 }}
-                                            className="break-inside-avoid relative group cursor-pointer overflow-hidden rounded-xl bg-slate-100 shadow-sm border border-slate-200 hover:shadow-lg transition-all duration-300"
+                                            className="break-inside-avoid relative group cursor-pointer overflow-hidden rounded-xl bg-gray-200 shadow-sm border border-slate-200 hover:shadow-lg transition-all duration-300"
                                             onClick={() => handleFullscreen(item)}
                                         >
-                                            <img
-                                                src={item.thumbnail_url || item.media_url}
-                                                alt={item.caption || ''}
-                                                className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105"
-                                                loading="lazy"
-                                            />
+                                            <div className="relative w-full h-full">
+                                                {/* Placeholder color while loading */}
+                                                {!loadedImages[item.id] && (
+                                                    <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+                                                )}
+                                                <img
+                                                    src={item.thumbnail_url || item.media_url}
+                                                    alt={item.caption || ''}
+                                                    className={`w-full h-full object-cover transform transition-all duration-700 group-hover:scale-105 ${
+                                                        loadedImages[item.id] ? 'opacity-100' : 'opacity-0'
+                                                    }`}
+                                                    loading="lazy"
+                                                    decoding="async"
+                                                    onLoad={() => handleImageLoad(item.id)}
+                                                />
+                                            </div>
 
                                             {/* Overlay on hover */}
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
@@ -275,7 +289,7 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
             <Head title={`Galeri - ${currentImage.proker?.title || 'Detail'}`} />
             <div
                 ref={containerRef}
-                className="fixed inset-0 z-[9999] bg-[#0f0f0f] text-slate-300 overflow-y-auto md:overflow-x-auto md:overflow-y-hidden hide-scrollbar"
+                className="fixed inset-0 z-[9999] bg-[#0f0f0f] text-slate-300 overflow-y-auto lg:overflow-x-auto lg:overflow-y-hidden hide-scrollbar"
                 style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
                 {/* Hide scrollbar */}
@@ -312,101 +326,119 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                     </Button>
                 </motion.div>
 
-                {/* MOBILE LAYOUT: Vertical Scroll */}
-                <div className="block md:hidden pt-20 pb-8 px-4">
-                    {/* Featured Image */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5 }}
-                        className="mb-6"
-                    >
-                        <div className="relative group cursor-pointer" onClick={() => handleFullscreen(currentImage)}>
-                            <div className="relative bg-white p-3 rounded-xl shadow-2xl transition-transform duration-300">
-                                <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden bg-slate-100">
-                                    <img
-                                        src={currentImage.media_url || "/placeholder.svg"}
-                                        alt={currentImage.caption || 'Gallery Image'}
-                                        className="w-full h-full object-cover"
-                                    />
-                                    {/* Expand icon */}
-                                    <div className="absolute top-2 right-2 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm">
-                                        <Expand className="w-4 h-4 text-slate-700" />
-                                    </div>
-                                </div>
-
-                                {/* Image info */}
-                                <div className="mt-3 text-center">
-                                    <span className="inline-block px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold mb-2 border border-amber-200">
-                                        {currentImage.proker?.title || 'Kegiatan OSIS'}
-                                    </span>
-                                    <h2 className="text-xl font-bold text-slate-900 font-serif tracking-wide">{currentImage.caption || 'Dokumentasi Kegiatan'}</h2>
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    {/* Description */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.1 }}
-                        className="mb-6 text-slate-300"
-                    >
-                        <h1 className="text-2xl font-bold mb-2 text-white font-serif">{currentImage.proker?.title || 'Kegiatan OSIS'}</h1>
-                        <h2 className="text-lg text-slate-400 font-medium mb-4 italic">{currentImage.caption || 'Dokumentasi'}</h2>
-
-                        <p className="text-slate-400 leading-relaxed mb-4 text-sm font-light tracking-wide">
-                            {currentImage.proker?.description || 'Tidak ada deskripsi untuk kegiatan ini.'}
-                        </p>
-
-                        <div className="space-y-2 text-slate-400 mb-4 text-sm">
-                            <div className="flex items-center gap-2">
-                                <span className="font-bold text-slate-300 w-20">Lokasi:</span>
-                                <span className="text-slate-400">{currentImage.proker?.location || '-'}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="font-bold text-slate-300 w-20">Tanggal:</span>
-                                <span className="text-slate-400">
-                                    {formatDateRange(currentImage.proker?.date || '', currentImage.proker?.end_date)}
-                                </span>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    {/* Other Images Grid - Mobile */}
-                    {otherImages.length > 0 && (
+                {/* MOBILE & TABLET LAYOUT: Vertical Scroll */}
+                <div className="block lg:hidden pt-20 pb-12 px-4 md:px-8 max-w-5xl mx-auto w-full">
+                    <div className="flex flex-col space-y-10">
+                        {/* Featured Image */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5, delay: 0.2 }}
+                            transition={{ duration: 0.5 }}
                         >
-                            <h3 className="text-lg font-bold text-white mb-4 font-serif">Galeri Lainnya</h3>
-                            <div className="grid grid-cols-2 gap-3">
-                                {otherImages.map((img, idx) => (
-                                    <motion.div
-                                        key={img.id}
-                                        initial={{ opacity: 0, scale: 0.9 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ delay: 0.3 + (idx * 0.05) }}
-                                        className="bg-white p-2 shadow-md rounded-xl cursor-pointer active:scale-95 transition-transform"
-                                        onClick={() => handleImageClick(img.id)}
-                                    >
-                                        <div className="w-full aspect-square rounded-lg overflow-hidden bg-slate-100">
-                                            <img src={img.media_url} alt={img.caption || ''} className="w-full h-full object-cover" />
-                                        </div>
-                                        {img.caption && (
-                                            <p className="mt-2 text-xs text-slate-600 line-clamp-1">{img.caption}</p>
+                            <div className="relative group cursor-pointer" onClick={() => handleFullscreen(currentImage)}>
+                                <div className="relative bg-white p-3 md:p-6 rounded-2xl shadow-2xl transition-transform duration-300">
+                                    <div className="relative w-full aspect-[4/3] md:aspect-video rounded-xl overflow-hidden bg-gray-200">
+                                        {!loadedImages[currentImage.id] && (
+                                            <div className="absolute inset-0 bg-gray-200 animate-pulse" />
                                         )}
-                                    </motion.div>
-                                ))}
+                                        <img
+                                            src={currentImage.media_url || "/placeholder.svg"}
+                                            alt={currentImage.caption || 'Gallery Image'}
+                                            decoding="async"
+                                            onLoad={() => handleImageLoad(currentImage.id)}
+                                            className={`w-full h-full object-cover transition-opacity duration-500 ${
+                                                loadedImages[currentImage.id] ? 'opacity-100' : 'opacity-0'
+                                            }`}
+                                        />
+                                        <div className="absolute top-3 right-3 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm">
+                                            <Expand className="w-5 h-5 text-slate-700" />
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-4 md:mt-6 text-center">
+                                        <span className="inline-block px-4 py-1.5 bg-amber-100 text-amber-700 rounded-full text-[10px] md:text-xs font-bold mb-2 border border-amber-200 uppercase tracking-widest">
+                                            {currentImage.proker?.title || 'Kegiatan OSIS'}
+                                        </span>
+                                        <h2 className="text-xl md:text-4xl font-bold text-slate-900 font-serif tracking-wide">{currentImage.caption || 'Dokumentasi Kegiatan'}</h2>
+                                    </div>
+                                </div>
                             </div>
                         </motion.div>
-                    )}
+
+                        {/* Description */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.1 }}
+                            className="text-slate-300 px-2"
+                        >
+                            <h1 className="text-3xl md:text-6xl font-bold mb-3 text-white font-serif">{currentImage.proker?.title || 'Kegiatan OSIS'}</h1>
+                            <h2 className="text-xl md:text-3xl text-slate-400 font-medium mb-6 italic">{currentImage.caption || 'Dokumentasi'}</h2>
+
+                            <p className="text-slate-400 leading-relaxed mb-8 text-base md:text-xl font-light tracking-wide max-w-3xl">
+                                {currentImage.proker?.description || 'Tidak ada deskripsi untuk kegiatan ini.'}
+                            </p>
+
+                            <div className="space-y-3 text-slate-400 mb-8 text-sm md:text-lg">
+                                <div className="flex items-start gap-4">
+                                    <span className="font-bold text-slate-300 w-20 md:w-32 shrink-0">Lokasi:</span>
+                                    <span className="text-slate-400">{currentImage.proker?.location || '-'}</span>
+                                </div>
+                                <div className="flex items-start gap-4">
+                                    <span className="font-bold text-slate-300 w-20 md:w-32 shrink-0">Tanggal:</span>
+                                    <span className="text-slate-400">
+                                        {formatDateRange(currentImage.proker?.date || '', currentImage.proker?.end_date)}
+                                    </span>
+                                </div>
+                            </div>
+                        </motion.div>
+
+                        {/* Other Images Grid - Mobile & Tablet */}
+                        {otherImages.length > 0 && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.5, delay: 0.2 }}
+                                className="px-2"
+                            >
+                                <h3 className="text-2xl md:text-3xl font-bold text-white mb-8 font-serif">Galeri Lainnya</h3>
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
+                                    {otherImages.map((img, idx) => (
+                                        <motion.div
+                                            key={img.id}
+                                            initial={{ opacity: 0, scale: 0.9 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            transition={{ delay: 0.3 + (idx * 0.05) }}
+                                            className="bg-white p-2.5 md:p-4 shadow-2xl rounded-2xl cursor-pointer hover:scale-[1.03] transition-transform"
+                                            onClick={() => handleImageClick(img.id)}
+                                        >
+                                            <div className="w-full aspect-square rounded-xl overflow-hidden bg-gray-200">
+                                                {!loadedImages[img.id] && (
+                                                    <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+                                                )}
+                                                <img 
+                                                    src={img.media_url} 
+                                                    alt={img.caption || ''} 
+                                                    decoding="async"
+                                                    onLoad={() => handleImageLoad(img.id)}
+                                                    className={`w-full h-full object-cover transition-opacity duration-500 ${
+                                                        loadedImages[img.id] ? 'opacity-100' : 'opacity-0'
+                                                    }`} 
+                                                />
+                                            </div>
+                                            {img.caption && (
+                                                <p className="mt-3 text-xs md:text-base text-slate-600 font-medium line-clamp-1 px-1">{img.caption}</p>
+                                            )}
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            </motion.div>
+                        )}
+                    </div>
                 </div>
 
-                {/* DESKTOP LAYOUT: Horizontal Scroll */}
-                <div className="hidden md:flex font-google-sans h-full min-w-[200vw]">
+                {/* DESKTOP LAYOUT: Horizontal Scroll (Only for LG screens and above) */}
+                <div className="hidden lg:flex font-google-sans h-full min-w-[200vw]">
                     {/* Section 1: Main Content (Photo + Description) */}
                     <motion.div
                         initial={{ opacity: 0, x: -50 }}
@@ -418,11 +450,18 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                             <div className="flex-shrink-0">
                                 <div className="relative group cursor-pointer" onClick={() => handleFullscreen(currentImage)}>
                                     <div className="relative bg-white p-4 rounded-xl shadow-2xl transition-all duration-500 transform hover:rotate-1">
-                                        <div className="relative w-[500px] h-[375px] rounded-lg overflow-hidden bg-slate-100">
+                                        <div className="relative w-[500px] h-[375px] rounded-lg overflow-hidden bg-gray-200">
+                                            {!loadedImages[currentImage.id] && (
+                                                <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+                                            )}
                                             <img
                                                 src={currentImage.media_url || "/placeholder.svg"}
                                                 alt={currentImage.caption || 'Gallery Image'}
-                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                                decoding="async"
+                                                onLoad={() => handleImageLoad(currentImage.id)}
+                                                className={`w-full h-full object-cover group-hover:scale-105 transition-all duration-700 ${
+                                                    loadedImages[currentImage.id] ? 'opacity-100' : 'opacity-0'
+                                                }`}
                                             />
                                             {/* Expand icon */}
                                             <div className="absolute top-3 right-3 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-sm">

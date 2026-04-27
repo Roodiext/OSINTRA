@@ -30,8 +30,30 @@
             }
         </style>
 
-        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+        <title inertia>{{ config('app.name', 'OSINTRA') }}</title>
 
+        <!-- SEO Meta Tags -->
+        <meta name="description" content="OSINTRA - Platform dokumentasi dan informasi program kerja OSIS SMK Negeri 6 Surakarta. Transparansi dan kreativitas dalam berorganisasi.">
+        <meta name="keywords" content="OSIS, SMKN 6 Surakarta, OSINTRA, Program Kerja, Dokumentasi Event, Sekolah, Surakarta">
+        <meta name="author" content="OSIS SMKN 6 Surakarta">
+        <meta name="robots" content="index, follow">
+
+        <!-- Open Graph / Facebook / WhatsApp -->
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="{{ url('/') }}">
+        <meta property="og:title" content="OSINTRA - OSIS SMK Negeri 6 Surakarta">
+        <meta property="og:description" content="Platform dokumentasi dan informasi program kerja OSIS SMK Negeri 6 Surakarta. Lihat transparansi kegiatan kami di sini.">
+        <meta property="og:image" content="{{ asset('osis-favicon.png') }}">
+
+        <!-- Twitter -->
+        <meta property="twitter:card" content="summary_large_image">
+        <meta property="twitter:url" content="{{ url('/') }}">
+        <meta property="twitter:title" content="OSINTRA - OSIS SMK Negeri 6 Surakarta">
+        <meta property="twitter:description" content="Platform dokumentasi dan informasi program kerja OSIS SMK Negeri 6 Surakarta.">
+        <meta property="twitter:image" content="{{ asset('osis-favicon.png') }}">
+
+        <link rel="canonical" href="{{ url()->current() }}">
+        <link rel="preload" href="/osis-favicon.png" as="image" type="image/png">
         <link rel="icon" href="/osis-favicon.png" type="image/png">
         <link rel="apple-touch-icon" href="/osis-favicon.png">
 

@@ -7,6 +7,7 @@ interface HeroSectionProps {
 
 const HeroSection: React.FC<HeroSectionProps> = ({ initialImage }) => {
     const [bgImage] = useState(initialImage || '/osvis-team.jpg');
+    const [bgLoaded, setBgLoaded] = useState(false);
 
     const scrollToAbout = () => {
         document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
@@ -17,13 +18,17 @@ const HeroSection: React.FC<HeroSectionProps> = ({ initialImage }) => {
 
             {/* 1. LAYER FOTO - Full & Teroptimasi untuk kecepatan */}
             <div className="absolute inset-0 z-0 bg-[#050505]">
+                {!bgLoaded && (
+                    <div className="absolute inset-0 bg-[#1a1a1a] animate-pulse" />
+                )}
                 <img
                     src={bgImage}
                     alt="OSIS Hero Background"
                     fetchPriority="high"
                     loading="eager"
                     decoding="async"
-                    className="w-full h-full object-cover opacity-90"
+                    onLoad={() => setBgLoaded(true)}
+                    className={`w-full h-full object-cover transition-opacity duration-700 ${bgLoaded ? 'opacity-90' : 'opacity-0'}`}
                 />
             </div>
 

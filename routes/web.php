@@ -311,3 +311,5 @@ Route::middleware(['inertia.auth'])->group(function () {
 
 // Enable Laravel settings routes
 require __DIR__.'/settings.php';
+
+Route::get('/sitemap.xml', [App\Http\Controllers\SitemapController::class, 'index']);
