@@ -255,7 +255,7 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
                         )}
                     </div>
 
-                    {/* Filters */}
+                    {/* Filterrs */}
                     <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="relative">
