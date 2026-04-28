@@ -16,6 +16,12 @@
         <priority>0.8</priority>
     </url>
     <url>
+        <loc>{{ url("/struktur") }}</loc>
+        <lastmod>2024-01-01T00:00:00+00:00</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
         <loc>{{ url("/prokers") }}</loc>
         <lastmod>{{ $now }}</lastmod>
         <changefreq>daily</changefreq>
@@ -26,6 +32,12 @@
         <lastmod>{{ $now }}</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>{{ url("/contact") }}</loc>
+        <lastmod>2024-01-01T00:00:00+00:00</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
     </url>
 
     @foreach ($prokers as $proker)

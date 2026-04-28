@@ -36,7 +36,11 @@
         <meta name="description" content="OSINTRA - Platform dokumentasi dan informasi program kerja OSIS SMK Negeri 6 Surakarta. Transparansi dan kreativitas dalam berorganisasi.">
         <meta name="keywords" content="OSIS, SMKN 6 Surakarta, OSINTRA, Program Kerja, Dokumentasi Event, Sekolah, Surakarta">
         <meta name="author" content="OSIS SMKN 6 Surakarta">
-        <meta name="robots" content="index, follow">
+        @if (request()->is('dashboard*') || request()->is('login'))
+            <meta name="robots" content="noindex, nofollow">
+        @else
+            <meta name="robots" content="index, follow">
+        @endif
 
         <!-- Open Graph / Facebook / WhatsApp -->
         <meta property="og:type" content="website">
