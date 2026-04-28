@@ -224,13 +224,6 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
         }
     };
 
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'done': return 'bg-green-100 text-green-700 border-green-300';
-            case 'ongoing': return 'bg-yellow-100 text-yellow-700 border-yellow-300';
-            default: return 'bg-blue-100 text-blue-700 border-blue-300';
-        }
-    };
 
     const getStatusLabel = (status: string) => {
         switch (status) {
@@ -609,115 +602,6 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
                     </div>
                 )}
 
-                {/* Detail Modal */}
-                {showDetailModal && viewingProker && (
-                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-                        <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-8 my-8">
-                            <div className="flex items-start justify-between mb-6">
-                                <div>
-                                    <h2 className="text-3xl font-bold text-[#3B4D3A] mb-2">{viewingProker.title}</h2>
-                                    <span className={`inline-block px-4 py-2 rounded-lg text-sm font-bold uppercase tracking-wide border ${getStatusColor(viewingProker.status)}`}>
-                                        {getStatusLabel(viewingProker.status)}
-                                    </span>
-                                </div>
-                                <button
-                                    onClick={() => setShowDetailModal(false)}
-                                    className="text-[#6E8BA3] hover:text-[#3B4D3A] text-2xl font-bold"
-                                >
-                                    ×
-                                </button>
-                            </div>
-
-                            <div className="space-y-6">
-                                <div>
-                                    <h3 className="text-lg font-bold text-[#3B4D3A] mb-2">Deskripsi</h3>
-                                    <p className="text-[#6E8BA3]">{viewingProker.description || 'Tidak ada deskripsi'}</p>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <h3 className="text-sm font-bold text-[#3B4D3A] mb-1">Divisi</h3>
-                                        <p className="text-[#6E8BA3]">{viewingProker.division?.name}</p>
-                                    </div>
-                                    <div>
-                                        <h3 className="text-sm font-bold text-[#3B4D3A] mb-1">Tanggal</h3>
-                                        <p className="text-[#6E8BA3]">
-                                            {viewingProker.end_date && viewingProker.end_date !== viewingProker.date ? (
-                                                <>
-                                                    {new Date(viewingProker.date).toLocaleDateString('id-ID', {
-                                                        day: 'numeric',
-                                                        month: 'long',
-                                                        year: 'numeric'
-                                                    })} - {new Date(viewingProker.end_date).toLocaleDateString('id-ID', {
-                                                        day: 'numeric',
-                                                        month: 'long',
-                                                        year: 'numeric'
-                                                    })}
-                                                </>
-                                            ) : (
-                                                new Date(viewingProker.date).toLocaleDateString('id-ID', {
-                                                    weekday: 'long',
-                                                    day: 'numeric',
-                                                    month: 'long',
-                                                    year: 'numeric'
-                                                })
-                                            )}
-                                        </p>
-                                    </div>
-                                    {viewingProker.location && (
-                                        <div className="col-span-2">
-                                            <h3 className="text-sm font-bold text-[#3B4D3A] mb-1">Lokasi</h3>
-                                            <p className="text-[#6E8BA3]">{viewingProker.location}</p>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {viewingProker.anggota && viewingProker.anggota.length > 0 && (
-                                    <div>
-                                        <h3 className="text-lg font-bold text-[#3B4D3A] mb-3">Anggota Tim</h3>
-                                        <div className="grid grid-cols-2 gap-3">
-                                            {viewingProker.anggota.map((anggota) => (
-                                                <div key={anggota.id} className="bg-[#F5F5F5] rounded-lg p-3 flex items-center gap-3">
-                                                    <div className="w-10 h-10 bg-[#E8DCC3] rounded-full flex items-center justify-center text-[#3B4D3A] font-bold">
-                                                        {anggota.user?.name.charAt(0).toUpperCase()}
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-semibold text-[#1E1E1E]">{anggota.user?.name}</p>
-                                                        <p className="text-xs text-[#6E8BA3]">{anggota.role || 'Anggota'}</p>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {viewingProker.media && viewingProker.media.length > 0 && (
-                                    <div>
-                                        <h3 className="text-lg font-bold text-[#3B4D3A] mb-3">Media</h3>
-                                        <div className="grid grid-cols-3 gap-3">
-                                            {viewingProker.media.map((media) => (
-                                                <div key={media.id} className="aspect-square rounded-lg overflow-hidden bg-[#F5F5F5]">
-                                                    {media.media_type === 'image' ? (
-                                                        <img src={media.media_url} alt={media.caption || ''} className="w-full h-full object-cover" />
-                                                    ) : (
-                                                        <video src={media.media_url} className="w-full h-full object-cover" controls />
-                                                    )}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            <button
-                                onClick={() => setShowDetailModal(false)}
-                                className="w-full mt-6 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all font-semibold"
-                            >
-                                Tutup
-                            </button>
-                        </div>
-                    </div>
-                )}
             </DashboardLayout>
         </>
     );
