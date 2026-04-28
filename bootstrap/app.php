@@ -41,6 +41,15 @@ return Application::configure(basePath: dirname(__DIR__))
                     ? $response
                     : redirect()->guest(route('login'));
             }
+
+            if ($response->getStatusCode() === 404) {
+                return \Inertia\Inertia::render('NotFoundPage', [
+                    'logo' => \App\Models\AppSetting::get('site_logo')
+                ])
+                    ->toResponse($request)
+                    ->setStatusCode(404);
+            }
+
             return $response;
         });
     })->create();
