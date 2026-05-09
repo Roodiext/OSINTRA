@@ -26,7 +26,7 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, posit
     const { props } = usePage<{ flash?: { permission_message?: string } }>();
     usePermissionAlert(props.flash?.permission_message);
 
-    const [users] = useState<User[]>(initialUsers || []);
+    const users = initialUsers || [];
     const [searchQuery, setSearchQuery] = useState('');
     const [filterRole, setFilterRole] = useState<string>('');
     const [showModal, setShowModal] = useState(false);

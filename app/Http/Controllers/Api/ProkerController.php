@@ -279,6 +279,14 @@ class ProkerController extends Controller
         
         // URL is now direct
         $mediaUrl = '/assets/' . $filename;
+        
+        // Generate Thumbnail
+        $thumbFilename = str_replace('.webp', '_thumb.webp', $filename);
+        $thumb = $manager->read($file);
+        if ($thumb->width() > 480) {
+            $thumb->scale(width: 480);
+        }
+        $thumb->toWebp(quality: 70)->save($destinationPath . '/' . $thumbFilename);
 
         $media = ProkerMedia::create([
             'proker_id' => $proker->id,

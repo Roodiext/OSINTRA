@@ -54,7 +54,7 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
     const { props } = usePage<{ flash?: { permission_message?: string } }>();
     usePermissionAlert(props.flash?.permission_message);
 
-    const [transactions] = useState<ExtendedTransaction[]>(initialTransactions || []);
+    const transactions = initialTransactions || [];
     const [infoTransaction, setInfoTransaction] = useState<ExtendedTransaction | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState<string>('');

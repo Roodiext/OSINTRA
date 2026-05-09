@@ -142,6 +142,8 @@ const PublicProkersPage: React.FC = () => {
                                                         <img
                                                             src={thumbnail.media_url}
                                                             alt={proker.title}
+                                                            loading="lazy"
+                                                            decoding="async"
                                                             className="w-full h-full object-cover"
                                                         />
                                                     ) : (

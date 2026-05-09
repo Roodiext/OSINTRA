@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import PublicLayout from '@/components/public/PublicLayout';
-import { ArrowLeft, X, Share2, Users, Building2 } from 'lucide-react';
+import { ArrowLeft, X, Building2 } from 'lucide-react';
 import api from '@/lib/axios';
 import type { Proker, ProkerMedia } from '@/types';
 import ProkerDetailContent from '@/components/public/ProkerDetailContent';
@@ -109,9 +109,6 @@ const PublicProkerDetailPage: React.FC = () => {
                             >
                                 <ArrowLeft className="w-6 h-6 group-hover:-translate-x-1 transition-transform" />
                             </button>
-                            <button className="p-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white hover:bg-white hover:text-[#3B4D3A] transition-all">
-                                <Share2 className="w-6 h-6" />
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -131,55 +128,27 @@ const PublicProkerDetailPage: React.FC = () => {
                         {/* Right Column: Sidebar Info Card */}
                         <div className="lg:col-span-4 sticky top-28 space-y-6">
                             <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-xl">
-                                <h4 className="text-lg font-black text-[#3B4D3A] mb-6 flex items-center gap-2">
-                                    <Users className="w-5 h-5" />
-                                    Informasi Panitia
-                                </h4>
-                                
-                                {proker.anggota && proker.anggota.length > 0 ? (
-                                    <div className="space-y-4">
-                                        {proker.anggota.slice(0, 5).map((member, i) => (
-                                            <div key={i} className="flex items-center gap-4 group">
-                                                <div className="w-10 h-10 rounded-full bg-[#E8DCC3] flex items-center justify-center text-[#3B4D3A] font-bold text-sm border-2 border-white shadow-sm shrink-0">
-                                                    {member.user?.name?.charAt(0) || 'P'}
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <p className="font-bold text-[#3B4D3A] text-sm truncate group-hover:text-[#6E8BA3] transition-colors">
-                                                        {member.user?.name}
-                                                    </p>
-                                                    <p className="text-[10px] uppercase font-black text-gray-400 tracking-widest">
-                                                        {member.role || 'Anggota Panitia'}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                        {proker.anggota.length > 5 && (
-                                            <p className="text-xs text-center text-gray-400 pt-2 font-medium">
-                                                + {proker.anggota.length - 5} anggota lainnya
-                                            </p>
-                                        )}
+                                <div className="flex items-center gap-4 text-gray-500 mb-6">
+                                    <div className="w-12 h-12 rounded-2xl bg-[#3B4D3A]/5 flex items-center justify-center shrink-0">
+                                        <Building2 className="w-6 h-6 text-[#3B4D3A]" />
                                     </div>
-                                ) : (
-                                    <p className="text-sm text-gray-400 italic">Belum ada panitia terdaftar.</p>
-                                )}
-
-                                <div className="mt-8 pt-8 border-t border-gray-100">
-                                    <div className="flex items-center gap-4 text-gray-500 mb-4">
-                                        <Building2 className="w-5 h-5 shrink-0" />
-                                        <div className="text-sm">
-                                            <p className="font-bold text-[#3B4D3A]">OSIS SMKN 6 Surakarta</p>
-                                            <p className="text-xs">Penyelenggara Kegiatan</p>
-                                        </div>
+                                    <div className="text-sm">
+                                        <p className="font-black text-[#3B4D3A] text-base">OSIS SMKN 6 Surakarta</p>
+                                        <p className="text-xs text-gray-400 font-medium">Penyelenggara Kegiatan</p>
                                     </div>
-                                    <button 
-                                        onClick={() => router.visit('/contact')}
-                                        className="w-full py-4 bg-[#3B4D3A]/5 hover:bg-[#3B4D3A]/10 text-[#3B4D3A] rounded-2xl text-sm font-bold transition-all border border-[#3B4D3A]/10"
-                                    >
-                                        Tanya Seputar Kegiatan
-                                    </button>
                                 </div>
-                            </div>
 
+                                <button 
+                                    onClick={() => router.visit('/contact')}
+                                    className="w-full py-4 bg-[#3B4D3A] hover:bg-[#2d3b2c] text-white rounded-2xl text-sm font-bold transition-all shadow-lg shadow-[#3B4D3A]/20 flex items-center justify-center gap-2"
+                                >
+                                    Tanya Seputar Kegiatan
+                                </button>
+                                
+                                <p className="mt-4 text-[10px] text-center text-gray-400 font-medium">
+                                    Hubungi kami jika memiliki pertanyaan atau aspirasi terkait program ini.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>

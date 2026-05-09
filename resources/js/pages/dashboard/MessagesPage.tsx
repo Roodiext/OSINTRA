@@ -20,7 +20,7 @@ interface MessagesPageProps {
 
 const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }) => {
 
-    const [messages] = useState<ExtendedMessage[]>(initialMessages || []);
+    const messages = initialMessages || [];
     const [searchQuery, setSearchQuery] = useState('');
     const [filterStatus, setFilterStatus] = useState<string>('');
     const [filterCategory, setFilterCategory] = useState<string>('');

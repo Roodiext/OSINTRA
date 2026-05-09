@@ -17,7 +17,7 @@ interface DivisionsPageProps {
 }
 
 const DivisionsPage: React.FC<DivisionsPageProps> = ({ divisions: initialDivisions, permissions = {} }) => {
-    const [divisions] = useState<Division[]>(initialDivisions || []);
+    const divisions = initialDivisions || [];
     const [searchQuery, setSearchQuery] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [editingDivision, setEditingDivision] = useState<Division | null>(null);

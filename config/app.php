@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'OSINTRA - OSIS SMK Negeri 6 Surakarta'),
 
     /*
     |--------------------------------------------------------------------------

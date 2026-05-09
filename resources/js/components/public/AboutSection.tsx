@@ -90,7 +90,7 @@ const AboutSection: React.FC = () => {
                             backgroundClip: 'text'
                         }}>
                         Membangun Masa Depan <br />
-                        Bersama OSIS SMKN 6
+                        Bersama OSIS SMKN 6 Surakarta
                     </h2>
                     <p className="text-base md:text-xl max-w-3xl mx-auto leading-relaxed mb-6 md:mb-8"
                         style={{ color: '#6E8BA3' }}>

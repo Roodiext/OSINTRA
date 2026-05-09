@@ -21,7 +21,7 @@ interface ProkersPageProps {
 const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divisions = [], permissions = {} }) => {
     const { props } = usePage<{ flash?: { permission_message?: string } }>();
     usePermissionAlert(props.flash?.permission_message);
-    const [prokers] = useState<Proker[]>(initialProkers || []);
+    const prokers = initialProkers || [];
     const [searchQuery, setSearchQuery] = useState('');
     const [filterDivision, setFilterDivision] = useState<string>('');
     const [filterStatus, setFilterStatus] = useState<string>('');

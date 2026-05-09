@@ -61,6 +61,12 @@ class RoleSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            [
+                'name' => 'Pengawas SieBid',
+                'description' => 'Pengawas SieBid dengan akses pantau Prokers dan Transactions',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ];
 
         // Insert roles only if they don't already exist
@@ -89,6 +95,7 @@ class RoleSeeder extends Seeder
         $roleAnggota = DB::table('roles')->where('name', 'Anggota')->value('id');
         $roleHumas = DB::table('roles')->where('name', 'Humas')->value('id');
         $roleMedkom = DB::table('roles')->where('name', 'Medkom')->value('id');
+        $rolePengawasSieBid = DB::table('roles')->where('name', 'Pengawas SieBid')->value('id');
 
         // Admin - Full access to all modules
         if ($roleAdmin) {
@@ -265,6 +272,29 @@ class RoleSeeder extends Seeder
                         'can_view' => true,
                         'can_create' => $module === 'Prokers',
                         'can_edit' => $module === 'Prokers' || $module === 'Profile',
+                        'can_delete' => false,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+        }
+
+        // Pengawas SieBid - View-only Prokers & Transactions, edit Profile
+        $pengawasSieBidModules = ['Dashboard', 'Prokers', 'Transactions', 'Profile'];
+        if ($rolePengawasSieBid) {
+            foreach ($pengawasSieBidModules as $module) {
+                $permExists = DB::table('role_permissions')
+                    ->where('role_id', $rolePengawasSieBid)
+                    ->where('module_name', $module)
+                    ->exists();
+                if (! $permExists) {
+                    DB::table('role_permissions')->insert([
+                        'role_id' => $rolePengawasSieBid,
+                        'module_name' => $module,
+                        'can_view' => true,
+                        'can_create' => false,
+                        'can_edit' => $module === 'Profile',
                         'can_delete' => false,
                         'created_at' => now(),
                         'updated_at' => now(),

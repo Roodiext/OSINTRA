@@ -148,7 +148,7 @@ const LoginPage = () => {
                         Login ke Dashboard
                     </h2>
 
-                    <div className="space-y-5">
+                    <form onSubmit={handleSubmit} className="space-y-5">
                         {/* Username Field */}
                         <div>
                             <label className="block text-sm font-semibold text-[#3B4D3A] mb-2">
@@ -187,7 +187,7 @@ const LoginPage = () => {
 
                         {/* Login Button */}
                         <button
-                            onClick={handleSubmit}
+                            type="submit"
                             disabled={loading}
                             className="w-full px-6 py-4 bg-[#3B4D3A] text-white rounded-xl font-semibold hover:bg-[#2d3a2d] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[#3B4D3A]/20"
                         >
@@ -201,7 +201,7 @@ const LoginPage = () => {
                                 </span>
                             ) : 'Login'}
                         </button>
-                    </div>
+                    </form>
 
                     {/* Back Link */}
                     <div className="mt-8 text-center">

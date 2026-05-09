@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, MapPin, Users, Image as ImageIcon, CheckCircle2, Clock, PlayCircle, Info } from 'lucide-react';
+import { Calendar, MapPin, Image as ImageIcon, CheckCircle2, Clock, PlayCircle, Info } from 'lucide-react';
 import type { Proker, ProkerMedia } from '@/types';
 import OptimizedImage from '@/components/ui/OptimizedImage';
 
@@ -71,7 +71,7 @@ const ProkerDetailContent: React.FC<ProkerDetailContentProps> = ({ proker, onMed
             </div>
 
             {/* Main Info Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
                 <div className="bg-white p-4 md:p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-3 md:gap-4">
                     <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-[#3B4D3A]/5 flex items-center justify-center shrink-0">
                         <Calendar className="w-5 h-5 md:w-6 md:h-6 text-[#3B4D3A]" />
@@ -92,18 +92,6 @@ const ProkerDetailContent: React.FC<ProkerDetailContentProps> = ({ proker, onMed
                         <p className="text-[9px] md:text-[10px] uppercase font-black text-gray-400 tracking-widest mb-0.5">Lokasi</p>
                         <p className="text-[11px] md:text-sm font-bold text-[#3B4D3A] leading-tight break-words">
                             {proker.location || 'SMKN 6 Surakarta'}
-                        </p>
-                    </div>
-                </div>
-
-                <div className="bg-white p-4 md:p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-3 md:gap-4">
-                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-[#3B4D3A]/5 flex items-center justify-center shrink-0">
-                        <Users className="w-5 h-5 md:w-6 md:h-6 text-[#3B4D3A]" />
-                    </div>
-                    <div className="min-w-0">
-                        <p className="text-[9px] md:text-[10px] uppercase font-black text-gray-400 tracking-widest mb-0.5">Panitia</p>
-                        <p className="text-[11px] md:text-sm font-bold text-[#3B4D3A] leading-tight">
-                            {proker.anggota?.length || 0} Anggota
                         </p>
                     </div>
                 </div>

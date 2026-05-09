@@ -70,14 +70,14 @@ class SettingController extends Controller
                 $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
                 $image = $manager->read($file);
                 
-                // Only scale down if width > 2000px (logo generally doesn't need 4K)
+                // Only scale down if width > 256px (logo generally doesn't need 4K)
                 // Otherwise keep original size
-                if ($image->width() > 2000) {
-                    $image->scale(width: 2000);
+                if ($image->width() > 256) {
+                    $image->scale(width: 256);
                 }
                 
-                // Quality 100 means almost lossless but still smaller because of WebP format
-                $image->toWebp(quality: 100)->save($destinationPath . '/' . $fileName);
+                // Quality 90 is enough for a small logo
+                $image->toWebp(quality: 90)->save($destinationPath . '/' . $fileName);
             }
 
             $url = '/uploads/logo/' . $fileName;
@@ -180,13 +180,20 @@ class SettingController extends Controller
             $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
             $image = $manager->read($file);
             
-            // Keep original resolution unless it's absurdly huge (> 4K)
-            if ($image->width() > 3840) {
-                $image->scale(width: 3840);
+            // Keep original resolution unless it's absurdly huge (> 1920)
+            if ($image->width() > 1920) {
+                $image->scale(width: 1920);
             }
             
-            // Quality 95 for Hero to look crisp on big screens
-            $image->toWebp(quality: 95)->save($destinationPath . '/' . $fileName);
+            // Quality 80 for Hero to look crisp on big screens while keeping file size small
+            $quality = 80;
+            $image->toWebp(quality: $quality)->save($destinationPath . '/' . $fileName);
+            
+            // Ensure max 500KB
+            while (file_exists($destinationPath . '/' . $fileName) && filesize($destinationPath . '/' . $fileName) > 512000 && $quality > 30) {
+                $quality -= 10;
+                $image->toWebp(quality: $quality)->save($destinationPath . '/' . $fileName);
+            }
 
             $url = '/uploads/hero/' . $fileName;
             

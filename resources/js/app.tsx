@@ -7,7 +7,7 @@ import { createRoot } from 'react-dom/client';
 import { initializeTheme } from './hooks/use-appearance';
 import axios from 'axios';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'OSINTRA - OSIS SMK Negeri 6 Surakarta';
 
 // Configure Axios to send Sanctum token with every request
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';

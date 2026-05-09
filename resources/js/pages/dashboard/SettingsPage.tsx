@@ -254,7 +254,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
                 icon: 'success',
                 confirmButtonColor: '#3B4D3A'
             }).then(() => {
-                window.location.reload();
+                router.reload();
             });
         } catch (error) {
             console.error('Failed to save settings:', error);
