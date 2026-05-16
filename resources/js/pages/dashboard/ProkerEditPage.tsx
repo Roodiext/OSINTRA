@@ -210,7 +210,7 @@ const ProkerEditPage: React.FC<ProkerEditPageProps> = ({ divisions }) => {
 
     return (
         <>
-            <Head title="Edit Program Kerja - OSINTRA" />
+            <Head title="Edit Program Kerja" />
             <DashboardLayout>
                 <div className="space-y-6 p-6 osintra-content">
                     {/* Back Button */}

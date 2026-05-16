@@ -68,7 +68,7 @@ const PublicProkersPage: React.FC = () => {
 
     return (
         <>
-            <Head title="Program Kerja - OSINTRA" />
+            <Head title="Program Kerja" />
             <PublicLayout>
                 <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
                     <div className="max-w-7xl mx-auto px-4 md:px-6 pt-26 pb-12 md:pt-25">

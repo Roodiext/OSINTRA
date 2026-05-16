@@ -112,7 +112,7 @@ const PositionsPage: React.FC<PositionsPageProps> = ({ permissions = {} }) => {
 
     return (
         <>
-            <Head title="Positions - OSINTRA" />
+            <Head title="Positions" />
             <DashboardLayout>
                 <div className="space-y-6 p-6">
                     <div>

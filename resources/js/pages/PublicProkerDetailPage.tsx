@@ -73,17 +73,17 @@ const PublicProkerDetailPage: React.FC = () => {
     return (
         <PublicLayout>
             <Head>
-                <title>{`${proker.title} - OSINTRA`}</title>
+                <title>{`${proker.title}`}</title>
                 <meta name="description" content={proker.description?.substring(0, 160) || `Detail program kerja ${proker.title} oleh OSIS SMKN 6 Surakarta.`} />
                 
                 {/* Dynamic Open Graph */}
-                <meta property="og:title" content={`${proker.title} - OSINTRA`} />
+                <meta property="og:title" content={`${proker.title}`} />
                 <meta property="og:description" content={proker.description?.substring(0, 160)} />
                 <meta property="og:image" content={thumbnail} />
                 <meta property="og:type" content="article" />
                 
                 {/* Dynamic Twitter Cards */}
-                <meta name="twitter:title" content={`${proker.title} - OSINTRA`} />
+                <meta name="twitter:title" content={`${proker.title}`} />
                 <meta name="twitter:description" content={proker.description?.substring(0, 160)} />
                 <meta name="twitter:image" content={thumbnail} />
             </Head>

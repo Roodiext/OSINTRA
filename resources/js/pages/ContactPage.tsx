@@ -6,7 +6,7 @@ import ContactSection from '@/components/public/ContactSection';
 const ContactPage: React.FC = () => {
     return (
         <>
-            <Head title="Kontak - OSINTRA" />
+            <Head title="Kontak" />
             <PublicLayout>
                 <ContactSection />
             </PublicLayout>

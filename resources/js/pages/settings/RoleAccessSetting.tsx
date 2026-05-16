@@ -14,7 +14,7 @@ interface Role {
     name: string;
     description?: string;
     permissions: Array<{
-        id: number;
+        id?: number;
         module_name: string;
         can_view: boolean;
         can_create: boolean;
@@ -28,7 +28,8 @@ interface Props {
     modules: Module[];
 }
 
-const RoleAccessSetting: React.FC<Props> = ({ roles, modules }) => {
+const RoleAccessSetting: React.FC<Props> = ({ roles: initialRoles, modules }) => {
+    const [roles, setRoles] = useState<Role[]>(initialRoles);
     const [selectedRoleId, setSelectedRoleId] = useState<number | null>(roles[0]?.id ?? null);
 
     const buildPermissionsFromRole = useCallback((roleId: number | null) => {
@@ -36,7 +37,7 @@ const RoleAccessSetting: React.FC<Props> = ({ roles, modules }) => {
         const map: Record<string, { can_view: boolean; can_create: boolean; can_edit: boolean; can_delete: boolean }> = {};
 
         modules.forEach((m) => {
-            const found = role?.permissions?.find((p: { module_name: string; can_view: boolean; can_create: boolean; can_edit: boolean; can_delete: boolean }) => p.module_name === m.name);
+            const found = role?.permissions?.find((p) => p.module_name === m.name);
             map[m.name] = {
                 can_view: !!found?.can_view,
                 can_create: !!found?.can_create,
@@ -71,6 +72,19 @@ const RoleAccessSetting: React.FC<Props> = ({ roles, modules }) => {
 
         try {
             await axios.put(`/settings/roles/${selectedRoleId}`, { permissions: localPermissions });
+            
+            // Sync local roles state
+            setRoles(prevRoles => prevRoles.map(role => {
+                if (role.id === selectedRoleId) {
+                    const updatedPermissions = Object.entries(localPermissions).map(([moduleName, perms]) => ({
+                        module_name: moduleName,
+                        ...perms
+                    })) as Role['permissions'];
+                    return { ...role, permissions: updatedPermissions };
+                }
+                return role;
+            }));
+
             Swal.fire('Berhasil', 'Permission berhasil disimpan.', 'success');
         } catch (err) {
             console.error(err);
@@ -80,7 +94,7 @@ const RoleAccessSetting: React.FC<Props> = ({ roles, modules }) => {
 
     return (
         <DashboardLayout>
-            <Head title="Pengaturan Akses Role - OSINTRA" />
+            <Head title="Pengaturan Akses Role" />
 
             <div className="max-w-7xl mx-auto space-y-6 lg:pl-8">
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">

@@ -143,7 +143,7 @@ const DivisionsPage: React.FC<DivisionsPageProps> = ({ divisions: initialDivisio
 
     return (
         <>
-            <Head title="Divisi - OSINTRA" />
+            <Head title="Divisi" />
             <DashboardLayout>
                 <div className="p-8 space-y-6">
                     {/* Header */}

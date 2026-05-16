@@ -117,7 +117,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user: initialUser }) => {
 
     return (
         <>
-            <Head title="Profil - OSINTRA" />
+            <Head title="Profil" />
             <DashboardLayout>
                 <div className="p-8 space-y-6">
                     {/* Header */}

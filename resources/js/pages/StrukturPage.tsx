@@ -6,7 +6,7 @@ import DivisionsSection from '@/components/public/DivisionsSection';
 const StrukturPage: React.FC = () => {
     return (
         <>
-            <Head title="Struktur - OSINTRA" />
+            <Head title="Struktur" />
             <PublicLayout>
                 <DivisionsSection />
             </PublicLayout>

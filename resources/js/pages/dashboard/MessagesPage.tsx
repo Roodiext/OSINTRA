@@ -16,9 +16,22 @@ interface ExtendedMessage extends Message {
 
 interface MessagesPageProps {
     messages: ExtendedMessage[];
+    permissions?: {
+        can_view: boolean;
+        can_create: boolean;
+        can_edit: boolean;
+        can_delete: boolean;
+    };
 }
 
-const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }) => {
+const MessagesPage: React.FC<MessagesPageProps> = (props) => {
+    const { messages: initialMessages, permissions: defaultPermissions } = props;
+    const permissions = defaultPermissions || {
+        can_view: false,
+        can_create: false,
+        can_edit: false,
+        can_delete: false,
+    };
 
     const messages = initialMessages || [];
     const [searchQuery, setSearchQuery] = useState('');
@@ -175,7 +188,7 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
 
     return (
         <>
-            <Head title="Pesan - OSINTRA" />
+            <Head title="Pesan" />
             <DashboardLayout>
                 <div className="p-8 space-y-6">
                     {/* Header */}
@@ -472,7 +485,7 @@ const MessagesPage: React.FC<MessagesPageProps> = ({ messages: initialMessages }
                                 )}
 
                                 <div className="flex flex-col sm:flex-row gap-3">
-                                    {!viewingMessage.replied_at && (
+                                    {!viewingMessage.replied_at && permissions.can_create && (
                                         <button
                                             onClick={() => setShowReplyModal(true)}
                                             className="w-full sm:flex-1 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all font-semibold flex items-center justify-center gap-2"

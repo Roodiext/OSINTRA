@@ -55,7 +55,7 @@ const AuditLogsPage: React.FC<AuditLogsPageProps> = ({ logs }) => {
 
     return (
         <>
-            <Head title="Log Aktivitas - OSINTRA" />
+            <Head title="Log Aktivitas" />
             <DashboardLayout>
                 <div className="p-8 space-y-6">
                     {/* Header */}

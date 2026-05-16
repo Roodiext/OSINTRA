@@ -219,7 +219,7 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, posit
 
     return (
         <>
-            <Head title="Pengguna - OSINTRA" />
+            <Head title="Pengguna" />
             <DashboardLayout>
                 <div className="p-8 space-y-6">
                     {/* Header */}

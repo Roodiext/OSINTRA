@@ -30,7 +30,7 @@
             }
         </style>
 
-        <title inertia>{{ config('app.name', 'OSINTRA - OSIS SMK Negeri 6 Surakarta') }}</title>
+        <title inertia>OSINTRA - OSIS SMK Negeri 6 Surakarta</title>
 
         <!-- SEO Meta Tags -->
         <meta name="description" content="OSINTRA (OSIS SMK Negeri 6 Surakarta) - Platform dokumentasi, informasi program kerja, dan transparansi kegiatan OSIS SMK Negeri 6 Surakarta (Solo). Kreativitas dan transparansi dalam berorganisasi.">

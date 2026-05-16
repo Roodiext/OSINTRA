@@ -27,7 +27,8 @@ interface Props {
   modules: ModuleItem[];
 }
 
-const RoleAccessSetting: React.FC<Props> = ({ roles = [], modules = [] }) => {
+const RoleAccessSetting: React.FC<Props> = ({ roles: initialRoles = [], modules = [] }) => {
+  const [roles, setRoles] = React.useState<Role[]>(initialRoles);
   const [selectedRoleId, setSelectedRoleId] = React.useState<number | null>(roles[0]?.id ?? null);
   const [localPermissions, setLocalPermissions] = React.useState<Record<string, Partial<RolePermissionRow>>>({});
   const [originalPermissions, setOriginalPermissions] = React.useState<Record<string, Partial<RolePermissionRow>>>({});
@@ -130,6 +131,20 @@ const RoleAccessSetting: React.FC<Props> = ({ roles = [], modules = [] }) => {
         permissions: permissionsData 
       });
 
+      // Update the roles state with new permissions so it stays in sync when switching roles
+      setRoles(prevRoles => prevRoles.map(role => {
+        if (role.id === selectedRoleId) {
+          // Reconstruct the permissions array for this role
+          const updatedPermissions = Object.entries(permissionsData).map(([moduleName, perms]) => ({
+            module_name: moduleName,
+            ...perms
+          })) as RolePermissionRow[];
+          
+          return { ...role, permissions: updatedPermissions };
+        }
+        return role;
+      }));
+
       // Update original snapshot and UI
       setOriginalPermissions(JSON.parse(JSON.stringify(localPermissions)));
       setSaving(false);
@@ -162,7 +177,7 @@ const RoleAccessSetting: React.FC<Props> = ({ roles = [], modules = [] }) => {
   if (!roles.length || !modules.length) {
     return (
       <DashboardLayout>
-        <Head title="Pengaturan Akses Role - OSINTRA" />
+        <Head title="Pengaturan Akses Role" />
         <div className="max-w-7xl mx-auto p-6">
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
             <h1 className="text-xl font-bold">Pengaturan Akses Role</h1>
@@ -180,7 +195,7 @@ const RoleAccessSetting: React.FC<Props> = ({ roles = [], modules = [] }) => {
 
   return (
     <DashboardLayout>
-      <Head title="Pengaturan Akses Role - OSINTRA" />
+      <Head title="Pengaturan Akses Role" />
       <div className="max-w-7xl mx-auto space-y-6 lg:pl-8">
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
           <div>

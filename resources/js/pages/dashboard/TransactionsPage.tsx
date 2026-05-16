@@ -316,7 +316,7 @@ const TransactionsPage: React.FC<TransactionsPageProps> = ({
 
     return (
         <>
-            <Head title="Transaksi - OSINTRA" />
+            <Head title="Transaksi" />
             <DashboardLayout>
                 <div className="p-8 space-y-6">
                         {/* Header */}

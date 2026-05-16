@@ -4,13 +4,11 @@ import DashboardLayout from '@/layouts/DashboardLayout';
 import {
     Settings as SettingsIcon,
     Database,
-    Bell,
     Save,
     Image as ImageIcon,
     Upload,
     RefreshCw,
     AlertTriangle,
-    CheckCircle2,
     FileText,
     Users
 } from 'lucide-react';
@@ -31,7 +29,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
 
     // Application Configuration State
     const [maintenanceMode, setMaintenanceMode] = useState(false);
-    const [emailNotif, setEmailNotif] = useState(true);
+
     const [vision, setVision] = useState('');
     const [mission, setMission] = useState('');
 
@@ -298,7 +296,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
 
     return (
         <DashboardLayout>
-            <Head title="Pengaturan - OSINTRA" />
+            <Head title="Pengaturan" />
 
             <div className="max-w-7xl mx-auto space-y-6 lg:pl-8">
                 {/* Page Header */}
@@ -704,33 +702,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
                             </div>
                         </div>
 
-                        {/* CARD: Notifications */}
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                            <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
-                                <div className="p-2.5 bg-[#E8DCC3]/30 rounded-xl text-[#3B4D3A]">
-                                    <Bell className="w-6 h-6" />
-                                </div>
-                                <h2 className="text-xl font-bold text-[#3B4D3A]">Notifikasi</h2>
-                            </div>
 
-                            <div className="space-y-4">
-                                <label className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors border border-transparent hover:border-gray-200">
-                                    <div className="relative flex items-center mt-0.5">
-                                        <input
-                                            type="checkbox"
-                                            checked={emailNotif}
-                                            onChange={(e) => setEmailNotif(e.target.checked)}
-                                            className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-gray-300 transition-all checked:border-[#3B4D3A] checked:bg-[#3B4D3A]"
-                                        />
-                                        <CheckCircle2 className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100" />
-                                    </div>
-                                    <div className="flex-1">
-                                        <span className="block text-sm font-bold text-gray-700">Email Alerts</span>
-                                        <span className="block text-xs text-gray-500 mt-1">Terima notifikasi untuk proposal & pesan baru.</span>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>

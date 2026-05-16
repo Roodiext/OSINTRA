@@ -96,7 +96,7 @@ const initializeApp = async () => {
 
     // Immediately create Inertia app shell
     createInertiaApp({
-        title: (title) => (title ? `${title} - ${appName}` : appName),
+        title: (title) => (title ? `${title} - ${appName}` : `OSINTRA - ${appName}`),
         resolve: (name) =>
             resolvePageComponent(
                 `./pages/${name}.tsx`,

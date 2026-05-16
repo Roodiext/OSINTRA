@@ -235,7 +235,7 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
 
     return (
         <>
-            <Head title="Program Kerja - OSINTRA" />
+            <Head title="Program Kerja" />
             <DashboardLayout>
                 <div className="p-8 space-y-6">
                     {/* Header */}

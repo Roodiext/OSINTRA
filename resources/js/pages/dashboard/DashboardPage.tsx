@@ -62,7 +62,7 @@ const DashboardPage: React.FC = () => {
 
     return (
         <>
-            <Head title="Dashboard - OSINTRA" />
+            <Head title="Dashboard" />
             <DashboardLayout>
                 <div className="space-y-8 p-8">
                     {/* Header Section */}

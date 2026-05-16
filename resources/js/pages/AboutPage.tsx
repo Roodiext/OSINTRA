@@ -6,7 +6,7 @@ import AboutSection from '@/components/public/AboutSection';
 const AboutPage: React.FC = () => {
     return (
         <>
-            <Head title="Tentang - OSINTRA" />
+            <Head title="Tentang" />
             <PublicLayout>
                 <AboutSection />
             </PublicLayout>

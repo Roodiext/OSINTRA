@@ -482,7 +482,7 @@ const ProkerDetailPage: React.FC = () => {
 
     return (
         <>
-            <Head title={`${proker.title} - OSINTRA`} />
+            <Head title={`${proker.title}`} />
             <DashboardLayout>
                 <div className="space-y-6 p-4 md:p-6 osintra-content">
                     {/* Back Button */}

@@ -134,7 +134,7 @@ const GalleryCmsPage: React.FC = () => {
 
     return (
         <>
-            <Head title="CMS Galeri - OSINTRA" />
+            <Head title="CMS Galeri" />
             <DashboardLayout>
                 <div className="space-y-6 p-6 osintra-content">
                     {/* Header */}

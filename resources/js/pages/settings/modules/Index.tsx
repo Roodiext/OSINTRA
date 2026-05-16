@@ -51,7 +51,7 @@ const ModuleAccessPage: React.FC<Props> = ({ modules, roles, matrix }) => {
 
     return (
         <DashboardLayout>
-            <Head title="Akses Halaman - OSINTRA" />
+            <Head title="Akses Halaman" />
 
             <div className="max-w-7xl mx-auto space-y-6 lg:pl-8">
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
