@@ -15,7 +15,7 @@ const Topbar: React.FC<TopbarProps> = ({ onMenuClick }) => {
     return (
         <header className="bg-white border-b-2 border-[#E8DCC3] px-6 py-4 sticky top-0 z-30 shadow-sm backdrop-blur-sm bg-white/95">
             <div className="flex items-center justify-between">
-                {/* Left Section - only menu button (no page title to keep topbar clean) */}
+                {/* Left Section only menu button (no page title to keep topbar clean) */}
                 <div className="flex items-center gap-4">
                     <button
                         onClick={onMenuClick}
