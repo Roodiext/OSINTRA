@@ -42,7 +42,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, logoUrl }) => {
     ];
 
     const roleName = (user?.role?.name || '').toLowerCase();
-    const allowedForPositions = ['admin', 'ketua', 'wakil ketua'];
+    const allowedForPositions = ['admin', 'ketua', 'wakil ketua', 'operator web'];
+    const allowedForSettings = ['admin', 'operator web'];
 
     const filteredMenuItems = menuItems.filter(item => {
         // hide Positions menu unless user has allowed role
@@ -111,13 +112,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, logoUrl }) => {
                                         <Link
                                             href={item.path}
                                             onClick={(e: React.MouseEvent) => {
-                                                // If this is the Settings menu and user is not admin, block and show alert
-                                                if (item.module === 'Settings' && roleName !== 'admin') {
+                                                // If this is the Settings menu and user is not in allowed roles, block and show alert
+                                                if (item.module === 'Settings' && !allowedForSettings.includes(roleName)) {
                                                     e.preventDefault();
                                                     Swal.fire({
                                                         icon: 'warning',
                                                         title: 'Akses Ditolak',
-                                                        text: 'Hanya admin yang dapat membuka Pengaturan melalui sidebar.',
+                                                        text: 'Anda tidak memiliki izin untuk membuka Pengaturan melalui sidebar.',
                                                         confirmButtonColor: '#3B4D3A'
                                                     });
                                                 }

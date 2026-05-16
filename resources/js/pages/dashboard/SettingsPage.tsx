@@ -645,12 +645,26 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
                                         </div>
                                         <Database className="w-5 h-5 text-gray-400" />
                                     </div>
-                                    <button
-                                        onClick={handleBackup}
-                                        className="w-full py-2 bg-white border border-gray-200 text-[#3B4D3A] font-semibold rounded-lg hover:bg-[#3B4D3A] hover:text-white transition-all text-sm"
-                                    >
-                                        Download Now
-                                    </button>
+                                    {auth?.user?.role?.name && auth.user.role.name.toLowerCase() === 'admin' ? (
+                                        <button
+                                            onClick={handleBackup}
+                                            className="w-full py-2 bg-white border border-gray-200 text-[#3B4D3A] font-semibold rounded-lg hover:bg-[#3B4D3A] hover:text-white transition-all text-sm"
+                                        >
+                                            Download Now
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={() => Swal.fire({
+                                                icon: 'warning',
+                                                title: 'Akses Ditolak',
+                                                text: 'Hanya admin yang dapat melakukan backup database.',
+                                                confirmButtonColor: '#3B4D3A'
+                                            })}
+                                            className="w-full py-2 bg-white border border-gray-200 text-gray-500 font-semibold rounded-lg text-sm"
+                                        >
+                                            Download Now
+                                        </button>
+                                    )}
                                 </div>
 
                                 {/* Maintenance */}
@@ -662,15 +676,29 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ auth }) => {
                                         </div>
                                         <AlertTriangle className={`w-5 h-5 ${maintenanceMode ? 'text-orange-500' : 'text-gray-400'}`} />
                                     </div>
-                                    <button
-                                        onClick={handleToggleMaintenance}
-                                        className={`w-full py-2 rounded-lg transition-all text-sm font-semibold ${maintenanceMode
-                                            ? 'bg-orange-500 text-white hover:bg-orange-600'
-                                            : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-100'
-                                            }`}
-                                    >
-                                        {maintenanceMode ? 'Turn Off' : 'Turn On'}
-                                    </button>
+                                    {auth?.user?.role?.name && auth.user.role.name.toLowerCase() === 'admin' ? (
+                                        <button
+                                            onClick={handleToggleMaintenance}
+                                            className={`w-full py-2 rounded-lg transition-all text-sm font-semibold ${maintenanceMode
+                                                ? 'bg-orange-500 text-white hover:bg-orange-600'
+                                                : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-100'
+                                                }`}
+                                        >
+                                            {maintenanceMode ? 'Turn Off' : 'Turn On'}
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={() => Swal.fire({
+                                                icon: 'warning',
+                                                title: 'Akses Ditolak',
+                                                text: 'Hanya admin yang dapat mengubah status maintenance.',
+                                                confirmButtonColor: '#3B4D3A'
+                                            })}
+                                            className="w-full py-2 bg-white border border-gray-200 text-gray-500 font-semibold rounded-lg text-sm"
+                                        >
+                                            {maintenanceMode ? 'Turn Off' : 'Turn On'}
+                                        </button>
+                                    )}
                                 </div>
                                 {/* Role Access */}
                                 <div className="p-4 bg-gray-50 rounded-xl hover:bg-[#E8DCC3]/10 transition-colors border border-transparent hover:border-[#E8DCC3]">

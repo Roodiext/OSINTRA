@@ -25,6 +25,7 @@ class RolePermissionController extends Controller
             ['name' => 'Transactions', 'label' => 'Keuangan'],
             ['name' => 'Settings', 'label' => 'Pengaturan'],
             ['name' => 'Profile', 'label' => 'Profil'],
+            ['name' => 'AuditLogs', 'label' => 'Log Aktivitas'],
         ];
     }
 

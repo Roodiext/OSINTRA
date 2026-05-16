@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Plus, Edit, Trash2, Search, UserCircle, ToggleLeft, ToggleRight } from 'lucide-react';
-import type { User, Role, Division } from '@/types';
+import type { User, Role, Division, SharedData } from '@/types';
 import type { Position } from '@/types';
 import Swal from 'sweetalert2';
 import api from '@/lib/axios';
@@ -23,7 +23,10 @@ interface UsersPageProps {
 }
 
 const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, positions, permissions = {} }) => {
-    const { props } = usePage<{ flash?: { permission_message?: string } }>();
+    const { props } = usePage<SharedData>();
+    const currentUserRole = props.auth?.user?.role?.name?.toLowerCase();
+    const isOperatorWeb = currentUserRole === 'operator web';
+
     usePermissionAlert(props.flash?.permission_message);
 
     const users = initialUsers || [];
@@ -284,7 +287,9 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, posit
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200">
-                                    {filteredUsers.map((user) => (
+                                    {filteredUsers.map((user) => {
+                                        const isAdminUser = user.role?.name?.toLowerCase() === 'admin';
+                                        return (
                                         <tr key={user.id} className="hover:bg-[#F5F5F5] transition-colors">
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
@@ -304,18 +309,29 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, posit
                                             <td className="px-6 py-4 text-[#6E8BA3] max-w-xs truncate" title={user.position?.name || '-'}>{user.position?.name || '-'}</td>
                                             <td className="px-6 py-4">
                                                 <button
-                                                    onClick={() => handleToggleStatus(user)}
-                                                    className="flex items-center gap-2"
+                                                    onClick={() => {
+                                                        if (isOperatorWeb && isAdminUser) {
+                                                            Swal.fire({
+                                                                icon: 'error',
+                                                                title: 'Akses Ditolak!',
+                                                                text: 'Operator Web tidak dapat mengubah status akun Admin.',
+                                                                confirmButtonColor: '#3B4D3A',
+                                                            });
+                                                            return;
+                                                        }
+                                                        handleToggleStatus(user);
+                                                    }}
+                                                    className={`flex items-center gap-2 ${isOperatorWeb && isAdminUser ? 'opacity-50 cursor-not-allowed' : ''}`}
                                                 >
                                                     {user.status === 'active' ? (
                                                         <>
-                                                            <ToggleRight className="w-8 h-8 text-green-600" />
-                                                            <span className="text-sm font-semibold text-green-600">Aktif</span>
+                                                            <ToggleRight className={`w-8 h-8 ${isOperatorWeb && isAdminUser ? 'text-gray-400' : 'text-green-600'}`} />
+                                                            <span className={`text-sm font-semibold ${isOperatorWeb && isAdminUser ? 'text-gray-400' : 'text-green-600'}`}>Aktif</span>
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <ToggleLeft className="w-8 h-8 text-red-600" />
-                                                            <span className="text-sm font-semibold text-red-600">Nonaktif</span>
+                                                            <ToggleLeft className={`w-8 h-8 ${isOperatorWeb && isAdminUser ? 'text-gray-400' : 'text-red-600'}`} />
+                                                            <span className={`text-sm font-semibold ${isOperatorWeb && isAdminUser ? 'text-gray-400' : 'text-red-600'}`}>Nonaktif</span>
                                                         </>
                                                     )}
                                                 </button>
@@ -324,18 +340,44 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, posit
                                                 <div className="flex items-center justify-center gap-2">
                                                     {permissions?.can_edit && (
                                                         <button
-                                                            onClick={() => handleOpenModal(user)}
-                                                            className="p-2 bg-[#E8DCC3] text-[#3B4D3A] rounded-lg hover:bg-[#d5c9b0] transition-all"
-                                                            title="Edit"
+                                                            onClick={() => {
+                                                                if (isOperatorWeb && isAdminUser) {
+                                                                    Swal.fire({
+                                                                        icon: 'error',
+                                                                        title: 'Akses Ditolak!',
+                                                                        text: 'Operator Web tidak dapat mengedit akun Admin.',
+                                                                        confirmButtonColor: '#3B4D3A',
+                                                                    });
+                                                                    return;
+                                                                }
+                                                                handleOpenModal(user);
+                                                            }}
+                                                            className={`p-2 rounded-lg transition-all ${isOperatorWeb && isAdminUser 
+                                                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                                                                : 'bg-[#E8DCC3] text-[#3B4D3A] hover:bg-[#d5c9b0]'}`}
+                                                            title={isOperatorWeb && isAdminUser ? "Tidak dapat mengedit Admin" : "Edit"}
                                                         >
                                                             <Edit className="w-4 h-4" />
                                                         </button>
                                                     )}
                                                     {permissions?.can_delete && (
                                                         <button
-                                                            onClick={() => handleDelete(user)}
-                                                            className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-all"
-                                                            title="Hapus"
+                                                            onClick={() => {
+                                                                if (isOperatorWeb && isAdminUser) {
+                                                                    Swal.fire({
+                                                                        icon: 'error',
+                                                                        title: 'Akses Ditolak!',
+                                                                        text: 'Operator Web tidak dapat menghapus akun Admin.',
+                                                                        confirmButtonColor: '#3B4D3A',
+                                                                    });
+                                                                    return;
+                                                                }
+                                                                handleDelete(user);
+                                                            }}
+                                                            className={`p-2 rounded-lg transition-all ${isOperatorWeb && isAdminUser 
+                                                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                                                                : 'bg-red-50 text-red-600 hover:bg-red-100'}`}
+                                                            title={isOperatorWeb && isAdminUser ? "Tidak dapat menghapus Admin" : "Hapus"}
                                                         >
                                                             <Trash2 className="w-4 h-4" />
                                                         </button>
@@ -343,8 +385,9 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, posit
                                                 </div>
                                             </td>
                                         </tr>
-                                    ))}
-                                </tbody>
+                                            );
+                                        })}
+                                    </tbody>
                             </table>
                         </div>
 
@@ -445,7 +488,9 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, posit
                                                 className="w-full px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
                                             >
                                                 <option value="">Pilih Role</option>
-                                                {roles.map(role => (
+                                                {roles
+                                                    .filter(role => !isOperatorWeb || role.name.toLowerCase() !== 'admin')
+                                                    .map(role => (
                                                     <option key={role.id} value={role.id}>{role.name}</option>
                                                 ))}
                                             </select>

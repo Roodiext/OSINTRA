@@ -87,16 +87,24 @@ class UserController extends Controller
             'role_id' => 'required|exists:roles,id',
             'position_id' => 'nullable|exists:positions,id',
             'profile_picture' => 'nullable|string',
-            'profile_picture' => 'nullable|string',
             'status' => 'sometimes|in:active,inactive',
         ]);
 
-    $validated['password'] = Hash::make($validated['password']);
+        // Security Check: Non-admin cannot create Admin users
+        $currentUser = auth()->user();
+        $isAdmin = $currentUser && $currentUser->role && $currentUser->role->name === 'Admin';
+        
+        $targetRole = \DB::table('roles')->where('id', $validated['role_id'])->first();
+        if (!$isAdmin && $targetRole && $targetRole->name === 'Admin') {
+            return response()->json(['message' => 'Anda tidak memiliki izin untuk membuat akun dengan role Admin'], 403);
+        }
 
-    // remove any division_id if present
-    unset($validated['division_id']);
+        $validated['password'] = Hash::make($validated['password']);
 
-    $user = User::create($validated);
+        // remove any division_id if present
+        unset($validated['division_id']);
+
+        $user = User::create($validated);
 
         AuditLog::log('create_user', "Created user: {$user->name}");
 
@@ -111,7 +119,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-    return response()->json($user->load(['role', 'position', 'prokers']));
+        return response()->json($user->load(['role', 'position', 'prokers']));
     }
 
     /**
@@ -127,17 +135,32 @@ class UserController extends Controller
             'role_id' => 'sometimes|exists:roles,id',
             'position_id' => 'nullable|exists:positions,id',
             'profile_picture' => 'nullable|string',
-            'profile_picture' => 'nullable|string',
             'status' => 'sometimes|in:active,inactive',
         ]);
+
+        $currentUser = auth()->user();
+        $isAdmin = $currentUser && $currentUser->role && $currentUser->role->name === 'Admin';
+
+        // Security Check: Non-admin cannot edit Admin users
+        if (!$isAdmin && $user->role && $user->role->name === 'Admin') {
+            return response()->json(['message' => 'Anda tidak memiliki izin untuk mengedit akun Admin'], 403);
+        }
+
+        // Security Check: Non-admin cannot promote to Admin
+        if (isset($validated['role_id']) && !$isAdmin) {
+            $targetRole = \DB::table('roles')->where('id', $validated['role_id'])->first();
+            if ($targetRole && $targetRole->name === 'Admin') {
+                return response()->json(['message' => 'Anda tidak memiliki izin untuk memberikan role Admin'], 403);
+            }
+        }
 
         if (isset($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
         }
 
-    // ensure division_id not set on users
-    unset($validated['division_id']);
-    $user->update($validated);
+        // ensure division_id not set on users
+        unset($validated['division_id']);
+        $user->update($validated);
 
         AuditLog::log('update_user', "Updated user: {$user->name}");
 
@@ -152,6 +175,14 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
+        $currentUser = auth()->user();
+        $isAdmin = $currentUser && $currentUser->role && $currentUser->role->name === 'Admin';
+
+        // Security Check: Non-admin cannot delete Admin users
+        if (!$isAdmin && $user->role && $user->role->name === 'Admin') {
+            return response()->json(['message' => 'Anda tidak memiliki izin untuk menghapus akun Admin'], 403);
+        }
+
         $name = $user->name;
         $user->delete();
 

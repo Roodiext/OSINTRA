@@ -63,7 +63,13 @@ class RoleSeeder extends Seeder
             ],
             [
                 'name' => 'Pengawas SieBid',
-                'description' => 'Pengawas SieBid dengan akses pantau Prokers dan Transactions',
+                'description' => 'Pengawas SieBid dengan akses pantau Prokers and Transactions',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Operator Web',
+                'description' => 'Operator Web bertanggung jawab atas pengelolaan konten website dan pengaturan sistem',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -84,7 +90,7 @@ class RoleSeeder extends Seeder
     private function seedRolePermissions(): void
     {
         // Canonical modules list - must match RolePermissionController
-        $modules = ['Dashboard', 'Divisions', 'Positions', 'Users', 'Prokers', 'Messages', 'Transactions', 'Settings', 'Profile'];
+        $modules = ['Dashboard', 'Divisions', 'Positions', 'Users', 'Prokers', 'Messages', 'Transactions', 'Settings', 'Profile', 'AuditLogs'];
 
         // Lookup role IDs by name to avoid hardcoded IDs
         $roleAdmin = DB::table('roles')->where('name', 'Admin')->value('id');
@@ -96,6 +102,7 @@ class RoleSeeder extends Seeder
         $roleHumas = DB::table('roles')->where('name', 'Humas')->value('id');
         $roleMedkom = DB::table('roles')->where('name', 'Medkom')->value('id');
         $rolePengawasSieBid = DB::table('roles')->where('name', 'Pengawas SieBid')->value('id');
+        $roleOperatorWeb = DB::table('roles')->where('name', 'Operator Web')->value('id');
 
         // Admin - Full access to all modules
         if ($roleAdmin) {
@@ -300,6 +307,25 @@ class RoleSeeder extends Seeder
                         'updated_at' => now(),
                     ]);
                 }
+            }
+        }
+
+        // Operator Web - Manage Prokers, Messages, Settings, Profile, Users. View-only others.
+        if ($roleOperatorWeb) {
+            foreach ($modules as $module) {
+                $canManage = in_array($module, ['Prokers', 'Messages', 'Settings', 'Profile', 'Users']);
+                $canView = true;
+                
+                DB::table('role_permissions')->updateOrInsert(
+                    ['role_id' => $roleOperatorWeb, 'module_name' => $module],
+                    [
+                        'can_view' => $canView,
+                        'can_create' => $canManage,
+                        'can_edit' => $canManage,
+                        'can_delete' => $canManage && $module !== 'Settings', // Don't delete settings
+                        'updated_at' => now(),
+                    ]
+                );
             }
         }
     }
