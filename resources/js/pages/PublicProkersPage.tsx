@@ -110,7 +110,10 @@ const PublicProkersPage: React.FC = () => {
 
     return (
         <>
-            <Head title="Program Kerja" />
+            <Head title="Program Kerja OSIS SMK - OSINTRA">
+                <meta name="description" content="Daftar jadwal dan dokumentasi program kerja OSIS SMK Negeri 6 Surakarta. Transparansi kegiatan organisasi siswa SMK terlengkap." />
+                <meta name="keywords" content="program kerja osis, proker osis smk, kegiatan osis smk, web osis smk, web osis, osis smk, smk, osis smkn 6 surakarta, agenda osis" />
+            </Head>
             <PublicLayout>
                 <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
                     <div className="max-w-7xl mx-auto px-4 md:px-6 pt-26 pb-12 md:pt-25">

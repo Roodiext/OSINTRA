@@ -15,7 +15,9 @@ interface PublicPageProps {
 const PublicPage: React.FC<PublicPageProps> = ({ heroImage }) => {
     return (
         <>
-            <Head>
+            <Head title="Web Resmi OSIS SMK Negeri 6 Surakarta - OSINTRA">
+                <meta name="description" content="Website resmi OSIS SMK Negeri 6 Surakarta (OSINTRA). Portal dokumentasi, program kerja, struktur organisasi, dan inovasi kegiatan siswa SMK Negeri 6 Solo." />
+                <meta name="keywords" content="web osis, osis smk, smk, web osis smk, website osis smk, osintra, osis smkn 6 surakarta, osis viska, osis smk solo, program kerja osis smk" />
                 <link rel="preload" as="image" href={heroImage || '/osvis-team.jpg'} fetchPriority="high" />
             </Head>
             <PublicLayout>

@@ -73,8 +73,9 @@ const PublicProkerDetailPage: React.FC = () => {
     return (
         <PublicLayout>
             <Head>
-                <title>{`${proker.title}`}</title>
+                <title>{`${proker.title} - OSIS SMK Negeri 6 Surakarta`}</title>
                 <meta name="description" content={proker.description?.substring(0, 160) || `Detail program kerja ${proker.title} oleh OSIS SMKN 6 Surakarta.`} />
+                <meta name="keywords" content={`program kerja osis, ${proker.title}, kegiatan osis smk, web osis smk, osis smk, smk, osis smkn 6 surakarta`} />
                 
                 {/* Dynamic Open Graph */}
                 <meta property="og:title" content={`${proker.title}`} />

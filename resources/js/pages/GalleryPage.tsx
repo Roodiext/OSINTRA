@@ -166,7 +166,10 @@ export default function GalleryPage({ media, initialId, pagination }: GalleryPag
     if (!initialId) {
         return (
             <>
-                <Head title="Galeri Kegiatan" />
+                <Head title="Galeri Dokumentasi Kegiatan OSIS SMK - OSINTRA">
+                    <meta name="description" content="Dokumentasi foto dan video momen berharga kegiatan OSIS SMK Negeri 6 Surakarta. Transparansi dan keseruan aktivitas siswa SMK." />
+                    <meta name="keywords" content="galeri osis, dokumentasi osis smk, foto kegiatan osis, video osis smk, web osis, web osis smk, osis smk, smk, osis smkn 6 surakarta" />
+                </Head>
                 <PublicLayout>
                     <div className="bg-gray-50 pt-32 pb-12 min-h-[60vh]">
                         <div className="max-w-7xl mx-auto px-6">
@@ -312,7 +315,11 @@ export default function GalleryPage({ media, initialId, pagination }: GalleryPag
 
     return (
         <>
-            <Head title={`Galeri - ${currentImage.proker?.title || 'Detail'}`} />
+            <Head title={`Galeri ${currentImage.proker?.title || 'Dokumentasi'} - OSIS SMK Negeri 6 Surakarta`}>
+                <meta name="description" content={currentImage.caption || `Dokumentasi visual kegiatan ${currentImage.proker?.title || 'OSIS SMK Negeri 6 Surakarta'}.`} />
+                <meta name="keywords" content="galeri osis smk, dokumentasi kegiatan osis, web osis smk, osis smk, smk" />
+                <meta property="og:image" content={currentImage.media_url} />
+            </Head>
             <div
                 ref={containerRef}
                 className="fixed inset-0 z-[9999] bg-[#0f0f0f] text-slate-300 overflow-y-auto lg:overflow-x-auto lg:overflow-y-hidden hide-scrollbar"

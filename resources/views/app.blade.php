@@ -33,13 +33,13 @@
         <title inertia>OSINTRA - OSIS SMK Negeri 6 Surakarta</title>
 
         <!-- SEO Meta Tags -->
-        <meta name="description" content="OSINTRA (OSIS SMK Negeri 6 Surakarta) - Platform dokumentasi, informasi program kerja, dan transparansi kegiatan OSIS SMK Negeri 6 Surakarta (Solo). Kreativitas dan transparansi dalam berorganisasi.">
-        <meta name="keywords" content="osis, osis smkn 6, smkn 6, web osis, osintra, program kerja osis, smkn 6 solo, smkn 6 surakarta, OSIS SMK Negeri 6 Surakarta, OSINTRA SMKN 6, OSIS Surakarta, Dokumentasi OSIS">
+        <meta name="description" content="OSINTRA - Website Resmi OSIS SMK Negeri 6 Surakarta. Portal sistem informasi, dokumentasi kegiatan, transparansi program kerja, dan struktur organisasi OSIS SMK Negeri 6 Surakarta (Solo).">
+        <meta name="keywords" content="web osis, osis smk, smk, web osis smk, website osis smk, website resmi osis, portal osis, sistem informasi osis, osis, osis smkn 6, smkn 6, osintra, osintra smkn 6, program kerja osis, program kerja osis smk, proker osis, kegiatan osis smk, galeri osis, struktur osis smk, pengurus osis smk, smkn 6 solo, smkn 6 surakarta, OSIS SMK Negeri 6 Surakarta, OSIS Surakarta, Dokumentasi OSIS, organisasi siswa intra sekolah smk, pilketos smk, ldks osis smk, mpls smk, visi misi osis smk">
         <meta name="author" content="OSIS SMK Negeri 6 Surakarta">
         @if (request()->is('dashboard*') || request()->is('login'))
             <meta name="robots" content="noindex, nofollow">
         @else
-            <meta name="robots" content="index, follow">
+            <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
         @endif
 
         <!-- Structured Data (JSON-LD) for SEO -->
@@ -48,32 +48,36 @@
           "@@context": "https://schema.org",
           "@@type": "Organization",
           "name": "OSIS SMK Negeri 6 Surakarta",
-          "alternateName": "OSINTRA",
+          "alternateName": ["OSINTRA", "OSIS Viska", "Web OSIS SMK Negeri 6 Surakarta"],
           "url": "{{ url('/') }}",
           "logo": "{{ asset('osis-logo.png') }}",
-          "description": "Platform dokumentasi dan informasi program kerja OSIS SMK Negeri 6 Surakarta.",
+          "description": "Website resmi OSIS SMK Negeri 6 Surakarta (OSINTRA). Portal dokumentasi, program kerja, dan informasi kegiatan OSIS SMK.",
           "address": {
             "@@type": "PostalAddress",
+            "streetAddress": "Jl. Tirtonadi No. 19",
             "addressLocality": "Surakarta",
             "addressRegion": "Jawa Tengah",
+            "postalCode": "57139",
             "addressCountry": "ID"
           },
-          "keywords": "OSIS, SMKN 6 Surakarta, OSINTRA, Program Kerja OSIS"
+          "keywords": "web osis, osis smk, smk, web osis smk, website osis smk, osintra, OSIS SMK Negeri 6 Surakarta, program kerja osis smk, kegiatan osis, dokumentasi osis, pengurus osis smk"
         }
         </script>
 
         <!-- Open Graph / Facebook / WhatsApp -->
         <meta property="og:type" content="website">
+        <meta property="og:site_name" content="OSINTRA - OSIS SMK Negeri 6 Surakarta">
         <meta property="og:url" content="{{ url('/') }}">
-        <meta property="og:title" content="OSINTRA - OSIS SMK Negeri 6 Surakarta">
-        <meta property="og:description" content="Platform resmi dokumentasi dan informasi program kerja OSIS SMK Negeri 6 Surakarta (Solo). Lihat transparansi kegiatan kami di sini.">
+        <meta property="og:title" content="OSINTRA - Website Resmi OSIS SMK Negeri 6 Surakarta">
+        <meta property="og:description" content="Website resmi OSIS SMK Negeri 6 Surakarta (Viska). Dokumentasi kegiatan, transparansi program kerja, dan inovasi organisasi siswa SMK.">
         <meta property="og:image" content="{{ asset('osis-favicon.png') }}">
+        <meta property="og:locale" content="id_ID">
 
         <!-- Twitter -->
         <meta property="twitter:card" content="summary_large_image">
         <meta property="twitter:url" content="{{ url('/') }}">
-        <meta property="twitter:title" content="OSINTRA - OSIS SMK Negeri 6 Surakarta">
-        <meta property="twitter:description" content="Platform dokumentasi dan informasi program kerja OSIS SMK Negeri 6 Surakarta.">
+        <meta property="twitter:title" content="OSINTRA - Website Resmi OSIS SMK Negeri 6 Surakarta">
+        <meta property="twitter:description" content="Website resmi OSIS SMK Negeri 6 Surakarta. Dokumentasi kegiatan dan program kerja OSIS SMK.">
         <meta property="twitter:image" content="{{ asset('osis-favicon.png') }}">
 
         <link rel="canonical" href="{{ url()->current() }}">
