@@ -118,7 +118,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/settings/roles/{role}', [\App\Http\Controllers\Settings\RolePermissionController::class, 'update'])
         ->middleware(\App\Http\Middleware\EnsureUserIsAdmin::class);
     Route::get('/roles', [SettingController::class, 'getRoles']);
-    Route::put('/roles/{role}/permissions', [SettingController::class, 'updateRolePermissions']);
+    Route::put('/roles/{role}/permissions', [SettingController::class, 'updateRolePermissions'])
+        ->middleware(\App\Http\Middleware\EnsureUserIsAdmin::class);
     Route::get('/settings/backup/download', [SettingController::class, 'downloadBackup'])
         ->middleware(\App\Http\Middleware\EnsureUserIsAdmin::class);
     Route::get('/audit-logs', [SettingController::class, 'getAuditLogs']);

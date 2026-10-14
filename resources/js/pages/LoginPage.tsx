@@ -8,6 +8,7 @@ import Swal from 'sweetalert2';
 const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [remember, setRemember] = useState(true);
     const [loading, setLoading] = useState(false);
     const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
@@ -45,6 +46,7 @@ const LoginPage = () => {
             const response = await api.post('/login', {
                 username: username,
                 password,
+                remember,
             });
 
             const { token, user } = response.data;
@@ -183,6 +185,19 @@ const LoginPage = () => {
                                     placeholder="Masukkan password"
                                 />
                             </div>
+                        </div>
+
+                        {/* Remember Me Checkbox */}
+                        <div className="flex items-center justify-between text-sm pt-1">
+                            <label className="flex items-center space-x-2.5 cursor-pointer select-none">
+                                <input
+                                    type="checkbox"
+                                    checked={remember}
+                                    onChange={(e) => setRemember(e.target.checked)}
+                                    className="w-4 h-4 rounded text-[#3B4D3A] focus:ring-[#3B4D3A] border-gray-300 accent-[#3B4D3A] cursor-pointer"
+                                />
+                                <span className="text-[#3B4D3A] font-medium text-sm">Ingat Saya (Tetap Login)</span>
+                            </label>
                         </div>
 
                         {/* Login Button */}

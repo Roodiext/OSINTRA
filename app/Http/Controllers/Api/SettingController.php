@@ -246,6 +246,11 @@ class SettingController extends Controller
      */
     public function updateRolePermissions(Request $request, Role $role)
     {
+        $user = $request->user();
+        if (!$user || !$user->role || strtolower($user->role->name) !== 'admin') {
+            abort(403, 'Unauthorized.');
+        }
+
         $validated = $request->validate([
             'permissions' => 'required|array',
             'permissions.*.module_name' => 'required|string',

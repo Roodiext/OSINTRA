@@ -43,6 +43,11 @@ class AuthController extends Controller
             ]);
         }
 
+        $remember = $request->boolean('remember', true);
+
+        // Clean up previous tokens for this user to avoid dummy/stale token accumulation
+        $user->tokens()->where('name', 'auth-token')->delete();
+
         // Create token
         $token = $user->createToken('auth-token')->plainTextToken;
 
@@ -55,15 +60,23 @@ class AuthController extends Controller
             'token' => $token,
         ]);
 
-        // Set token as cookie for stateful auth on page loads (7 days expiry)
+        // Determine whether to enforce secure cookies (HTTPS or production)
+        $isSecure = config('session.secure') ?? ($request->isSecure() || app()->environment('production'));
+
+        // Lifetime: 5 years (forever) if remember is true, otherwise 24 hours
+        $minutes = $remember ? (60 * 24 * 365 * 5) : (60 * 24);
+
+        // Set token as HttpOnly and Secure cookie
         $response->withCookie(cookie(
             'auth_token',
             $token,
-            60 * 24 * 7,  // expires in 7 days
+            $minutes,
             '/',          // path
             null,         // domain
-            false,        // secure
-            false         // httpOnly (false so JS can read it)
+            $isSecure,    // secure
+            true,         // httpOnly (blocks JS access, prevents XSS token theft)
+            false,        // raw
+            'lax'         // sameSite
         ));
 
         return $response;
@@ -82,8 +95,20 @@ class AuthController extends Controller
             'message' => 'Logged out successfully',
         ]);
 
+        $isSecure = config('session.secure') ?? ($request->isSecure() || app()->environment('production'));
+
         // Clear auth token cookie
-        $response->withCookie(cookie('auth_token', '', -1, '/'));
+        $response->withCookie(cookie(
+            'auth_token',
+            '',
+            -1,
+            '/',
+            null,
+            $isSecure,
+            true,
+            false,
+            'lax'
+        ));
 
         return $response;
     }

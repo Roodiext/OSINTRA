@@ -31,6 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'check.permission' => CheckPagePermission::class,
             'permission' => CheckPermission::class,
             'inertia.auth' => InertiaAuth::class,
+            'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
