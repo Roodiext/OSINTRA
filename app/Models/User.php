@@ -29,6 +29,8 @@ class User extends Authenticatable
         'password',
         'role_id',
         'position_id',
+        'angkatan_id',
+        'angkatan',
         'profile_picture',
         'status',
     ];
@@ -73,6 +75,14 @@ class User extends Authenticatable
     public function position(): BelongsTo
     {
         return $this->belongsTo(Position::class);
+    }
+
+    /**
+     * Get the angkatan of the user.
+     */
+    public function angkatan(): BelongsTo
+    {
+        return $this->belongsTo(Angkatan::class);
     }
 
     /**

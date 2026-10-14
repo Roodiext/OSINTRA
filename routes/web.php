@@ -151,10 +151,11 @@ Route::middleware(['inertia.auth'])->group(function () {
         $user = auth('sanctum')->user() ?? auth()->user();
         return Inertia::render('dashboard/UsersPage', [
             'auth' => ['user' => $user],
-            'users' => \App\Models\User::with(['role', 'position'])->get(),
+            'users' => \App\Models\User::with(['role', 'position', 'angkatan'])->get(),
             'roles' => \App\Models\Role::all(),
             'divisions' => \App\Models\Division::all(),
             'positions' => \App\Models\Position::all(),
+            'angkatans' => \App\Models\Angkatan::orderBy('name', 'desc')->get(),
             'permissions' => [
                 'can_view' => $user?->hasPermission('Users', 'view') ?? false,
                 'can_create' => $user?->hasPermission('Users', 'create') ?? false,

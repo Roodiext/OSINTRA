@@ -15,11 +15,16 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-    $query = User::with(['role', 'position']);
+        $query = User::with(['role', 'position', 'angkatan']);
 
         // Filter by role
         if ($request->has('role_id')) {
             $query->where('role_id', $request->role_id);
+        }
+
+        // Filter by angkatan
+        if ($request->filled('angkatan_id')) {
+            $query->where('angkatan_id', $request->angkatan_id);
         }
 
         // Filter by division (users who participate in prokers for the given division)
@@ -86,6 +91,7 @@ class UserController extends Controller
             'password' => 'required|string|min:8',
             'role_id' => 'required|exists:roles,id',
             'position_id' => 'nullable|exists:positions,id',
+            'angkatan_id' => 'nullable|exists:angkatans,id',
             'profile_picture' => 'nullable|string',
             'status' => 'sometimes|in:active,inactive',
         ]);
@@ -101,6 +107,11 @@ class UserController extends Controller
 
         $validated['password'] = Hash::make($validated['password']);
 
+        // Sync text angkatan if angkatan_id is provided
+        if (!empty($validated['angkatan_id'])) {
+            $validated['angkatan'] = \App\Models\Angkatan::find($validated['angkatan_id'])?->name;
+        }
+
         // remove any division_id if present
         unset($validated['division_id']);
 
@@ -109,7 +120,7 @@ class UserController extends Controller
         AuditLog::log('create_user', "Created user: {$user->name}");
 
         return response()->json([
-            'user' => $user->load(['role', 'position']),
+            'user' => $user->load(['role', 'position', 'angkatan']),
             'message' => 'User created successfully',
         ], 201);
     }
@@ -119,7 +130,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return response()->json($user->load(['role', 'position', 'prokers']));
+        return response()->json($user->load(['role', 'position', 'angkatan', 'prokers']));
     }
 
     /**
@@ -134,6 +145,7 @@ class UserController extends Controller
             'password' => 'sometimes|string|min:8',
             'role_id' => 'sometimes|exists:roles,id',
             'position_id' => 'nullable|exists:positions,id',
+            'angkatan_id' => 'nullable|exists:angkatans,id',
             'profile_picture' => 'nullable|string',
             'status' => 'sometimes|in:active,inactive',
         ]);
@@ -158,6 +170,13 @@ class UserController extends Controller
             $validated['password'] = Hash::make($validated['password']);
         }
 
+        // Sync text angkatan if angkatan_id is passed
+        if (array_key_exists('angkatan_id', $validated)) {
+            $validated['angkatan'] = !empty($validated['angkatan_id'])
+                ? \App\Models\Angkatan::find($validated['angkatan_id'])?->name
+                : null;
+        }
+
         // ensure division_id not set on users
         unset($validated['division_id']);
         $user->update($validated);
@@ -165,7 +184,7 @@ class UserController extends Controller
         AuditLog::log('update_user', "Updated user: {$user->name}");
 
         return response()->json([
-            'user' => $user->fresh()->load(['role', 'position']),
+            'user' => $user->fresh()->load(['role', 'position', 'angkatan']),
             'message' => 'User updated successfully',
         ]);
     }

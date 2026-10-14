@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
-import { Plus, Edit, Trash2, Search, UserCircle, ToggleLeft, ToggleRight } from 'lucide-react';
-import type { User, Role, Division, SharedData } from '@/types';
-import type { Position } from '@/types';
+import { Plus, Edit, Trash2, Search, UserCircle, ToggleLeft, ToggleRight, GraduationCap } from 'lucide-react';
+import type { User, Role, Division, SharedData, Position, Angkatan } from '@/types';
 import Swal from 'sweetalert2';
 import api from '@/lib/axios';
 import { usePermissionAlert } from '@/hooks/usePermissionAlert';
@@ -14,6 +13,7 @@ interface UsersPageProps {
     roles: Role[];
     divisions: Division[];
     positions: Position[];
+    angkatans?: Angkatan[];
     permissions?: {
         can_view: boolean;
         can_create: boolean;
@@ -22,7 +22,7 @@ interface UsersPageProps {
     };
 }
 
-const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, positions, permissions = {} }) => {
+const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, positions, angkatans: initialAngkatans = [], permissions = {} }) => {
     const { props } = usePage<SharedData>();
     const currentUserRole = props.auth?.user?.role?.name?.toLowerCase();
     const isOperatorWeb = currentUserRole === 'operator web';
@@ -30,9 +30,12 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, posit
     usePermissionAlert(props.flash?.permission_message);
 
     const users = initialUsers || [];
+    const [angkatans, setAngkatans] = useState<Angkatan[]>(initialAngkatans);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterRole, setFilterRole] = useState<string>('');
+    const [filterAngkatan, setFilterAngkatan] = useState<string>('');
     const [showModal, setShowModal] = useState(false);
+    const [showAngkatanModal, setShowAngkatanModal] = useState(false);
     const [editingUser, setEditingUser] = useState<User | null>(null);
     const [formData, setFormData] = useState({
         name: '',
@@ -41,8 +44,15 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, posit
         password: '',
         role_id: '',
         position_id: '',
+        angkatan_id: '',
         status: 'active' as 'active' | 'inactive',
     });
+    const [angkatanFormData, setAngkatanFormData] = useState({
+        name: '',
+        year: '',
+        description: '',
+    });
+    const [savingAngkatan, setSavingAngkatan] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const filteredUsers = users.filter(user => {
@@ -50,7 +60,8 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, posit
             user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
             user.email.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesRole = !filterRole || user.role_id.toString() === filterRole;
-        return matchesSearch && matchesRole;
+        const matchesAngkatan = !filterAngkatan || user.angkatan_id?.toString() === filterAngkatan;
+        return matchesSearch && matchesRole && matchesAngkatan;
     });
 
     const handleOpenModal = (user?: User) => {
@@ -63,6 +74,7 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, posit
                 password: '',
                 role_id: user.role_id.toString(),
                 position_id: user.position_id?.toString() || '',
+                angkatan_id: user.angkatan_id?.toString() || '',
                 status: user.status,
             });
         } else {
@@ -74,10 +86,79 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, posit
                 password: '',
                 role_id: '',
                 position_id: '',
+                angkatan_id: '',
                 status: 'active',
             });
         }
         setShowModal(true);
+    };
+
+    const handleCreateAngkatan = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!angkatanFormData.name.trim()) return;
+        setSavingAngkatan(true);
+        try {
+            const res = await api.post('/angkatans', angkatanFormData);
+            const newAngkatan = res.data.angkatan;
+            setAngkatans(prev => [newAngkatan, ...prev]);
+            setFormData(prev => ({ ...prev, angkatan_id: newAngkatan.id.toString() }));
+            setAngkatanFormData({ name: '', year: '', description: '' });
+            setShowAngkatanModal(false);
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: `Angkatan "${newAngkatan.name}" berhasil ditambahkan!`,
+                confirmButtonColor: '#3B4D3A',
+                timer: 1500,
+            });
+            router.reload();
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string } } };
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: err.response?.data?.message || 'Gagal menambahkan angkatan',
+                confirmButtonColor: '#3B4D3A',
+            });
+        } finally {
+            setSavingAngkatan(false);
+        }
+    };
+
+    const handleDeleteAngkatan = async (angkatan: Angkatan) => {
+        const result = await Swal.fire({
+            title: 'Hapus Angkatan?',
+            text: `Yakin ingin menghapus "${angkatan.name}"? Pengguna dengan angkatan ini akan dikosongkan.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6E8BA3',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal',
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await api.delete(`/angkatans/${angkatan.id}`);
+                setAngkatans(prev => prev.filter(a => a.id !== angkatan.id));
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Terhapus!',
+                    text: 'Angkatan berhasil dihapus',
+                    confirmButtonColor: '#3B4D3A',
+                    timer: 1500,
+                });
+                router.reload();
+            } catch (error: unknown) {
+                const err = error as { response?: { data?: { message?: string } } };
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: err.response?.data?.message || 'Gagal menghapus angkatan',
+                    confirmButtonColor: '#3B4D3A',
+                });
+            }
+        }
     };
 
     const handleCloseModal = () => {
@@ -229,27 +310,36 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, posit
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div>
                             <h1 className="text-3xl font-bold text-[#3B4D3A]">Manajemen Pengguna</h1>
-                            <p className="text-[#6E8BA3] mt-1">Kelola data pengguna OSVIS</p>
+                            <p className="text-[#6E8BA3] mt-1">Kelola data pengguna dan angkatan OSVIS</p>
                         </div>
-                        {permissions?.can_create && (
+                        <div className="flex flex-wrap items-center gap-3">
                             <button
-                                onClick={() => handleOpenModal()}
-                                className="flex items-center gap-2 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all shadow-md"
+                                onClick={() => setShowAngkatanModal(true)}
+                                className="flex items-center gap-2 px-5 py-3 bg-white border border-[#3B4D3A] text-[#3B4D3A] rounded-xl hover:bg-[#F5F5F5] transition-all shadow-sm font-semibold text-sm"
                             >
-                                <Plus className="w-5 h-5" />
-                                Tambah Pengguna
+                                <GraduationCap className="w-5 h-5 text-[#3B4D3A]" />
+                                Kelola Angkatan
                             </button>
-                        )}
+                            {permissions?.can_create && (
+                                <button
+                                    onClick={() => handleOpenModal()}
+                                    className="flex items-center gap-2 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all shadow-md font-semibold text-sm"
+                                >
+                                    <Plus className="w-5 h-5" />
+                                    Tambah Pengguna
+                                </button>
+                            )}
+                        </div>
                     </div>
 
                     {/* Filters */}
                     <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="relative">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div className="relative md:col-span-2">
                                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#6E8BA3]" />
                                 <input
                                     type="text"
-                                    placeholder="Cari pengguna..."
+                                    placeholder="Cari nama, username, atau email..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     className="w-full pl-12 pr-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
@@ -267,7 +357,18 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, posit
                                 ))}
                             </select>
 
-                            {/* Division filter removed (users no longer have division) */}
+                            <select
+                                value={filterAngkatan}
+                                onChange={(e) => setFilterAngkatan(e.target.value)}
+                                className="px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
+                            >
+                                <option value="">Semua Angkatan</option>
+                                {angkatans.map(ang => (
+                                    <option key={ang.id} value={ang.id.toString()}>
+                                        {ang.name} {ang.year ? `(${ang.year})` : ''}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                     </div>
 
@@ -282,6 +383,7 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, posit
                                         <th className="px-6 py-4 text-left text-sm font-bold text-[#3B4D3A]">Email</th>
                                         <th className="px-6 py-4 text-left text-sm font-bold text-[#3B4D3A]">Role</th>
                                         <th className="px-6 py-4 text-left text-sm font-bold text-[#3B4D3A]">Posisi</th>
+                                        <th className="px-6 py-4 text-left text-sm font-bold text-[#3B4D3A]">Angkatan</th>
                                         <th className="px-6 py-4 text-left text-sm font-bold text-[#3B4D3A]">Status</th>
                                         <th className="px-6 py-4 text-center text-sm font-bold text-[#3B4D3A]">Aksi</th>
                                     </tr>
@@ -289,6 +391,9 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, posit
                                 <tbody className="divide-y divide-gray-200">
                                     {filteredUsers.map((user) => {
                                         const isAdminUser = user.role?.name?.toLowerCase() === 'admin';
+                                        const angkatanDisplay = typeof user.angkatan === 'object' && user.angkatan
+                                            ? user.angkatan.name
+                                            : (user.angkatan || (angkatans.find(a => a.id === user.angkatan_id)?.name || null));
                                         return (
                                         <tr key={user.id} className="hover:bg-[#F5F5F5] transition-colors">
                                             <td className="px-6 py-4">
@@ -307,6 +412,15 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, posit
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-[#6E8BA3] max-w-xs truncate" title={user.position?.name || '-'}>{user.position?.name || '-'}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                {angkatanDisplay ? (
+                                                    <span className="px-3 py-1 bg-amber-50 border border-amber-200 text-amber-900 rounded-lg text-xs font-semibold">
+                                                        {angkatanDisplay}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-gray-400 text-sm">-</span>
+                                                )}
+                                            </td>
                                             <td className="px-6 py-4">
                                                 <button
                                                     onClick={() => {
@@ -505,9 +619,36 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, posit
                                                 onChange={(e) => setFormData({ ...formData, position_id: e.target.value })}
                                                 className="w-full px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
                                             >
-                                                <option value="">Pilih Posisi</option>
+                                                <option value="">Pilih Posisi (Opsional)</option>
                                                 {positions.map(pos => (
                                                     <option key={pos.id} value={pos.id}>{pos.name}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <div className="flex items-center justify-between">
+                                                <label className="block text-sm font-semibold text-[#3B4D3A]">
+                                                    Angkatan
+                                                </label>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowAngkatanModal(true)}
+                                                    className="text-xs text-[#3B4D3A] hover:underline font-semibold"
+                                                >
+                                                    + Tambah Angkatan
+                                                </button>
+                                            </div>
+                                            <select
+                                                value={formData.angkatan_id}
+                                                onChange={(e) => setFormData({ ...formData, angkatan_id: e.target.value })}
+                                                className="w-full px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
+                                            >
+                                                <option value="">Pilih Angkatan (Opsional)</option>
+                                                {angkatans.map(ang => (
+                                                    <option key={ang.id} value={ang.id.toString()}>
+                                                        {ang.name} {ang.year ? `(${ang.year})` : ''}
+                                                    </option>
                                                 ))}
                                             </select>
                                         </div>
@@ -561,6 +702,133 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, posit
                                     className="flex-1 px-6 py-3 bg-[#3B4D3A] text-white rounded-xl hover:bg-[#2d3a2d] transition-all font-semibold shadow-lg shadow-[#3B4D3A]/20 disabled:opacity-50"
                                 >
                                     {loading ? 'Menyimpan...' : 'Simpan'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Modal Kelola Angkatan */}
+                {showAngkatanModal && (
+                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-2xl shadow-2xl max-w-xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
+                            {/* Modal Header */}
+                            <div className="px-6 py-4 md:px-8 md:py-6 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
+                                <div className="flex items-center gap-2">
+                                    <GraduationCap className="w-6 h-6 text-[#3B4D3A]" />
+                                    <h2 className="text-xl md:text-2xl font-bold text-[#3B4D3A]">
+                                        Kelola Angkatan
+                                    </h2>
+                                </div>
+                                <button
+                                    onClick={() => setShowAngkatanModal(false)}
+                                    className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400 hover:text-red-500"
+                                >
+                                    <Plus className="w-6 h-6 rotate-45" />
+                                </button>
+                            </div>
+
+                            {/* Modal Body */}
+                            <div className="px-6 py-4 md:px-8 md:py-6 overflow-y-auto space-y-6 flex-grow">
+                                {/* Form Tambah Angkatan */}
+                                <form onSubmit={handleCreateAngkatan} className="p-4 bg-[#F5F5F5] rounded-xl border border-gray-200 space-y-4">
+                                    <h3 className="font-bold text-[#3B4D3A] text-sm">Tambah Angkatan Baru</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="block text-xs font-semibold text-[#3B4D3A] mb-1">
+                                                Nama / Nomor Angkatan *
+                                            </label>
+                                            <input
+                                                type="text"
+                                                required
+                                                placeholder="Contoh: 23, 24, atau Angkatan 23"
+                                                value={angkatanFormData.name}
+                                                onChange={(e) => setAngkatanFormData({ ...angkatanFormData, name: e.target.value })}
+                                                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:border-[#3B4D3A] outline-none"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-semibold text-[#3B4D3A] mb-1">
+                                                Tahun Ajaran / Periode
+                                            </label>
+                                            <input
+                                                type="text"
+                                                placeholder="Contoh: 2023/2024 atau 2023"
+                                                value={angkatanFormData.year}
+                                                onChange={(e) => setAngkatanFormData({ ...angkatanFormData, year: e.target.value })}
+                                                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:border-[#3B4D3A] outline-none"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-[#3B4D3A] mb-1">
+                                            Keterangan (Opsional)
+                                        </label>
+                                        <input
+                                            type="text"
+                                            placeholder="Catatan tambahan..."
+                                            value={angkatanFormData.description}
+                                            onChange={(e) => setAngkatanFormData({ ...angkatanFormData, description: e.target.value })}
+                                            className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:border-[#3B4D3A] outline-none"
+                                        />
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        disabled={savingAngkatan}
+                                        className="w-full py-2.5 bg-[#3B4D3A] text-white rounded-lg text-sm font-semibold hover:bg-[#2d3a2d] transition-all disabled:opacity-50"
+                                    >
+                                        {savingAngkatan ? 'Menyimpan...' : '+ Simpan Angkatan'}
+                                    </button>
+                                </form>
+
+                                {/* List Angkatan */}
+                                <div>
+                                    <h3 className="font-bold text-[#3B4D3A] text-sm mb-3">Daftar Angkatan Terdaftar</h3>
+                                    {angkatans.length === 0 ? (
+                                        <p className="text-gray-400 text-sm text-center py-4">Belum ada data angkatan</p>
+                                    ) : (
+                                        <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                                            {angkatans.map(ang => (
+                                                <div key={ang.id} className="flex items-center justify-between p-3 bg-white border border-gray-100 rounded-xl hover:border-gray-200 transition-all shadow-sm">
+                                                    <div>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="font-bold text-[#3B4D3A] text-sm">{ang.name}</span>
+                                                            {ang.year && (
+                                                                <span className="text-xs text-[#6E8BA3]">({ang.year})</span>
+                                                            )}
+                                                        </div>
+                                                        {ang.description && (
+                                                            <p className="text-xs text-gray-500 mt-0.5">{ang.description}</p>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-xs px-2.5 py-1 bg-[#E8DCC3] text-[#3B4D3A] rounded-md font-semibold">
+                                                            {users.filter(u => u.angkatan_id === ang.id).length} Pengguna
+                                                        </span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleDeleteAngkatan(ang)}
+                                                            className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                                            title="Hapus Angkatan"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Modal Footer */}
+                            <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowAngkatanModal(false)}
+                                    className="px-5 py-2.5 bg-gray-200 text-[#1E1E1E] rounded-xl text-sm font-semibold hover:bg-gray-300 transition-colors"
+                                >
+                                    Tutup
                                 </button>
                             </div>
                         </div>

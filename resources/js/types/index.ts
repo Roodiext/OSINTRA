@@ -27,6 +27,11 @@ export interface SharedData {
     quote: { message: string; author: string };
     auth: Auth;
     sidebarOpen: boolean;
+    flash?: {
+        permission_message?: string;
+        permission_denied?: boolean;
+        [key: string]: unknown;
+    };
     [key: string]: unknown;
 }
 
@@ -38,11 +43,24 @@ export interface User {
     role_id: number;
     division_id?: number;
     position_id?: number;
+    angkatan_id?: number;
+    angkatan?: Angkatan | string;
     profile_picture?: string;
     status: 'active' | 'inactive';
     role?: Role;
     division?: Division;
     position?: Position;
+}
+
+export interface Angkatan {
+    id: number;
+    name: string;
+    year?: string;
+    description?: string;
+    status?: 'active' | 'inactive';
+    users_count?: number;
+    created_at?: string;
+    updated_at?: string;
 }
 
 export interface Role {

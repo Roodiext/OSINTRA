@@ -28,6 +28,7 @@ Route::get('/proker-media', [ProkerController::class, 'getAllMedia']);
 Route::get('/prokers/{proker}', [ProkerController::class, 'show']);
 Route::get('/prokers', [ProkerController::class, 'index']);
 Route::get('/positions', [\App\Http\Controllers\Api\PositionController::class, 'index']);
+Route::get('/angkatans', [\App\Http\Controllers\Api\AngkatanController::class, 'index']);
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -130,4 +131,10 @@ Route::middleware('auth:sanctum')->group(function () {
         ->middleware('permission:Positions,edit');
     Route::delete('positions/{position}', [\App\Http\Controllers\Api\PositionController::class, 'destroy'])
         ->middleware('permission:Positions,delete');
+
+    // Angkatans
+    Route::get('angkatans', [\App\Http\Controllers\Api\AngkatanController::class, 'index']);
+    Route::post('angkatans', [\App\Http\Controllers\Api\AngkatanController::class, 'store']);
+    Route::put('angkatans/{angkatan}', [\App\Http\Controllers\Api\AngkatanController::class, 'update']);
+    Route::delete('angkatans/{angkatan}', [\App\Http\Controllers\Api\AngkatanController::class, 'destroy']);
 });
