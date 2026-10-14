@@ -49,18 +49,27 @@ Route::get('/gallery/{id?}', function ($id = null) {
         }
     }
     
-    // Fallback: If no ID or not found, show recent/all media gallery
+    // Fallback: If no ID or not found, show paginated media gallery
     $allMedia = \App\Models\ProkerMedia::with('proker')
         ->where(function($q) {
             $q->where('is_thumbnail', true)
               ->orWhere('is_highlight', true);
         })
         ->orderBy('created_at', 'desc')
-        ->get();
+        ->paginate(10)
+        ->withQueryString();
 
     return Inertia::render('GalleryPage', [
-        'media' => $allMedia, 
-        'initialId' => null
+        'media' => $allMedia->items(), 
+        'initialId' => null,
+        'pagination' => [
+            'current_page' => $allMedia->currentPage(),
+            'last_page' => $allMedia->lastPage(),
+            'per_page' => $allMedia->perPage(),
+            'total' => $allMedia->total(),
+            'from' => $allMedia->firstItem(),
+            'to' => $allMedia->lastItem(),
+        ],
     ]);
 })->name('gallery');
 
@@ -149,9 +158,31 @@ Route::middleware(['inertia.auth'])->group(function () {
     
     Route::get('/dashboard/users', function () {
         $user = auth('sanctum')->user() ?? auth()->user();
+        
+        $query = \App\Models\User::with(['role', 'position', 'angkatan']);
+        
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('username', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+        
+        if (request()->filled('role')) {
+            $query->where('role_id', request('role'));
+        }
+        
+        if (request()->filled('angkatan')) {
+            $query->where('angkatan_id', request('angkatan'));
+        }
+        
+        $paginated = $query->orderBy('name')->paginate(30)->withQueryString();
+        
         return Inertia::render('dashboard/UsersPage', [
             'auth' => ['user' => $user],
-            'users' => \App\Models\User::with(['role', 'position', 'angkatan'])->get(),
+            'users' => $paginated,
             'roles' => \App\Models\Role::all(),
             'divisions' => \App\Models\Division::all(),
             'positions' => \App\Models\Position::all(),
@@ -167,9 +198,33 @@ Route::middleware(['inertia.auth'])->group(function () {
     
     Route::get('/dashboard/prokers', function () {
         $user = auth('sanctum')->user() ?? auth()->user();
+        
+        $query = \App\Models\Proker::with(['divisions', 'media']);
+        
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+        
+        if (request()->filled('division')) {
+            $divisionId = request('division');
+            $query->whereHas('divisions', function($q) use ($divisionId) {
+                $q->where('divisions.id', $divisionId);
+            });
+        }
+        
+        if (request()->filled('status')) {
+            $query->where('status', request('status'));
+        }
+        
+        $paginated = $query->orderBy('date', 'desc')->paginate(10)->withQueryString();
+        
         return Inertia::render('dashboard/ProkersPage', [
             'auth' => ['user' => $user],
-            'prokers' => \App\Models\Proker::with(['divisions', 'media'])->get(),
+            'prokers' => $paginated,
             'divisions' => \App\Models\Division::all(),
             'permissions' => [
                 'can_view' => $user?->hasPermission('Prokers', 'view') ?? false,

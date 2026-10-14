@@ -40,6 +40,11 @@ class ProkerController extends Controller
             });
         }
 
+        // Filter by year
+        if ($request->filled('year')) {
+            $query->whereYear('date', $request->year);
+        }
+
         $prokers = $query->orderBy('date', 'desc')
             ->paginate($request->get('per_page', 15));
 
@@ -439,16 +444,39 @@ class ProkerController extends Controller
         ]);
     }
 
-    public function getAllMedia()
+    public function getAllMedia(Request $request)
     {
-        // Limit to 24 most recent media items to keep the initial load light
-        $media = ProkerMedia::with('proker.divisions')
-            ->whereHas('proker', function($query) {
+        $query = ProkerMedia::with('proker.divisions');
+
+        // Only filter by 'done' prokers if not requesting all_status and not authenticated as admin/user
+        if (!$request->boolean('all_status') && !auth('sanctum')->check()) {
+            $query->whereHas('proker', function($query) {
                 $query->where('status', 'done');
-            })
-            ->latest()
-            ->limit(24) 
-            ->get();
+            });
+        }
+
+        if ($request->filled('proker_id')) {
+            $query->where('proker_id', $request->proker_id);
+        }
+
+        if ($request->filled('media_type')) {
+            $query->where('media_type', $request->media_type);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('caption', 'like', "%{$search}%")
+                  ->orWhereHas('proker', function($pq) use ($search) {
+                      $pq->where('title', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $query->latest();
+
+        $perPage = $request->get('per_page', 10);
+        $media = $query->paginate($perPage);
 
         return response()->json($media);
     }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Plus, Edit, Trash2, Search, UserCircle, ToggleLeft, ToggleRight, GraduationCap } from 'lucide-react';
@@ -6,10 +6,21 @@ import type { User, Role, Division, SharedData, Position, Angkatan } from '@/typ
 import Swal from 'sweetalert2';
 import api from '@/lib/axios';
 import { usePermissionAlert } from '@/hooks/usePermissionAlert';
+import Pagination from '@/components/ui/Pagination';
+
+interface PaginatedData<T> {
+    data: T[];
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number | null;
+    to: number | null;
+}
 
 interface UsersPageProps {
     [key: string]: unknown;
-    users: User[];
+    users: PaginatedData<User>;
     roles: Role[];
     divisions: Division[];
     positions: Position[];
@@ -22,18 +33,21 @@ interface UsersPageProps {
     };
 }
 
-const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, positions, angkatans: initialAngkatans = [], permissions = {} }) => {
+const UsersPage: React.FC<UsersPageProps> = ({ users: paginatedUsers, roles, positions, angkatans: initialAngkatans = [], permissions = {} }) => {
     const { props } = usePage<SharedData>();
     const currentUserRole = props.auth?.user?.role?.name?.toLowerCase();
     const isOperatorWeb = currentUserRole === 'operator web';
 
     usePermissionAlert(props.flash?.permission_message);
 
-    const users = initialUsers || [];
+    const users = paginatedUsers?.data || [];
+    const pagination = paginatedUsers || { current_page: 1, last_page: 1, per_page: 30, total: 0, from: null, to: null };
+    
+    const urlParams = new URLSearchParams(window.location.search);
     const [angkatans, setAngkatans] = useState<Angkatan[]>(initialAngkatans);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [filterRole, setFilterRole] = useState<string>('');
-    const [filterAngkatan, setFilterAngkatan] = useState<string>('');
+    const [searchQuery, setSearchQuery] = useState(urlParams.get('search') || '');
+    const [filterRole, setFilterRole] = useState<string>(urlParams.get('role') || '');
+    const [filterAngkatan, setFilterAngkatan] = useState<string>(urlParams.get('angkatan') || '');
     const [showModal, setShowModal] = useState(false);
     const [showAngkatanModal, setShowAngkatanModal] = useState(false);
     const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -55,14 +69,50 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, posit
     const [savingAngkatan, setSavingAngkatan] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    const filteredUsers = users.filter(user => {
-        const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            user.email.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesRole = !filterRole || user.role_id.toString() === filterRole;
-        const matchesAngkatan = !filterAngkatan || user.angkatan_id?.toString() === filterAngkatan;
-        return matchesSearch && matchesRole && matchesAngkatan;
-    });
+    // Server-side navigation for search/filter/pagination
+    const navigateWithFilters = useCallback((overrides: Record<string, string | number> = {}) => {
+        const params: Record<string, string> = {};
+        const search = overrides.search !== undefined ? String(overrides.search) : searchQuery;
+        const role = overrides.role !== undefined ? String(overrides.role) : filterRole;
+        const angkatan = overrides.angkatan !== undefined ? String(overrides.angkatan) : filterAngkatan;
+        const page = overrides.page !== undefined ? String(overrides.page) : '1';
+
+        if (search) params.search = search;
+        if (role) params.role = role;
+        if (angkatan) params.angkatan = angkatan;
+        if (page && page !== '1') params.page = page;
+
+        router.visit('/dashboard/users', {
+            data: params,
+            preserveState: true,
+            preserveScroll: true,
+            only: ['users'],
+        });
+    }, [searchQuery, filterRole, filterAngkatan]);
+
+    // Debounced search
+    const searchTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+    const handleSearchChange = (value: string) => {
+        setSearchQuery(value);
+        if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+        searchTimeoutRef.current = setTimeout(() => {
+            navigateWithFilters({ search: value, page: 1 });
+        }, 400);
+    };
+
+    const handleRoleChange = (value: string) => {
+        setFilterRole(value);
+        navigateWithFilters({ role: value, page: 1 });
+    };
+
+    const handleAngkatanFilterChange = (value: string) => {
+        setFilterAngkatan(value);
+        navigateWithFilters({ angkatan: value, page: 1 });
+    };
+
+    const handlePageChange = (page: number) => {
+        navigateWithFilters({ page });
+    };
 
     const handleOpenModal = (user?: User) => {
         if (user) {
@@ -341,14 +391,14 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, posit
                                     type="text"
                                     placeholder="Cari nama, username, atau email..."
                                     value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    onChange={(e) => handleSearchChange(e.target.value)}
                                     className="w-full pl-12 pr-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
                                 />
                             </div>
 
                             <select
                                 value={filterRole}
-                                onChange={(e) => setFilterRole(e.target.value)}
+                                onChange={(e) => handleRoleChange(e.target.value)}
                                 className="px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
                             >
                                 <option value="">Semua Role</option>
@@ -359,7 +409,7 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, posit
 
                             <select
                                 value={filterAngkatan}
-                                onChange={(e) => setFilterAngkatan(e.target.value)}
+                                onChange={(e) => handleAngkatanFilterChange(e.target.value)}
                                 className="px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
                             >
                                 <option value="">Semua Angkatan</option>
@@ -389,7 +439,7 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, posit
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200">
-                                    {filteredUsers.map((user) => {
+                                    {users.map((user) => {
                                         const isAdminUser = user.role?.name?.toLowerCase() === 'admin';
                                         const angkatanDisplay = typeof user.angkatan === 'object' && user.angkatan
                                             ? user.angkatan.name
@@ -505,13 +555,25 @@ const UsersPage: React.FC<UsersPageProps> = ({ users: initialUsers, roles, posit
                             </table>
                         </div>
 
-                        {filteredUsers.length === 0 && (
+                        {users.length === 0 && (
                             <div className="p-12 text-center">
                                 <UserCircle className="w-16 h-16 text-[#6E8BA3] mx-auto mb-4" />
                                 <p className="text-[#6E8BA3] text-lg font-medium">Tidak ada pengguna ditemukan</p>
                             </div>
                         )}
                     </div>
+
+                    {/* Pagination */}
+                    <Pagination
+                        currentPage={pagination.current_page}
+                        lastPage={pagination.last_page}
+                        total={pagination.total}
+                        perPage={pagination.per_page}
+                        from={pagination.from}
+                        to={pagination.to}
+                        onPageChange={handlePageChange}
+                        className="mt-6"
+                    />
                 </div>
 
                 {/* Modal */}

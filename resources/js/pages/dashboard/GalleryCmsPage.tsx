@@ -1,10 +1,11 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Head } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Image as ImageIcon, Upload, Trash2, Search, X, Bookmark, Star } from 'lucide-react';
 import api from '@/lib/axios';
 import Swal from 'sweetalert2';
 import type { ProkerMedia, Proker } from '@/types';
+import Pagination from '@/components/ui/Pagination';
 
 const GalleryCmsPage: React.FC = () => {
     const [media, setMedia] = useState<ProkerMedia[]>([]);
@@ -18,34 +19,80 @@ const GalleryCmsPage: React.FC = () => {
     const [selectedProker, setSelectedProker] = useState<number | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    useEffect(() => {
-        fetchData();
-    }, []);
+    const [page, setPage] = useState(1);
+    const [pagination, setPagination] = useState({
+        current_page: 1,
+        last_page: 1,
+        per_page: 10,
+        total: 0,
+        from: null as number | null,
+        to: null as number | null,
+    });
 
-    const fetchData = async () => {
+    const fetchData = useCallback(async (targetPage = page, search = searchQuery, proker = filterProker, type = filterType) => {
         try {
             setLoading(true);
+            const mediaParams: Record<string, string | number> = {
+                per_page: 10,
+                page: targetPage,
+                all_status: 1,
+            };
+            if (search.trim()) mediaParams.search = search.trim();
+            if (proker) mediaParams.proker_id = proker;
+            if (type) mediaParams.media_type = type;
+
             const [mediaRes, prokersRes] = await Promise.all([
-                api.get('/proker-media'),
+                api.get('/proker-media', { params: mediaParams }),
                 api.get('/prokers', { params: { per_page: 100 } }),
             ]);
-            setMedia(mediaRes.data);
-            setProkers(prokersRes.data.data || prokersRes.data);
+
+            const mediaData = mediaRes.data;
+            if (mediaData?.data) {
+                setMedia(mediaData.data);
+                setPagination({
+                    current_page: mediaData.current_page || targetPage,
+                    last_page: mediaData.last_page || 1,
+                    per_page: mediaData.per_page || 10,
+                    total: mediaData.total || 0,
+                    from: mediaData.from ?? null,
+                    to: mediaData.to ?? null,
+                });
+            } else {
+                setMedia(Array.isArray(mediaData) ? mediaData : []);
+            }
+            setProkers(prokersRes.data?.data || prokersRes.data || []);
         } catch (error) {
             console.error(error);
             Swal.fire('Error', 'Gagal memuat data galeri', 'error');
         } finally {
             setLoading(false);
         }
+    }, [page, searchQuery, filterProker, filterType]);
+
+    useEffect(() => {
+        fetchData(page, searchQuery, filterProker, filterType);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [page, filterProker, filterType]);
+
+    const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const handleSearchChange = (value: string) => {
+        setSearchQuery(value);
+        if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+        searchTimeoutRef.current = setTimeout(() => {
+            setPage(1);
+            fetchData(1, value, filterProker, filterType);
+        }, 400);
     };
 
-    const filteredMedia = media.filter(item => {
-        const matchesSearch = item.caption?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.proker?.title.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesProker = !filterProker || item.proker_id.toString() === filterProker;
-        const matchesType = !filterType || item.media_type === filterType;
-        return matchesSearch && matchesProker && matchesType;
-    });
+    const handleProkerFilterChange = (value: string) => {
+        setFilterProker(value);
+        setPage(1);
+    };
+
+    const handleTypeFilterChange = (value: string) => {
+        setFilterType(value);
+        setPage(1);
+    };
 
     const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -197,13 +244,13 @@ const GalleryCmsPage: React.FC = () => {
                                     type="text"
                                     placeholder="Cari media..."
                                     value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    onChange={(e) => handleSearchChange(e.target.value)}
                                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B4D3A] focus:border-transparent"
                                 />
                             </div>
                             <select
                                 value={filterProker}
-                                onChange={(e) => setFilterProker(e.target.value)}
+                                onChange={(e) => handleProkerFilterChange(e.target.value)}
                                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B4D3A] focus:border-transparent"
                             >
                                 <option value="">Semua Program Kerja</option>
@@ -213,7 +260,7 @@ const GalleryCmsPage: React.FC = () => {
                             </select>
                             <select
                                 value={filterType}
-                                onChange={(e) => setFilterType(e.target.value)}
+                                onChange={(e) => handleTypeFilterChange(e.target.value)}
                                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B4D3A] focus:border-transparent"
                             >
                                 <option value="">Semua Tipe</option>
@@ -227,104 +274,121 @@ const GalleryCmsPage: React.FC = () => {
                         <div className="text-center py-12">
                             <p className="text-gray-500">Memuat...</p>
                         </div>
-                    ) : filteredMedia.length === 0 ? (
+                    ) : media.length === 0 ? (
                         <div className="text-center py-12 bg-white rounded-xl shadow-md">
                             <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-3" />
                             <p className="text-gray-500">Tidak ada media yang ditemukan</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                            {filteredMedia.map((item) => (
-                                <div
-                                    key={item.id}
-                                    className="group relative aspect-square rounded-lg overflow-hidden bg-gray-100 cursor-pointer"
-                                    onClick={() => setSelectedMedia(item)}
-                                >
-                                    {item.media_type === 'video' && !/\.(jpg|jpeg|png|webp|gif|svg)$/i.test(item.media_url) ? (
-                                        <video
-                                            src={item.media_url}
-                                            className="w-full h-full object-cover"
-                                            muted
-                                        />
-                                    ) : (
-                                        <img
-                                            src={item.thumbnail_url || item.media_url}
-                                            alt={item.caption || ''}
-                                            className="w-full h-full object-cover"
-                                            loading="lazy"
-                                            decoding="async"
-                                            onError={(e) => {
-                                                const target = e.target as HTMLImageElement;
-                                                if (target.src !== item.media_url) {
-                                                    target.src = item.media_url;
-                                                }
-                                            }}
-                                        />
-                                    )}
-                                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
-                                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex gap-2">
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleDeleteMedia(item);
+                        <>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                                {media.map((item) => (
+                                    <div
+                                        key={item.id}
+                                        className="group relative aspect-square rounded-lg overflow-hidden bg-gray-100 cursor-pointer"
+                                        onClick={() => setSelectedMedia(item)}
+                                    >
+                                        {item.media_type === 'video' && !/\.(jpg|jpeg|png|webp|gif|svg)$/i.test(item.media_url) ? (
+                                            <video
+                                                src={item.media_url}
+                                                className="w-full h-full object-cover"
+                                                muted
+                                            />
+                                        ) : (
+                                            <img
+                                                src={item.thumbnail_url || item.media_url}
+                                                alt={item.caption || ''}
+                                                className="w-full h-full object-cover"
+                                                loading="lazy"
+                                                decoding="async"
+                                                onError={(e) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    if (target.src !== item.media_url) {
+                                                        target.src = item.media_url;
+                                                    }
                                                 }}
-                                                className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
-                                                title="Hapus"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
-                                            {item.media_type !== 'video' && (
+                                            />
+                                        )}
+                                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
+                                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex gap-2">
                                                 <button
-                                                    onClick={async (e) => {
+                                                    onClick={(e) => {
                                                         e.stopPropagation();
-                                                        try {
-                                                            await api.put(`/prokers/${item.proker_id}/media/${item.id}/highlight`);
-                                                            fetchData();
-                                                            Swal.fire({
-                                                                icon: 'success',
-                                                                title: 'Berhasil',
-                                                                text: 'Status highlight diperbarui',
-                                                                timer: 1000,
-                                                                showConfirmButton: false,
-                                                                toast: true,
-                                                                position: 'top-end'
-                                                            });
-                                                        } catch (error: unknown) {
-                                                            const err = error as { response?: { data?: { message?: string } } };
-                                                            Swal.fire('Error', err.response?.data?.message || 'Gagal update highlight', 'error');
-                                                        }
+                                                        handleDeleteMedia(item);
                                                     }}
-                                                    className={`p-2 rounded-lg transition ${item.is_highlight ? 'bg-blue-500 text-white' : 'bg-white text-gray-600 hover:bg-blue-100'}`}
-                                                    title={item.is_highlight ? "Highlight Aktif" : "Jadikan Highlight"}
+                                                    className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                                                    title="Hapus"
                                                 >
-                                                    <Bookmark className={`w-4 h-4 ${item.is_highlight ? 'fill-current' : ''}`} />
+                                                    <Trash2 className="w-4 h-4" />
                                                 </button>
-                                            )}
+                                                {item.media_type !== 'video' && (
+                                                    <button
+                                                        onClick={async (e) => {
+                                                            e.stopPropagation();
+                                                            try {
+                                                                await api.put(`/prokers/${item.proker_id}/media/${item.id}/highlight`);
+                                                                fetchData(page);
+                                                                Swal.fire({
+                                                                    icon: 'success',
+                                                                    title: 'Berhasil',
+                                                                    text: 'Status highlight diperbarui',
+                                                                    timer: 1000,
+                                                                    showConfirmButton: false,
+                                                                    toast: true,
+                                                                    position: 'top-end'
+                                                                });
+                                                            } catch (error: unknown) {
+                                                                const err = error as { response?: { data?: { message?: string } } };
+                                                                Swal.fire('Error', err.response?.data?.message || 'Gagal update highlight', 'error');
+                                                            }
+                                                        }}
+                                                        className={`p-2 rounded-lg transition ${item.is_highlight ? 'bg-blue-500 text-white' : 'bg-white text-gray-600 hover:bg-blue-100'}`}
+                                                        title={item.is_highlight ? "Highlight Aktif" : "Jadikan Highlight"}
+                                                    >
+                                                        <Bookmark className={`w-4 h-4 ${item.is_highlight ? 'fill-current' : ''}`} />
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
+                                        {item.is_thumbnail && (
+                                            <div className="absolute top-2 left-2 bg-yellow-400 text-white text-xs font-bold px-2 py-1 rounded shadow-md z-10 flex items-center gap-1">
+                                                <Star className="w-3 h-3 fill-current" /> Thumbnail
+                                            </div>
+                                        )}
+                                        {item.is_highlight && !item.is_thumbnail && (
+                                            <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded shadow-md z-10 flex items-center gap-1">
+                                                <Bookmark className="w-3 h-3 fill-current" /> Highlight
+                                            </div>
+                                        )}
+                                        {item.caption && (
+                                            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                                                <p className="text-white text-sm truncate">{item.caption}</p>
+                                            </div>
+                                        )}
+                                        {item.proker && (
+                                            <div className="absolute top-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                                                {item.proker.title}
+                                            </div>
+                                        )}
                                     </div>
-                                    {item.is_thumbnail && (
-                                        <div className="absolute top-2 left-2 bg-yellow-400 text-white text-xs font-bold px-2 py-1 rounded shadow-md z-10 flex items-center gap-1">
-                                            <Star className="w-3 h-3 fill-current" /> Thumbnail
-                                        </div>
-                                    )}
-                                    {item.is_highlight && !item.is_thumbnail && (
-                                        <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded shadow-md z-10 flex items-center gap-1">
-                                            <Bookmark className="w-3 h-3 fill-current" /> Highlight
-                                        </div>
-                                    )}
-                                    {item.caption && (
-                                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
-                                            <p className="text-white text-sm truncate">{item.caption}</p>
-                                        </div>
-                                    )}
-                                    {item.proker && (
-                                        <div className="absolute top-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
-                                            {item.proker.title}
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+
+                            <div className="mt-8">
+                                <Pagination
+                                    currentPage={pagination.current_page}
+                                    lastPage={pagination.last_page}
+                                    total={pagination.total}
+                                    perPage={pagination.per_page}
+                                    from={pagination.from}
+                                    to={pagination.to}
+                                    onPageChange={(p) => {
+                                        setPage(p);
+                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                    }}
+                                />
+                            </div>
+                        </>
                     )}
 
                     {/* Media Preview Modal */}

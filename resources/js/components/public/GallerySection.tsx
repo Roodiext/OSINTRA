@@ -19,8 +19,9 @@ const GallerySection: React.FC = () => {
         const fetchMedia = async () => {
             try {
                 const response = await api.get('/proker-media');
-                const highlights = response.data.filter((item: ProkerMedia) => item.is_thumbnail);
-                setMedia(highlights.length > 0 ? highlights : response.data.slice(0, 4));
+                const rawData: ProkerMedia[] = Array.isArray(response.data) ? response.data : (response.data?.data || []);
+                const highlights = rawData.filter((item: ProkerMedia) => item.is_thumbnail);
+                setMedia(highlights.length > 0 ? highlights : rawData.slice(0, 4));
             } catch (error) {
                 console.error('Failed to fetch media:', error);
             } finally {

@@ -2,16 +2,25 @@ import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ArrowLeft, X, Expand } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import PublicLayout from '@/components/public/PublicLayout';
 import type { ProkerMedia } from "@/types"
+import Pagination from '@/components/ui/Pagination';
 
 interface GalleryPageProps {
     media: ProkerMedia[]
     initialId?: number
+    pagination?: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+        from: number | null;
+        to: number | null;
+    }
 }
 
-export default function GalleryPage({ media, initialId }: GalleryPageProps) {
+export default function GalleryPage({ media, initialId, pagination }: GalleryPageProps) {
     const containerRef = useRef<HTMLDivElement>(null)
     const [isFullscreen, setIsFullscreen] = useState(false)
     const [fullscreenImage, setFullscreenImage] = useState<ProkerMedia | null>(null)
@@ -218,6 +227,24 @@ export default function GalleryPage({ media, initialId }: GalleryPageProps) {
                                 {sortedMedia.length === 0 && (
                                     <div className="text-center py-20 text-slate-500">
                                         <p>Belum ada dokumentasi yang tersedia.</p>
+                                    </div>
+                                )}
+
+                                {pagination && pagination.last_page > 1 && (
+                                    <div className="mt-10">
+                                        <Pagination
+                                            currentPage={pagination.current_page}
+                                            lastPage={pagination.last_page}
+                                            total={pagination.total}
+                                            perPage={pagination.per_page}
+                                            from={pagination.from}
+                                            to={pagination.to}
+                                            onPageChange={(page) => {
+                                                router.visit(`/gallery?page=${page}`, {
+                                                    preserveScroll: true,
+                                                });
+                                            }}
+                                        />
                                     </div>
                                 )}
                             </div>

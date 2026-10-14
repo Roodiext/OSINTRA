@@ -1,16 +1,25 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { Head, router } from '@inertiajs/react';
 import PublicLayout from '@/components/public/PublicLayout';
 import { Calendar, MapPin, Users, Search, Filter } from 'lucide-react';
 import api from '@/lib/axios';
 import type { Proker } from '@/types';
+import Pagination from '@/components/ui/Pagination';
 
 const PublicProkersPage: React.FC = () => {
     const [prokers, setProkers] = useState<Proker[]>([]);
-
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState(() => sessionStorage.getItem('prokersSearch') || '');
     const [filterYear, setFilterYear] = useState(() => sessionStorage.getItem('prokersFilterYear') || '');
+    const [page, setPage] = useState(1);
+    const [pagination, setPagination] = useState({
+        current_page: 1,
+        last_page: 1,
+        per_page: 10,
+        total: 0,
+        from: null as number | null,
+        to: null as number | null,
+    });
 
     useEffect(() => {
         sessionStorage.setItem('prokersSearch', searchQuery);
@@ -18,41 +27,74 @@ const PublicProkersPage: React.FC = () => {
     }, [searchQuery, filterYear]);
 
     const availableYears = useMemo(() => {
-        const years = new Set(prokers.map(p => new Date(p.date).getFullYear()));
-        return Array.from(years).sort((a, b) => b - a);
+        const currentYear = new Date().getFullYear();
+        const yearsSet = new Set<number>([currentYear, currentYear - 1, currentYear - 2]);
+        prokers.forEach(p => {
+            if (p.date) {
+                yearsSet.add(new Date(p.date).getFullYear());
+            }
+        });
+        return Array.from(yearsSet).sort((a, b) => b - a);
     }, [prokers]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true);
-                const [prokersRes] = await Promise.all([
-                    api.get('/prokers', { params: { per_page: 100 } })
-                ]);
-                setProkers(prokersRes.data.data || prokersRes.data);
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setLoading(false);
-                setTimeout(() => {
-                    const scrollY = sessionStorage.getItem('prokersScrollY');
-                    if (scrollY) {
-                        window.scrollTo({ top: parseInt(scrollY, 10), behavior: 'instant' });
-                        sessionStorage.removeItem('prokersScrollY');
-                    }
-                }, 100);
+    const fetchData = useCallback(async (targetPage = page, search = searchQuery, year = filterYear) => {
+        try {
+            setLoading(true);
+            const params: Record<string, string | number> = {
+                per_page: 10,
+                page: targetPage,
+            };
+            if (search.trim()) params.search = search.trim();
+            if (year) params.year = year;
+
+            const res = await api.get('/prokers', { params });
+            const data = res.data;
+            if (data?.data) {
+                setProkers(data.data);
+                setPagination({
+                    current_page: data.current_page || targetPage,
+                    last_page: data.last_page || 1,
+                    per_page: data.per_page || 10,
+                    total: data.total || 0,
+                    from: data.from ?? null,
+                    to: data.to ?? null,
+                });
+            } else {
+                setProkers(Array.isArray(data) ? data : []);
             }
-        };
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+            setTimeout(() => {
+                const scrollY = sessionStorage.getItem('prokersScrollY');
+                if (scrollY) {
+                    window.scrollTo({ top: parseInt(scrollY, 10), behavior: 'instant' });
+                    sessionStorage.removeItem('prokersScrollY');
+                }
+            }, 100);
+        }
+    }, [page, searchQuery, filterYear]);
 
-        fetchData();
-    }, []);
+    useEffect(() => {
+        fetchData(page, searchQuery, filterYear);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [page, filterYear]);
 
-    const filteredProkers = prokers.filter(proker => {
-        const matchesSearch = proker.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            proker.description?.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesYear = !filterYear || new Date(proker.date).getFullYear().toString() === filterYear;
-        return matchesSearch && matchesYear;
-    });
+    const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const handleSearchChange = (value: string) => {
+        setSearchQuery(value);
+        if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+        searchTimeoutRef.current = setTimeout(() => {
+            setPage(1);
+            fetchData(1, value, filterYear);
+        }, 400);
+    };
+
+    const handleYearChange = (year: string) => {
+        setFilterYear(year);
+        setPage(1);
+    };
 
     const statusColors = {
         planned: 'bg-yellow-100 text-yellow-800',
@@ -87,7 +129,7 @@ const PublicProkersPage: React.FC = () => {
                                         type="text"
                                         placeholder="Cari program kerja (contoh: Classmeet, HUT)..."
                                         value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        onChange={(e) => handleSearchChange(e.target.value)}
                                         className="w-full bg-transparent border-none focus:ring-0 px-0 py-2 text-sm md:text-base placeholder-gray-400 outline-none focus:outline-none"
                                     />
                                 </div>
@@ -98,7 +140,7 @@ const PublicProkersPage: React.FC = () => {
                                     </div>
                                     <select
                                         value={filterYear}
-                                        onChange={(e) => setFilterYear(e.target.value)}
+                                        onChange={(e) => handleYearChange(e.target.value)}
                                         className="w-full min-w-[160px] appearance-none pl-9 pr-10 py-2.5 md:py-3 bg-gray-50 md:bg-transparent border-none focus:ring-0 rounded-xl md:rounded-full text-sm font-semibold text-[#3B4D3A] cursor-pointer outline-none focus:outline-none"
                                     >
                                         <option value="">Semua Tahun</option>
@@ -118,96 +160,113 @@ const PublicProkersPage: React.FC = () => {
                             <div className="text-center py-12">
                                 <p className="text-gray-500">Memuat...</p>
                             </div>
-                        ) : filteredProkers.length === 0 ? (
+                        ) : prokers.length === 0 ? (
                             <div className="text-center py-12 bg-white rounded-2xl shadow-lg">
                                 <p className="text-gray-500">Tidak ada program kerja yang ditemukan</p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
-                                {filteredProkers.map((proker) => {
-                                    const thumbnail = proker.media?.find(m => m.is_thumbnail) || proker.media?.[0];
+                            <>
+                                <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
+                                    {prokers.map((proker) => {
+                                        const thumbnail = proker.media?.find(m => m.is_thumbnail) || proker.media?.[0];
 
-                                    return (
-                                        <div
-                                            key={proker.id}
-                                            onClick={() => {
-                                                sessionStorage.setItem('prokersScrollY', window.scrollY.toString());
-                                                router.visit(`/prokers/${proker.id}`);
-                                            }}
-                                            className="bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-all transform hover:-translate-y-1 flex flex-col"
-                                        >
-                                            {thumbnail && (
-                                                <div className="relative h-32 md:h-48 overflow-hidden shrink-0">
-                                                    {thumbnail.media_type === 'image' ? (
-                                                        <img
-                                                            src={thumbnail.media_url}
-                                                            alt={proker.title}
-                                                            loading="lazy"
-                                                            decoding="async"
-                                                            className="w-full h-full object-cover"
-                                                        />
-                                                    ) : (
-                                                        <video
-                                                            src={thumbnail.media_url}
-                                                            className="w-full h-full object-cover"
-                                                            muted
-                                                        />
-                                                    )}
-                                                    <div className="absolute top-2 right-2 md:top-4 md:right-4">
-                                                        <span className={`px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-semibold ${statusColors[proker.status]}`}>
-                                                            {statusLabels[proker.status]}
-                                                        </span>
+                                        return (
+                                            <div
+                                                key={proker.id}
+                                                onClick={() => {
+                                                    sessionStorage.setItem('prokersScrollY', window.scrollY.toString());
+                                                    router.visit(`/prokers/${proker.id}`);
+                                                }}
+                                                className="bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-all transform hover:-translate-y-1 flex flex-col"
+                                            >
+                                                {thumbnail && (
+                                                    <div className="relative h-32 md:h-48 overflow-hidden shrink-0">
+                                                        {thumbnail.media_type === 'image' ? (
+                                                            <img
+                                                                src={thumbnail.media_url}
+                                                                alt={proker.title}
+                                                                loading="lazy"
+                                                                decoding="async"
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                        ) : (
+                                                            <video
+                                                                src={thumbnail.media_url}
+                                                                className="w-full h-full object-cover"
+                                                                muted
+                                                            />
+                                                        )}
+                                                        <div className="absolute top-2 right-2 md:top-4 md:right-4">
+                                                            <span className={`px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-semibold ${statusColors[proker.status]}`}>
+                                                                {statusLabels[proker.status]}
+                                                            </span>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            )}
-                                            <div className="p-3 md:p-6 flex flex-col flex-1">
-                                                <h3 className="text-sm md:text-xl font-bold text-[#3B4D3A] mb-2 md:mb-3 line-clamp-2">{proker.title}</h3>
+                                                )}
+                                                <div className="p-3 md:p-6 flex flex-col flex-1">
+                                                    <h3 className="text-sm md:text-xl font-bold text-[#3B4D3A] mb-2 md:mb-3 line-clamp-2">{proker.title}</h3>
 
-                                                <div className="space-y-1.5 md:space-y-2 mb-3 md:mb-4">
-                                                    <div className="flex items-start md:items-center gap-1.5 md:gap-2 text-xs md:text-sm text-gray-600">
-                                                        <Calendar className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0 mt-0.5 md:mt-0" />
-                                                        <span className="line-clamp-2">
-                                                            {proker.end_date && proker.end_date !== proker.date ? (
-                                                                <>
-                                                                    {new Date(proker.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
-                                                                    {' - '}
-                                                                    {new Date(proker.end_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
-                                                                </>
-                                                            ) : (
-                                                                new Date(proker.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
-                                                            )}
-                                                        </span>
+                                                    <div className="space-y-1.5 md:space-y-2 mb-3 md:mb-4">
+                                                        <div className="flex items-start md:items-center gap-1.5 md:gap-2 text-xs md:text-sm text-gray-600">
+                                                            <Calendar className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0 mt-0.5 md:mt-0" />
+                                                            <span className="line-clamp-2">
+                                                                {proker.end_date && proker.end_date !== proker.date ? (
+                                                                    <>
+                                                                        {new Date(proker.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                                        {' - '}
+                                                                        {new Date(proker.end_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                                    </>
+                                                                ) : (
+                                                                    new Date(proker.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+                                                                )}
+                                                            </span>
+                                                        </div>
+                                                        {proker.location && (
+                                                            <div className="flex items-start md:items-center gap-1.5 md:gap-2 text-xs md:text-sm text-gray-600">
+                                                                <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0 mt-0.5 md:mt-0" />
+                                                                <span className="line-clamp-1">{proker.location}</span>
+                                                            </div>
+                                                        )}
+                                                        {proker.divisions && proker.divisions.length > 0 && (
+                                                            <div className="flex items-start md:items-center gap-1.5 md:gap-2 text-xs md:text-sm text-gray-600">
+                                                                <Users className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0 mt-0.5 md:mt-0" />
+                                                                <span className="line-clamp-1">{proker.divisions.map(d => d.name).join(', ')}</span>
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                    {proker.location && (
-                                                        <div className="flex items-start md:items-center gap-1.5 md:gap-2 text-xs md:text-sm text-gray-600">
-                                                            <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0 mt-0.5 md:mt-0" />
-                                                            <span className="line-clamp-1">{proker.location}</span>
-                                                        </div>
-                                                    )}
-                                                    {proker.divisions && proker.divisions.length > 0 && (
-                                                        <div className="flex items-start md:items-center gap-1.5 md:gap-2 text-xs md:text-sm text-gray-600">
-                                                            <Users className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0 mt-0.5 md:mt-0" />
-                                                            <span className="line-clamp-1">{proker.divisions.map(d => d.name).join(', ')}</span>
-                                                        </div>
-                                                    )}
-                                                </div>
 
-                                                <div className="mt-auto">
-                                                    {proker.description && (
-                                                        <p className="text-[10.5px] md:text-sm text-gray-600 line-clamp-2 mb-3 md:mb-4">{proker.description}</p>
-                                                    )}
+                                                    <div className="mt-auto">
+                                                        {proker.description && (
+                                                            <p className="text-[10.5px] md:text-sm text-gray-600 line-clamp-2 mb-3 md:mb-4">{proker.description}</p>
+                                                        )}
 
-                                                    {proker.media && proker.media.length > 0 && (
-                                                        <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-[#3B4D3A] font-semibold">
-                                                            <span>{proker.media.length} Media</span>
-                                                        </div>
-                                                    )}
+                                                        {proker.media && proker.media.length > 0 && (
+                                                            <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-[#3B4D3A] font-semibold">
+                                                                <span>{proker.media.length} Media</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
+                                        );
+                                    })}
+                                </div>
+
+                                <div className="mt-10">
+                                    <Pagination
+                                        currentPage={pagination.current_page}
+                                        lastPage={pagination.last_page}
+                                        total={pagination.total}
+                                        perPage={pagination.per_page}
+                                        from={pagination.from}
+                                        to={pagination.to}
+                                        onPageChange={(p) => {
+                                            setPage(p);
+                                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                                        }}
+                                    />
+                                </div>
+                            </>
                         )}
                     </div>
                 </div>

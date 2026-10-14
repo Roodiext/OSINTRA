@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Plus, Edit, Trash2, Search, Eye, Users, Image, Calendar, MapPin } from 'lucide-react';
@@ -6,9 +6,20 @@ import type { Proker, Division } from '@/types';
 import Swal from 'sweetalert2';
 import api from '@/lib/axios';
 import { usePermissionAlert } from '@/hooks/usePermissionAlert';
+import Pagination from '@/components/ui/Pagination';
+
+interface PaginatedData<T> {
+    data: T[];
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number | null;
+    to: number | null;
+}
 
 interface ProkersPageProps {
-    prokers: Proker[];
+    prokers: PaginatedData<Proker>;
     divisions: Division[];
     permissions?: {
         can_view: boolean;
@@ -18,13 +29,18 @@ interface ProkersPageProps {
     };
 }
 
-const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divisions = [], permissions = {} }) => {
+const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: paginatedProkers, divisions = [], permissions = {} }) => {
     const { props } = usePage<{ flash?: { permission_message?: string } }>();
     usePermissionAlert(props.flash?.permission_message);
-    const prokers = initialProkers || [];
-    const [searchQuery, setSearchQuery] = useState('');
-    const [filterDivision, setFilterDivision] = useState<string>('');
-    const [filterStatus, setFilterStatus] = useState<string>('');
+    
+    const prokers = paginatedProkers?.data || [];
+    const pagination = paginatedProkers || { current_page: 1, last_page: 1, per_page: 10, total: 0, from: null, to: null };
+    
+    // Read URL query params for initial filter state
+    const urlParams = new URLSearchParams(window.location.search);
+    const [searchQuery, setSearchQuery] = useState(urlParams.get('search') || '');
+    const [filterDivision, setFilterDivision] = useState<string>(urlParams.get('division') || '');
+    const [filterStatus, setFilterStatus] = useState<string>(urlParams.get('status') || '');
     const [showModal, setShowModal] = useState(false);
 
     const [editingProker, setEditingProker] = useState<Proker | null>(null);
@@ -54,15 +70,50 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
         }
     };
 
-    const filteredProkers = prokers.filter(proker => {
-        const matchesSearch = proker.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            proker.description?.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesDivision = !filterDivision ||
-            (proker.divisions && proker.divisions.some(d => d.id.toString() === filterDivision)) ||
-            (proker.division_id && proker.division_id.toString() === filterDivision);
-        const matchesStatus = !filterStatus || proker.status === filterStatus;
-        return matchesSearch && matchesDivision && matchesStatus;
-    });
+    // Server-side navigation for search/filter/pagination
+    const navigateWithFilters = useCallback((overrides: Record<string, string | number> = {}) => {
+        const params: Record<string, string> = {};
+        const search = overrides.search !== undefined ? String(overrides.search) : searchQuery;
+        const division = overrides.division !== undefined ? String(overrides.division) : filterDivision;
+        const status = overrides.status !== undefined ? String(overrides.status) : filterStatus;
+        const page = overrides.page !== undefined ? String(overrides.page) : '1';
+
+        if (search) params.search = search;
+        if (division) params.division = division;
+        if (status) params.status = status;
+        if (page && page !== '1') params.page = page;
+
+        router.visit('/dashboard/prokers', {
+            data: params,
+            preserveState: true,
+            preserveScroll: true,
+            only: ['prokers'],
+        });
+    }, [searchQuery, filterDivision, filterStatus]);
+
+    // Debounced search
+    const searchTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+    const handleSearchChange = (value: string) => {
+        setSearchQuery(value);
+        if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+        searchTimeoutRef.current = setTimeout(() => {
+            navigateWithFilters({ search: value, page: 1 });
+        }, 400);
+    };
+
+    const handleDivisionChange = (value: string) => {
+        setFilterDivision(value);
+        navigateWithFilters({ division: value, page: 1 });
+    };
+
+    const handleStatusChange = (value: string) => {
+        setFilterStatus(value);
+        navigateWithFilters({ status: value, page: 1 });
+    };
+
+    const handlePageChange = (page: number) => {
+        navigateWithFilters({ page });
+    };
 
     const handleOpenModal = (proker?: Proker) => {
         setErrors({});
@@ -264,14 +315,14 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
                                     type="text"
                                     placeholder="Cari proker..."
                                     value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    onChange={(e) => handleSearchChange(e.target.value)}
                                     className="w-full pl-12 pr-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
                                 />
                             </div>
 
                             <select
                                 value={filterDivision}
-                                onChange={(e) => setFilterDivision(e.target.value)}
+                                onChange={(e) => handleDivisionChange(e.target.value)}
                                 className="px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
                             >
                                 <option value="">Semua Divisi</option>
@@ -282,7 +333,7 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
 
                             <select
                                 value={filterStatus}
-                                onChange={(e) => setFilterStatus(e.target.value)}
+                                onChange={(e) => handleStatusChange(e.target.value)}
                                 className="px-4 py-3 bg-[#F5F5F5] border-2 border-transparent rounded-xl focus:border-[#3B4D3A] focus:bg-white outline-none transition-all"
                             >
                                 <option value="">Semua Status</option>
@@ -295,7 +346,7 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
 
                     {/* Prokers Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredProkers.map((proker) => {
+                        {prokers.map((proker) => {
                             const thumbnail = proker.media?.find(m => m.is_thumbnail) || proker.media?.find(m => m.media_type === 'image');
 
                             return (
@@ -405,12 +456,24 @@ const ProkersPage: React.FC<ProkersPageProps> = ({ prokers: initialProkers, divi
                         })}
                     </div>
 
-                    {filteredProkers.length === 0 && (
+                    {prokers.length === 0 && (
                         <div className="bg-white rounded-xl shadow-md p-12 text-center">
                             <Image className="w-16 h-16 text-[#6E8BA3] mx-auto mb-4" />
                             <p className="text-[#6E8BA3] text-lg font-medium">Tidak ada proker ditemukan</p>
                         </div>
                     )}
+
+                    {/* Pagination */}
+                    <Pagination
+                        currentPage={pagination.current_page}
+                        lastPage={pagination.last_page}
+                        total={pagination.total}
+                        perPage={pagination.per_page}
+                        from={pagination.from}
+                        to={pagination.to}
+                        onPageChange={handlePageChange}
+                        className="mt-6"
+                    />
                 </div>
 
                 {/* Add/Edit Modal */}
